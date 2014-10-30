@@ -1,0 +1,115 @@
+DIR_LIBICONV="libiconv-1.14"
+SRC_LIBICONV="$DIR_LIBICONV.tar.gz"
+URL_LIBICONV="http://ftp.gnu.org/pub/gnu/libiconv/$SRC_LIBICONV"
+CHK_LIBICONV="be7d67e50d72ff067b2c0291311bc283add36965"
+SUM_LIBICONV="sha1"
+BLD_LIBICONV() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_LIBICONV() {
+  :
+}
+
+DIR_PKGCONFIG="pkg-config-0.28"
+SRC_PKGCONFIG="$DIR_PKGCONFIG.tar.gz"
+URL_PKGCONFIG="http://pkgconfig.freedesktop.org/releases/$SRC_PKGCONFIG"
+CHK_PKGCONFIG="71853779b12f958777bffcb8ca6d849b4d3bed46"
+SUM_PKGCONFIG="sha1"
+BLD_PKGCONFIG() {
+  ./configure "--prefix=$INSTALL_DIR" --with-internal-glib
+  make
+  make install
+}
+PST_PKGCONFIG() {
+  :
+}
+
+DIR_LIBFFI="libffi-3.1"
+SRC_LIBFFI="$DIR_LIBFFI.tar.gz"
+URL_LIBFFI="ftp://sourceware.org/pub/libffi/$SRC_LIBFFI"
+CHK_LIBFFI="f5898b29bbfd70502831a212d9249d10"
+SUM_LIBFFI="md5"
+BLD_LIBFFI() {
+  ./configure "--prefix=$INSTALL_DIR"
+  sed -i 's/tail -1/tail -n 1/g' Makefile
+  make
+  make install
+}
+PST_LIBFFI() {
+  CPPFLAGS="$CPPFLAGS -I$INSTALL_DIR/lib/$DIR_LIBFFI/include"
+  LDFLAGS="$LDFLAGS -L$INSTALL_DIR/lib64"
+  LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$INSTALL_DIR/lib64"
+}
+
+DIR_BDB="db-4.8.30"
+SRC_BDB="$DIR_BDB.tar.gz"
+URL_BDB="http://download.oracle.com/berkeley-db/$SRC_BDB"
+CHK_BDB="ab36c170dda5b2ceaad3915ced96e41c6b7e493c"
+SUM_BDB="sha1"
+BLD_BDB() {
+  cd build_unix
+  ../dist/configure "--prefix=$INSTALL_DIR"
+}
+PST_BDB() {
+  :
+}
+
+DIR_GDBM="gdbm-1.11"
+SRC_GDBM="$DIR_GDBM.tar.gz"
+URL_GDBM="ftp://ftp.gnu.org/gnu/gdbm/$SRC_GDBM"
+CHK_GDBM="72c832680cf0999caedbe5b265c8c1bd"
+SUM_GDBM="md5"
+BLD_GDBM() {
+  ./configure "--prefix=$INSTALL_DIR" --enable-libgdbm-compat
+  make
+  make install
+}
+PST_GDBM() {
+  :
+}
+
+DIR_BZIP2="bzip2-1.0.6"
+SRC_BZIP2="$DIR_BZIP2.tar.gz"
+URL_BZIP2="http://www.bzip.org/1.0.6/$SRC_BZIP2"
+CHK_BZIP2="00b516f4704d4a7cb50a1d97e6e8e15b"
+SUM_BZIP2="md5"
+BLD_BZIP2() {
+  make
+  make install "PREFIX=$INSTALL_DIR"
+}
+PST_BZIP2() {
+  :
+}
+
+DIR_ZLIB="zlib-1.2.8"
+SRC_ZLIB="$DIR_ZLIB.tar.gz"
+URL_ZLIB="http://zlib.net/$SRC_ZLIB"
+CHK_ZLIB="44d667c142d7cda120332623eab69f40"
+SUM_ZLIB="md5"
+BLD_ZLIB() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_ZLIB() {
+  :
+}
+
+VER_PYTHON="2.7.8"
+DIR_PYTHON="Python-$VER_PYTHON"
+SRC_PYTHON="$DIR_PYTHON.tgz"
+URL_PYTHON="http://www.python.org/ftp/python/$VER_PYTHON/$SRC_PYTHON"
+CHK_PYTHON="d4bca0159acb0b44a781292b5231936f"
+SUM_PYTHON="md5"
+BLD_PYTHON() {
+  ./configure "--prefix=$INSTALL_DIR" --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi
+  make
+  make install
+}
+PST_PYTHON() {
+  :
+}
+
+PACKAGES=(LIBICONV PKGCONFIG LIBFFI BDB GDBM BZIP2 ZLIB PYTHON)
