@@ -111,6 +111,34 @@ PST_SQLITE() {
   :
 }
 
+DIR_NCURSES="ncurses-5.9"
+SRC_NCURSES="$DIR_NCURSES.tar.gz"
+URL_NCURSES="http://ftp.gnu.org/pub/gnu/ncurses/$SRC_NCURSES"
+CHK_NCURSES="3e042e5f2c7223bffdaac9646a533b8c758b65b5"
+SUM_NCURSES="sha1"
+BLD_NCURSES() {
+  ./configure "--prefix=$INSTALL_DIR" --with-shared
+  make
+  make install
+}
+PST_NCURSES() {
+  CPPFLAGS="$CPPFLAGS -I$INSTALL_DIR/include/ncurses"
+}
+
+DIR_READLINE="readline-6.3"
+SRC_READLINE="$DIR_READLINE.tar.gz"
+URL_READLINE="ftp://ftp.gnu.org/gnu/readline/$SRC_READLINE"
+CHK_READLINE="017b92dc7fd4e636a2b5c9265a77ccc05798c9e1"
+SUM_READLINE="sha1"
+BLD_READLINE() {
+  ./configure "--prefix=$INSTALL_DIR" --with-curses
+  make SHLIB_LIBS=-lncurses
+  make install
+}
+PST_READLINE() {
+  :
+}
+
 VER_PYTHON="2.7.8"
 DIR_PYTHON="Python-$VER_PYTHON"
 SRC_PYTHON="$DIR_PYTHON.tgz"
@@ -126,4 +154,14 @@ PST_PYTHON() {
   :
 }
 
-PACKAGES=(LIBICONV PKGCONFIG LIBFFI BDB GDBM BZIP2 ZLIB SQLITE PYTHON)
+PACKAGES=(LIBICONV
+          PKGCONFIG
+          LIBFFI
+          BDB
+          GDBM
+          BZIP2
+          ZLIB
+          SQLITE
+          NCURSES
+          READLINE
+          PYTHON)

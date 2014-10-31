@@ -1,5 +1,5 @@
 #!/bin/bash
-# build enough to get weave and fold working
+# build enough to get weave, fold and salt working
 set -e
 HERE="$(dirname "$0")"
 . "$HERE/packages"
