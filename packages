@@ -51,6 +51,8 @@ SUM_BDB="sha1"
 BLD_BDB() {
   cd build_unix
   ../dist/configure "--prefix=$INSTALL_DIR"
+  make
+  make install
 }
 PST_BDB() {
   :
@@ -76,8 +78,11 @@ URL_BZIP2="http://www.bzip.org/1.0.6/$SRC_BZIP2"
 CHK_BZIP2="00b516f4704d4a7cb50a1d97e6e8e15b"
 SUM_BZIP2="md5"
 BLD_BZIP2() {
+  make -f Makefile-libbz2_so
   make
   make install "PREFIX=$INSTALL_DIR"
+  cp -a libbz2.so* "$INSTALL_DIR/lib"
+  ( cd "$INSTALL_DIR/lib"; ln -s libbz2.so.1.0 libbz2.so )
 }
 PST_BZIP2() {
   :
@@ -139,6 +144,38 @@ PST_READLINE() {
   :
 }
 
+# Perl is needed by OpenSSL!
+DIR_PERL="perl-5.20.1"
+SRC_PERL="$DIR_PERL.tar.gz"
+URL_PERL="http://www.cpan.org/src/5.0/$SRC_PERL"
+CHK_PERL="fef10210f9e6f4dc2d190be0aee8e1fa2af664630f1d415868d33eebca26d4b5"
+SUM_PERL="sha256"
+BLD_PERL() {
+  ./Configure -de "-Dprefix=$INSTALL_DIR" -Dusenm=n < /dev/null
+  make
+  make install
+}
+PST_PERL() {
+  :
+}
+
+DIR_OPENSSL="openssl-1.0.1j"
+SRC_OPENSSL="$DIR_OPENSSL.tar.gz"
+URL_OPENSSL="https://www.openssl.org/source/$SRC_OPENSSL"
+CHK_OPENSSL="cff86857507624f0ad42d922bb6f77c4f1c2b819"
+SUM_OPENSSL="sha1"
+BLD_OPENSSL() {
+  ./config "--openssldir=$INSTALL_DIR/ssl" shared no-ssl2 no-ssl3
+  make depend
+  make
+  make install
+}
+PST_OPENSSL() {
+  CPPFLAGS="$CPPFLAGS -I$INSTALL_DIR/ssl/include"
+  LDFLAGS="$LDFLAGS -L$INSTALL_DIR/ssl/lib"
+  LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$INSTALL_DIR/ssl/lib"
+}
+
 VER_PYTHON="2.7.8"
 DIR_PYTHON="Python-$VER_PYTHON"
 SRC_PYTHON="$DIR_PYTHON.tgz"
@@ -164,4 +201,6 @@ PACKAGES=(LIBICONV
           SQLITE
           NCURSES
           READLINE
+          PERL
+          OPENSSL
           PYTHON)
