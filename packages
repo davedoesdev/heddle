@@ -191,6 +191,51 @@ PST_PYTHON() {
   :
 }
 
+DIR_GO="go"
+SRC_GO="${DIR_GO}1.3.3.src.tar.gz"
+URL_GO="https://storage.googleapis.com/golang/$SRC_GO"
+CHK_GO="b54b7deb7b7afe9f5d9a3f5dd830c7dede35393a"
+SUM_GO="sha1"
+BLD_GO() {
+  patch -p0 <<EOF
+--- src/lib9/dirfwstat.c.old
++++ src/lib9/dirfwstat.c
+@@ -32,7 +32,26 @@
+ #include <sys/stat.h>
+ 
+ #if defined(__FreeBSD__) || defined(__APPLE__) || defined(__OpenBSD__) || defined(__linux__)
+-/* do nothing -- futimes exists and is fine */
++#define TIMEVAL_TO_TIMESPEC(tv, ts) {                                  \\
++        (ts)->tv_sec = (tv)->tv_sec;                                   \\
++        (ts)->tv_nsec = (tv)->tv_usec * 1000;                          \\
++} 
++static int futimes(const int fd, const struct timeval tvp[2])
++{
++	struct timespec ts[2], *pts = ts;
++
++	if (tvp)
++	{
++		TIMEVAL_TO_TIMESPEC(&tvp[0], &ts[0]); 
++		TIMEVAL_TO_TIMESPEC(&tvp[1], &ts[1]); 
++	}
++	else
++	{
++		pts = 0;
++	}
++
++	return futimens(fd, pts);
++}
+ 
+ #elif defined(__SunOS5_9__)
+ /* use futimesat */
+EOF
+  cd src
+  ./all.bash
+}
+PST_GO() {
+  :
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -203,4 +248,5 @@ PACKAGES=(LIBICONV
           READLINE
           PERL
           OPENSSL
-          PYTHON)
+          PYTHON
+          GO)

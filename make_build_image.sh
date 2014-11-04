@@ -15,6 +15,7 @@ copy() {
 }
 
 copy build.sh init
+copy make_chroot.sh
 copy packages
 
 . ./packages
