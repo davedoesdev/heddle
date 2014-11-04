@@ -1,0 +1,95 @@
+In aboriginal-1.2.9:
+
+Add these lines to sources/baseconfig-uClibc:
+
+UCLIBC_HAS_THREADS=y
+UCLIBC_HAS_TLS=y
+UCLIBC_HAS_STDIO_FUTEXES=y
+UCLIBC_HAS_SSP=y
+
+Remove this line from sources/targets/x86_64:
+
+LINUXTHREADS_OLD=y
+
+Add this as file sources/patches/uClibc-pthread_once.patch:
+
+diff -u a/libpthread/nptl/sysdeps/unix/sysv/linux/x86_64/pthread_once.S b/libpthread/nptl/sysdeps/unix/sysv/linux/x86_64/pthread_once.S
+--- a/libpthread/nptl/sysdeps/unix/sysv/linux/x86_64/pthread_once.S
++++ b/libpthread/nptl/sysdeps/unix/sysv/linux/x86_64/pthread_once.S
+@@ -23,6 +23,7 @@
+ #include <lowlevellock.h>
+ 
+ 
++	.hidden	__fork_generation
+ 	.comm	__fork_generation, 4, 4
+ 
+ 	.text
+
+
+
+
+
+
+Add these lines to sources/baseconfig-linux?
+
+CONFIG_CGROUPS=y
+CONFIG_*_NS?
+CONFIG_IP_MULTICAST=y?
+probably lots of others
+
+
+Change run-emulator.sh to use kvm instead of qemu-system-x86_64
+
+Then:
+
+./build.sh x86_64
+
+#In control-images-1.1.0:
+#
+#./build.sh lfs-bootstrap
+#
+#Then in aboriginal-1.2.9/build/system-image-x86_64:
+#
+#./native-build.sh ../../../control-images-1.1.0/build/lfs-bootstrap.hdc 
+
+Then in aboriginal-1.2.9/build/system-image-x86_64:
+
+HDC=/home/david/heddle/build.img QEMU_MEMORY=1024 ./dev-environment.sh
+
+---
+
+# Wget with HTTPS support
+wget ftp://ftp.gnu.org/gnu/wget/wget-1.15.tar.gz
+tar xf wget-1.15.tar.gz
+rm -f wget-1.15.tar.gz
+cd wget-1.15
+./configure --with-ssl=openssl --with-libssl-prefix=/usr/ssl
+make
+make install
+cd ..
+rm -rf wget-1.15
+
+# pip
+wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
+rm get-pip.py
+
+# Docker
+# Weave
+# nfdhcpd
+# kvm
+# capstan
+# Fold
+# Saltstack
+
+#TODO
+# Remove source once built
+
+---
+Later we can combine to make it all bootable
+And we can have a /dev/hdc whose /mnt/init does boot tasks like resizing hdb
+and configuring networking
+Although it will be partitions on a real machine and each machine will be different so maybe just example scripts
+
+Use salt to update image itself. 
+
