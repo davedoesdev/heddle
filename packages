@@ -230,7 +230,10 @@ BLD_GO() {
  /* use futimesat */
 EOF
   cd src
+  chroot "$CHROOT_DIR" ash <<EOF
+  cd "$PWD"
   ./all.bash
+EOF
 }
 PST_GO() {
   :

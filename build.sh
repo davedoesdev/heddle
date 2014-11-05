@@ -4,8 +4,10 @@ set -e
 HERE="$(dirname "$0")"
 . "$HERE/packages"
 
+# TODO: these lines should be in a startup script
 ifconfig lo 127.0.0.1
-"$HERE/make_chroot.sh"
+CHROOT_DIR="$HOME/chroot"
+"$HERE/make_chroot.sh" "$CHROOT_DIR"
 
 SRC_DIR="$HOME/source"
 export INSTALL_DIR="$HOME/install"
@@ -35,7 +37,7 @@ for pkg in "${PACKAGES[@]}"; do
   vdir="DIR_$pkg"
   vsrc="SRC_$pkg"
   if [ -z "$Interactive" -a ! -e "${!vdir}" ]; then
-    tar xf "$HERE/download/${!vsrc}"
+    tar -xf "$HERE/download/${!vsrc}"
     pushd "${!vdir}"
     BLD_$pkg
     popd
@@ -43,7 +45,7 @@ for pkg in "${PACKAGES[@]}"; do
   PST_$pkg
 done
 
-[ -n "$interactive" -o -n "$Interactive" ] && chroot "$HOME/chroot" ash
+[ -n "$interactive" -o -n "$Interactive" ] && chroot "$CHROOT_DIR" ash
 
 # Cleanup source
 # Support image upgrade
