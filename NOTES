@@ -25,20 +25,16 @@ diff -u a/libpthread/nptl/sysdeps/unix/sysv/linux/x86_64/pthread_once.S b/libpth
  
  	.text
 
+Add these lines to sources/baseconfig-linux
 
+CONFIG_IP_MULTICAST=y
 
-
-
-
-Add these lines to sources/baseconfig-linux?
-
-CONFIG_CGROUPS=y
-CONFIG_*_NS?
-CONFIG_IP_MULTICAST=y?
+? CONFIG_CGROUPS=y
+? CONFIG_*_NS
+? CONFIG_IPV6=y
 probably lots of others
 
-
-Change run-emulator.sh to use kvm instead of qemu-system-x86_64
+In system-image.sh, function qemu_defaults(), add -enable-kvm before -nographic
 
 Then:
 

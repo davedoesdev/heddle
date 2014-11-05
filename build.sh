@@ -11,7 +11,7 @@ CHROOT_DIR="$HOME/chroot"
 
 SRC_DIR="$HOME/source"
 export INSTALL_DIR="$HOME/install"
-export PATH="$(echo $PATH | sed 's/\/usr\/distcc://'):$INSTALL_DIR/bin"
+export PATH="/usr/bin:$(echo $PATH | sed 's/\/usr\/distcc://'):$INSTALL_DIR/bin"
 export CPPFLAGS="-I$INSTALL_DIR/include"
 export LDFLAGS="-L$INSTALL_DIR/lib"
 export LD_LIBRARY_PATH="$INSTALL_DIR/lib"
