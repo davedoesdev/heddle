@@ -50,7 +50,7 @@ Then:
 
 Then in aboriginal-1.2.9/build/system-image-x86_64:
 
-HDC=/home/david/heddle/build.img QEMU_MEMORY=1024 ./dev-environment.sh
+HDC=/home/david/heddle/build.img QEMU_MEMORY=2048 ./dev-environment.sh
 
 ---
 

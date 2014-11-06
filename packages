@@ -191,14 +191,55 @@ PST_PYTHON() {
   :
 }
 
+# PCRE for Go (one of the tests complains without it)
+DIR_PCRE="pcre-8.36"
+SRC_PCRE="$DIR_PCRE.tar.gz"
+URL_PCRE="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/$SRC_PCRE"
+CHK_PCRE="b37544f33caed0cc502a1e729c3b1d3df5086dcc819b9125c30700c239246c9e"
+SUM_PCRE="sha256"
+BLD_PCRE() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_PCRE() {
+  :
+}
+
+# Race detector for Go
+VER_LLVM_COMPILER_RT="3.5.0"
+DIR_LLVM_COMPILER_RT="compiler-rt-$VER_LLVM_COMPILER_RT.src"
+SRC_LLVM_COMPILER_RT="$DIR_LLVM_COMPILER_RT.tar.xz"
+URL_LLVM_COMPILER_RT="http://llvm.org/releases/$VER_LLVM_COMPILER_RT/$SRC_LLVM_COMPILER_RT"
+CHK_LLVM_COMPILER_RT="a4b3e655832bf8d9a357ea2c771db347237460e131988cbb96cda40ff39a8136"
+SUM_LLVM_COMPILER_RT="sha256"
+BLD_LLVM_COMPILER_RT() {
+  cd lib/tsan/go
+  # We have an old version of bash without '+='.
+  # Remove when we get a new version.
+  sed -i -E 's/([A-Z]+)\+=/\1="$\1"/g' buildgo.sh
+  # We have an old version of gcc which doesn't suport these options.
+  # Remove when we get a new one.
+  sed -i 's/-Wno-maybe-uninitialized//g' buildgo.sh
+  sed -i 's/-Wno-unused-const-variable//g' buildgo.sh
+  sed -i 's/-Wno-unknown-warning-option//g' buildgo.sh
+  sed -i 's/-std=c++11//g' buildgo.sh
+  sed -i 's/-ffreestanding/-fno-strict-aliasing -D__libc_malloc=malloc -D__libc_free=free -D__libc_mallinfo=mallinfo -Dnullptr=0/g' buildgo.sh
+  ./buildgo.sh
+}
+PST_LLVM_COMPILER_RT() {
+  :
+}
+
 DIR_GO="go"
 SRC_GO="${DIR_GO}1.3.3.src.tar.gz"
 URL_GO="https://storage.googleapis.com/golang/$SRC_GO"
 CHK_GO="b54b7deb7b7afe9f5d9a3f5dd830c7dede35393a"
 SUM_GO="sha1"
 BLD_GO() {
+  # uClibC doesn't have futimes
   patch -p0 <<EOF
---- src/lib9/dirfwstat.c.old
+--- src/lib9/dirfwstat.c.orig
 +++ src/lib9/dirfwstat.c
 @@ -32,7 +32,26 @@
  #include <sys/stat.h>
@@ -229,14 +270,48 @@ BLD_GO() {
  #elif defined(__SunOS5_9__)
  /* use futimesat */
 EOF
-  cd src
-  chroot "$CHROOT_DIR" ash <<EOF
-  cd "$PWD"
-  ./all.bash
+
+  # Race detector crashes under uClibC so disable for now :(
+  patch -p0 <<EOF
+--- src/run.bash.orig
++++ src/run.bash
+@@ -67,7 +67,7 @@
+ # Race detector only supported on Linux and OS X,
+ # and only on amd64, and only when cgo is enabled.
+ case "\$GOHOSTOS-\$GOOS-\$GOARCH-\$CGO_ENABLED" in
+-linux-linux-amd64-1 | darwin-darwin-amd64-1)
++xlinux-linux-amd64-1 | darwin-darwin-amd64-1)
+ 	echo
+ 	echo '# Testing race detector.'
+ 	go test -race -i runtime/race flag
 EOF
+
+  # We have an old version of gcc which doesn't add -lpthread for -pthread
+  # Remove when we get a new version.
+  patch -p0 <<EOF
+--- src/cmd/go/build.go.orig
++++ src/cmd/go/build.go
+@@ -1983,6 +1983,7 @@
+ 	} else {
+ 		cmd = b.gccCmd(p.Dir)
+ 	}
++	cmd = append(cmd, "-lpthread")
+ 	return b.run(p.Dir, p.ImportPath, nil, cmd, "-o", out, obj, flags)
+ }
+ 
+EOF
+
+  # Copy race detector we built from source
+  cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/pkg/runtime/race
+  chroot "$CHROOT_DIR" ash <<EOF
+  cd "$PWD/src"
+  GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
+EOF
+  rm -rf "$INSTALL_DIR/go"
+  cp -a "$PWD" "$INSTALL_DIR/go"
 }
 PST_GO() {
-  :
+  PATH="$PATH:$INSTALL_DIR/go/bin"
 }
 
 PACKAGES=(LIBICONV
@@ -252,4 +327,6 @@ PACKAGES=(LIBICONV
           PERL
           OPENSSL
           PYTHON
+          PCRE
+          LLVM_COMPILER_RT
           GO)

@@ -41,4 +41,19 @@ for pkg in "${PACKAGES[@]}"; do
   fi
 done
 
-e2ls -l "$IMG_BUILD:download"
+e2ls -l "$IMG_BUILD:download" | awk '{if (NF > 0) print $NF}' | while read f; do
+  found=0
+  for pkg in "${PACKAGES[@]}"; do
+    vsrc="SRC_$pkg"
+    if [ "$f" = "${!vsrc}" ]; then
+      found=1
+    fi
+  done
+  if [ "$found" -eq 0 ]; then
+    echo "Removing package: $f"
+    e2rm "$IMG_BUILD:download/$f"
+  fi
+done
+
+echo "Packages:"
+e2ls "$IMG_BUILD:download"
