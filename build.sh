@@ -10,7 +10,7 @@ CHROOT_DIR="$HOME/chroot"
 
 SOURCE_DIR="$HOME/source"
 export INSTALL_DIR="$HOME/install"
-export PATH="/usr/bin:$(echo $PATH | sed 's/\/usr\/distcc://'):$INSTALL_DIR/bin"
+export PATH="/usr/bin:$(echo $PATH | sed 's/\/usr\/distcc://'):$INSTALL_DIR/bin:$INSTALL_DIR/sbin"
 export CPPFLAGS="-I$INSTALL_DIR/include"
 export LDFLAGS="-L$INSTALL_DIR/lib"
 export LD_LIBRARY_PATH="$INSTALL_DIR/lib"
@@ -38,6 +38,7 @@ for pkg in "${PACKAGES[@]}"; do
   vsrc="SRC_$pkg"
   if [ -z "$Interactive" -a ! -e "${!vdir}" ]; then
     tar -xf "$HERE/download/${!vsrc}"
+    tar -xf "$HERE/supplemental.tar.gz" "${!vdir}" >& /dev/null || true
     pushd "${!vdir}"
     BLD_$pkg
     popd

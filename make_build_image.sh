@@ -21,6 +21,9 @@ copy make_chroot.sh
 (cd chroot; tar -zcf ../chroot.tar.gz *)
 copy chroot.tar.gz
 
+(cd supplemental; tar -zcf ../supplemental.tar.gz *)
+copy supplemental.tar.gz
+
 . ./packages
 e2mkdir "$IMG_BUILD:download"
 

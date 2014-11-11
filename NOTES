@@ -11,6 +11,35 @@ Remove this line from sources/targets/x86_64:
 
 LINUXTHREADS_OLD=y
 
+In sources/sections/uClibc++.build, change:
+
+to:
+
+sed -r -i 's/(UCLIBCXX_HAS_(LONG_DOUBLE))=y/# \1 is not set/' .config &&
+sed -r -i 's/# (UCLIBCXX_HAS_(WCHAR)) is not set/\1=y/' .config &&
+
+These settings need automating:
+??UCLIBCXX_SUPPORT_WCIN=y
+??UCLIBCXX_SUPPORT_WCOUT=y
+??UCLIBCXX_SUPPORT_WCERR=y
+??UCLIBCXX_SUPPORT_WCLOG=n
+
+Apply this patch:
+
+--- download.sh.orig	2014-11-10 22:34:19.208069350 +0000
++++ download.sh	2014-11-10 22:36:00.704064619 +0000
+@@ -81,8 +81,8 @@
+ 
+ # These are optional parts of the native root filesystem.
+ 
+-URL=http://cxx.uclibc.org/src/uClibc++-0.2.2.tar.bz2 \
+-SHA1=f5582d206378d7daee6f46609c80204c1ad5c0f7 \
++URL=http://cxx.uclibc.org/src/uClibc++-0.2.4.tar.bz2 \
++SHA1=ffadcb8555a155896a364a9b954f19d09972cb83 \
+ maybe_fork "download || dienow"
+ 
+ URL=http://distcc.googlecode.com/files/distcc-3.1.tar.bz2 \
+
 Add this as file sources/patches/uClibc-pthread_once.patch:
 
 diff -u a/libpthread/nptl/sysdeps/unix/sysv/linux/x86_64/pthread_once.S b/libpthread/nptl/sysdeps/unix/sysv/linux/x86_64/pthread_once.S
@@ -24,6 +53,8 @@ diff -u a/libpthread/nptl/sysdeps/unix/sysv/linux/x86_64/pthread_once.S b/libpth
  	.comm	__fork_generation, 4, 4
  
  	.text
+
+Remove sources/patches/uClibc++-unwind-cxx.patch
 
 Add these lines to sources/baseconfig-linux
 

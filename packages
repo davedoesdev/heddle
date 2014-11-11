@@ -176,6 +176,21 @@ PST_OPENSSL() {
   LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$INSTALL_DIR/ssl/lib"
 }
 
+VER_EXPAT="2.1.0"
+DIR_EXPAT="expat-$VER_EXPAT"
+SRC_EXPAT="$DIR_EXPAT.tar.gz"
+URL_EXPAT="http://downloads.sourceforge.net/project/expat/expat/$VER_EXPAT/$SRC_EXPAT"
+CHK_EXPAT="823705472f816df21c8f6aa026dd162b280806838bb55b3432b0fb1fcca7eb86"
+SUM_EXPAT="sha256"
+BLD_EXPAT() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_EXPAT() {
+  :
+}
+
 VER_PYTHON="2.7.8"
 DIR_PYTHON="Python-$VER_PYTHON"
 SRC_PYTHON="$DIR_PYTHON.tgz"
@@ -183,7 +198,7 @@ URL_PYTHON="http://www.python.org/ftp/python/$VER_PYTHON/$SRC_PYTHON"
 CHK_PYTHON="d4bca0159acb0b44a781292b5231936f"
 SUM_PYTHON="md5"
 BLD_PYTHON() {
-  ./configure "--prefix=$INSTALL_DIR" --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi
+  ./configure "--prefix=$INSTALL_DIR" --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi --with-system-expat
   make
   make install
 }
@@ -311,6 +326,148 @@ PST_GO() {
   PATH="$PATH:$INSTALL_DIR/go/bin"
 }
 
+DIR_LIBAIO="libaio-0.3.110-1"
+SRC_LIBAIO="$DIR_LIBAIO.tar.gz"
+URL_LIBAIO="https://git.fedorahosted.org/cgit/libaio.git/snapshot/$SRC_LIBAIO"
+CHK_LIBAIO="5c69f43b71d0979b870f49a6cb9e2547ae2344575d8428698ebf5fde13b33529"
+SUM_LIBAIO="sha256"
+BLD_LIBAIO() {
+  make "prefix=$INSTALL_DIR" install
+}
+PST_LIBAIO() {
+  :
+}
+
+# Boost is required by thin-provisioning-tools - a heavy requirement!
+VER_BOOST="1.57.0"
+DIR_BOOST="boost_${VER_BOOST//./_}"
+SRC_BOOST="$DIR_BOOST.tar.gz"
+URL_BOOST="http://downloads.sourceforge.net/project/boost/boost/$VER_BOOST/$SRC_BOOST"
+CHK_BOOST="25f9a8ac28beeb5ab84aa98510305299"
+SUM_BOOST="md5"
+BLD_BOOST() {
+  patch -p0 <<EOF
+--- boost/move/algorithm.hpp.orig
++++ boost/move/algorithm.hpp
+@@ -241,7 +241,10 @@
+    /// @endcond
+    )
+ {
+-   return std::uninitialized_copy(f, l, r);
++  for (; f!=l; ++r, ++f)
++    new (static_cast<void*>(&*r))
++      typename std::iterator_traits<F>::value_type(*f);
++  return r;
+ }
+ 
+ //! <b>Effects</b>:
+EOF
+  cp -a boost "$INSTALL_DIR/include"
+}
+PST_BOOST() {
+  CPPFLAGS="$CPPFLAGS -DBOOST_NO_CXX11_SMART_PTR -DBOOST_NO_CXX11_HDR_ARRAY -DBOOST_LEXICAL_CAST_ASSUME_C_LOCALE -DBOOST_NO_CXX11_ALLOCATOR -D__GLIBC_HAVE_LONG_LONG"
+}
+
+VER_THIN_PROVISIONING_TOOLS="0.4.1"
+DIR_THIN_PROVISIONING_TOOLS="thin-provisioning-tools-$VER_THIN_PROVISIONING_TOOLS"
+SRC_THIN_PROVISIONING_TOOLS="$DIR_THIN_PROVISIONING_TOOLS.tar.gz"
+URL_THIN_PROVISIONING_TOOLS="https://github.com/jthornber/thin-provisioning-tools/archive/v$VER_THIN_PROVISIONING_TOOLS.tar.gz"
+CHK_THIN_PROVISIONING_TOOLS="59c8a787df8d4828bf9ca1b6310584f2b7723068901e20aa609015ce85df1d46"
+SUM_THIN_PROVISIONING_TOOLS="sha256"
+BLD_THIN_PROVISIONING_TOOLS() {
+  patch -p0 <<EOF
+--- caching/superblock.cc.orig
++++ caching/superblock.cc
+@@ -268,7 +268,7 @@
+ //--------------------------------
+ 
+ // anonymous namespace doesn't work for some reason
+-namespace validator {
++namespace _validator {
+ 	using namespace persistent_data;
+ 
+         uint32_t const VERSION = 1;
+@@ -303,7 +303,7 @@
+ caching::read_superblock(block_manager<>::ptr bm, block_address location)
+ {
+ 	superblock sb;
+-	block_manager<>::read_ref r = bm->read_lock(location, validator::mk_v());
++	block_manager<>::read_ref r = bm->read_lock(location, _validator::mk_v());
+ 	superblock_disk const *sbd = reinterpret_cast<superblock_disk const *>(r.data());
+ 	superblock_traits::unpack(*sbd, sb);
+ 
+@@ -313,7 +313,7 @@
+ void
+ caching::write_superblock(block_manager<>::ptr bm, superblock const &sb, block_address location)
+ {
+-	block_manager<>::write_ref w = bm->superblock_zero(location, validator::mk_v());
++	block_manager<>::write_ref w = bm->superblock_zero(location, _validator::mk_v());
+ 	superblock_traits::pack(sb, *reinterpret_cast<superblock_disk *>(w.data()));
+ }
+--- persistent-data/space-maps/disk.cc.orig
++++ persistent-data/space-maps/disk.cc
+@@ -112,7 +112,7 @@
+ 			ref_t b1 = test_bit_le(bits, b * 2);
+ 			ref_t b2 = test_bit_le(bits, b * 2 + 1);
+ 			ref_t result = b2 ? 1 : 0;
+-			result |= b1 ? 0b10 : 0;
++			result |= b1 ? 2 : 0;
+ 			return result;
+ 		}
+ 
+@@ -165,7 +165,7 @@
+ 				ref_t b1 = test_bit_le(bits, b * 2);
+ 				ref_t b2 = test_bit_le(bits, b * 2 + 1);
+ 				ref_t result = b2 ? 1 : 0;
+-				result |= b1 ? 0b10 : 0;
++				result |= b1 ? 2 : 0;
+ 				it(offset + b, result);
+ 			}
+ 		}
+--- thin-provisioning/thin_pool.cc.orig
++++ thin-provisioning/thin_pool.cc
+@@ -203,7 +203,7 @@
+ 	return md_->data_sm_->get_nr_free();
+ }
+ 
+-sector_t
++::sector_t
+ thin_pool::get_data_block_size() const
+ {
+ 	return md_->sb_.data_block_size_;
+--- thin-provisioning/thin_metadata_size.cc.orig
++++ thin-provisioning/thin_metadata_size.cc
+@@ -324,7 +324,7 @@
+ static void print_precision(struct global *g, double r, unsigned idx)
+ {
+ 	bool full = g->options.n[NUMERIC] == NO_NUMBER;
+-	double rtrunc = truncl(r);
++	double rtrunc = trunc(r);
+ 
+ 	if (full)
+ 		printf("%s - ", g->prg);
+EOF
+  ./configure "--prefix=$INSTALL_DIR"
+  CXXFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -lm" make
+  make install
+}
+PST_THIN_PROVISIONING_TOOLS() {
+  :
+}
+
+DIR_LVM="LVM2.2.02.111"
+SRC_LVM="$DIR_LVM.tgz"
+URL_LVM="ftp://sources.redhat.com/pub/lvm2/$SRC_LVM"
+CHK_LVM="6d8f3e72fe07f614315d8e0c2d9f93c5fc7a4360d14e4f9b805750e21593dd24"
+SUM_LVM="sha256"
+BLD_LVM() {
+  ./configure "--prefix=$INSTALL_DIR" --with-lvm1=none
+  make device-mapper
+}
+PST_LVM() {
+  :
+}
+
 VER_DOCKER="1.3.1"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
@@ -329,6 +486,18 @@ source() {\
   . "$@"\
   BASH_SOURCE=("${BASH_SOURCE_SAVE[@]}")\
 }/g' hack/make.sh
+  patch -p0 << EOF
+--- vendor/src/github.com/docker/libcontainer/namespaces/nsenter/nsenter.c.orig
++++ vendor/src/github.com/docker/libcontainer/namespaces/nsenter/nsenter.c
+@@ -13,6 +13,7 @@
+ #include <sys/types.h>
+ #include <unistd.h>
+ #include <getopt.h>
++#include <wait.h>
+ 
+ static const kBufSize = 256;
+ static const char *kNsEnter = "nsenter";
+EOF
   AUTO_GOPATH=1 DOCKER_GITCOMMIT=4e9bbfa CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
 }
 PST_DOCKER() {
@@ -347,8 +516,13 @@ PACKAGES=(LIBICONV
           READLINE
           PERL
           OPENSSL
+          EXPAT
           PYTHON
           PCRE
           LLVM_COMPILER_RT
           GO
+          LIBAIO
+          BOOST
+          THIN_PROVISIONING_TOOLS
+          LVM
           DOCKER)
