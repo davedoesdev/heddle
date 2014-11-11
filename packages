@@ -446,6 +446,34 @@ BLD_THIN_PROVISIONING_TOOLS() {
  
  	if (full)
  		printf("%s - ", g->prg);
+--- persistent-data/run_set.h.orig
++++ persistent-data/run_set.h
+@@ -29,7 +29,7 @@
+ 
+ 			if (runs_.size()) {
+ 				// Skip all blocks that end before r
+-				const_iterator it = runs_.lower_bound(r);
++				iterator it = runs_.lower_bound(r);
+ 				if (it != runs_.begin())
+ 					--it;
+ 
+@@ -39,7 +39,7 @@
+ 				// work out which runs overlap
+ 				if (it != runs_.end()) {
+ 					r.begin_ = min_maybe(it->begin_, r.begin_);
+-					const_iterator first = it;
++					iterator first = it;
+ 					while (it != runs_.end() && it->begin_ <= r.end_) {
+ 						r.end_ = max_maybe(it->end_, r.end_);
+ 						++it;
+@@ -83,6 +83,7 @@
+ 
+ 		typedef std::set<run<T>, compare_begin> rset;
+ 		typedef typename rset::const_iterator const_iterator;
++		typedef typename rset::iterator iterator;
+ 
+ 		const_iterator begin() const {
+ 			return runs_.begin();
 EOF
   ./configure "--prefix=$INSTALL_DIR"
   CXXFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -lm" make
@@ -461,8 +489,12 @@ URL_LVM="ftp://sources.redhat.com/pub/lvm2/$SRC_LVM"
 CHK_LVM="6d8f3e72fe07f614315d8e0c2d9f93c5fc7a4360d14e4f9b805750e21593dd24"
 SUM_LVM="sha256"
 BLD_LVM() {
-  ./configure "--prefix=$INSTALL_DIR" --with-lvm1=none
-  make device-mapper
+  ac_cv_flag_HAVE_PIE=no ./configure "--prefix=$INSTALL_DIR" --with-lvm1=none
+  sed -ri 's/autoconf\/(install-sh)/\1/g' make.tmpl
+  gcc '-D__FBSDID(x)=' -DSIZE_T_MAX=-1 -o autoconf/fmt autoconf/fmt.c
+  PATH="$PATH:$PWD/autoconf" make device-mapper
+  PATH="$PATH:$PWD/autoconf" make install_device-mapper
+  cp -a autoconf/fmt "$INSTALL_DIR/bin"
 }
 PST_LVM() {
   :
