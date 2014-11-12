@@ -500,6 +500,111 @@ PST_LVM() {
   :
 }
 
+VER_UTIL_LINUX="2.25.2"
+DIR_UTIL_LINUX="util-linux-$VER_UTIL_LINUX"
+SRC_UTIL_LINUX="$DIR_UTIL_LINUX.tar.xz"
+URL_UTIL_LINUX="https://www.kernel.org/pub/linux/utils/util-linux/v$(echo "$VER_UTIL_LINUX" | sed -r 's/([0-9]+\.[0-9]+).*/\1/')/$SRC_UTIL_LINUX"
+CHK_UTIL_LINUX="e0457f715b73f4a349e1acb08cb410bf0edc9a74a3f75c357070f31f70e33cd6"
+SUM_UTIL_LINUX="sha256"
+BLD_UTIL_LINUX() {
+  patch -p0 <<EOF
+--- lib/colors.c.orig
++++ lib/colors.c
+@@ -576,10 +576,22 @@
+ 		if (*p == '\0' || *p == '#')
+ 			continue;
+ 
+-		rc = sscanf(p,  UL_SCNsA" "	/* name */
+-				UL_SCNsA,	/* color */
+-				&cn, &seq);
+-		if (rc == 2 && cn && seq)
++		size_t len = strlen(p) + 1;
++		cn = malloc(len);
++		if (!cn) {
++			rc = -ENOMEM;
++			goto done;
++		}
++		seq = malloc(len);
++ 		if (!seq) {
++			free(cn);
++			rc = -ENOMEM;
++			goto done;
++		}
++		rc = sscanf(p,  "%s"" "	/* name */
++				"%s",	/* color */
++				cn, seq);
++		if (rc == 2)
+ 			rc = colors_add_scheme(cc, cn, seq);	/* set rc=0 on success */
+ 		if (rc) {
+ 			free(cn);
+--- lib/loopdev.c.orig
++++ lib/loopdev.c
+@@ -1108,7 +1108,7 @@
+  */
+ static int loopcxt_check_size(struct loopdev_cxt *lc, int file_fd)
+ {
+-	uint64_t size, expected_size;
++	unsigned long long size, expected_size;
+ 	int dev_fd;
+ 	struct stat st;
+ 
+@@ -1158,7 +1158,7 @@
+ 
+ 	if (expected_size != size) {
+ 		DBG(lc, loopdev_debug("warning: loopdev and expected "
+-				      "size dismatch (%ju/%ju)",
++				      "size dismatch (%llu/%llu)",
+ 				      size, expected_size));
+ 
+ 		if (loopcxt_set_capacity(lc)) {
+@@ -1174,7 +1174,7 @@
+ 		if (expected_size != size) {
+ 			errno = ERANGE;
+ 			DBG(lc, loopdev_debug("failed to set loopdev size, "
+-					"size: %ju, expected: %ju",
++					"size: %llu, expected: %llu",
+ 					size, expected_size));
+ 			return -errno;
+ 		}
+EOF
+  ./configure "--prefix=$INSTALL_DIR" --disable-all-programs --enable-libuuid --enable-libblkid --without-systemd --without-systemdsystemunitdir
+  make
+  make install
+}
+PST_UTIL_LINUX() {
+  :
+}
+
+DIR_LZO="lzo-2.08"
+SRC_LZO="$DIR_LZO.tar.gz"
+URL_LZO="http://www.oberhumer.com/opensource/lzo/download/$SRC_LZO"
+CHK_LZO="64c3e44843a44ffc4533aa89e41516f42bfefa76"
+SUM_LZO="sha1"
+BLD_LZO() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_LZO() {
+  :
+}
+
+VER_BTRFS_PROGS="3.17"
+DIR_BTRFS_PROGS="btrfs-progs-v$VER_BTRFS_PROGS"
+SRC_BTRFS_PROGS="btrfs-tools_$VER_BTRFS_PROGS.orig.tar.xz"
+URL_BTRFS_PROGS="http://ftp.de.debian.org/debian/pool/main/b/btrfs-tools/$SRC_BTRFS_PROGS"
+CHK_BTRFS_PROGS="1abac9ab6c00b551142306431a7f6017"
+SUM_BTRFS_PROGS="md5"
+BLD_BTRFS_PROGS() {
+  mkdir attr
+  cp /usr/include/sys/xattr.h attr
+  echo '#define ENOATTR ENODATA' >> attr/xattr.h
+  prefix="$INSTALL_DIR" CPATH="$INSTALL_DIR/include:$PWD" DISABLE_BACKTRACE=1 DISABLE_DOCUMENTATION=1 make install
+}
+PST_BTRFS_PROGS() {
+  :
+}
+
 VER_DOCKER="1.3.1"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
@@ -557,4 +662,7 @@ PACKAGES=(LIBICONV
           BOOST
           THIN_PROVISIONING_TOOLS
           LVM
+          UTIL_LINUX
+          LZO
+          BTRFS_PROGS
           DOCKER)

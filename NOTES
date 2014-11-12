@@ -88,6 +88,7 @@ CONFIG_BLK_CGROUP=y
 CONFIG_RESOURCE_COUNTERS=y
 CONFIG_MEMCG=y
 CONFIG_MEMCG_SWAP=y
+CONFIG_BTRFS_FS=y
 
 In system-image.sh, function qemu_defaults(), add -enable-kvm before -nographic
 
