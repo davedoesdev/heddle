@@ -23,7 +23,7 @@ BLD_PKGCONFIG() {
   make install
 }
 PST_PKGCONFIG() {
-  :
+  export PKG_CONFIG_PATH="$(pkg-config --variable pc_path pkg-config)"
 }
 
 DIR_LIBFFI="libffi-3.1"
@@ -169,6 +169,7 @@ BLD_OPENSSL() {
   make depend
   make
   make install
+  cp *.pc "$INSTALL_DIR/lib/pkgconfig"
 }
 PST_OPENSSL() {
   CPPFLAGS="$CPPFLAGS -I$INSTALL_DIR/ssl/include"
@@ -489,12 +490,13 @@ URL_LVM="ftp://sources.redhat.com/pub/lvm2/$SRC_LVM"
 CHK_LVM="6d8f3e72fe07f614315d8e0c2d9f93c5fc7a4360d14e4f9b805750e21593dd24"
 SUM_LVM="sha256"
 BLD_LVM() {
-  ac_cv_flag_HAVE_PIE=no ./configure "--prefix=$INSTALL_DIR" --with-lvm1=none
+  ac_cv_flag_HAVE_PIE=no LIBS=-lpthread ./configure "--prefix=$INSTALL_DIR" --with-lvm1=none --without-systemdsystemunitdir --disable-udev-systemd-background-jobs --enable-static_link
   sed -ri 's/autoconf\/(install-sh)/\1/g' make.tmpl
   gcc '-D__FBSDID(x)=' -DSIZE_T_MAX=-1 -o autoconf/fmt autoconf/fmt.c
   PATH="$PATH:$PWD/autoconf" make device-mapper
   PATH="$PATH:$PWD/autoconf" make install_device-mapper
   cp -a autoconf/fmt "$INSTALL_DIR/bin"
+  cp libdm/libdevmapper.pc "$INSTALL_DIR/lib/pkgconfig"
 }
 PST_LVM() {
   :
@@ -596,6 +598,19 @@ URL_BTRFS_PROGS="http://ftp.de.debian.org/debian/pool/main/b/btrfs-tools/$SRC_BT
 CHK_BTRFS_PROGS="1abac9ab6c00b551142306431a7f6017"
 SUM_BTRFS_PROGS="md5"
 BLD_BTRFS_PROGS() {
+  patch -p0 <<EOF
+--- Makefile.orig
++++ Makefile
+@@ -47,7 +47,7 @@
+ MAKEOPTS = --no-print-directory Q=$(Q)
+ 
+ progs = mkfs.btrfs btrfs-debug-tree btrfsck \
+-	btrfs btrfs-map-logical btrfs-image btrfs-zero-log btrfs-convert \
++	btrfs btrfs-map-logical btrfs-image btrfs-zero-log \
+ 	btrfs-find-root btrfstune btrfs-show-super
+ 
+ progs_static = $(foreach p,$(progs),$(p).static)
+EOF
   mkdir attr
   cp /usr/include/sys/xattr.h attr
   echo '#define ENOATTR ENODATA' >> attr/xattr.h
