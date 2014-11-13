@@ -126,7 +126,7 @@ wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 rm get-pip.py
 
-# Docker
+# SysVinit
 # Weave
 # nfdhcpd
 # kvm

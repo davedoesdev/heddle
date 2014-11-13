@@ -651,6 +651,7 @@ source() {\
  static const char *kNsEnter = "nsenter";
 EOF
   AUTO_GOPATH=1 DOCKER_GITCOMMIT=4e9bbfa CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
+  cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }
 PST_DOCKER() {
   :
