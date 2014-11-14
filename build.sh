@@ -36,17 +36,17 @@ done
 for pkg in "${PACKAGES[@]}"; do
   vdir="DIR_$pkg"
   vsrc="SRC_$pkg"
-  if [ -z "$Interactive" -a ! -e "${!vdir}" ]; then
+  if [ -z "$Interactive" -a ! -e "${!vdir}.built" ]; then
+    rm -rf "${!vdir}"
     tar -xf "$HERE/download/${!vsrc}"
     tar -xf "$HERE/supplemental.tar.gz" "${!vdir}" >& /dev/null || true
     pushd "${!vdir}"
     BLD_$pkg
     popd
+    touch "${!vdir}.built"
   fi
   PST_$pkg
 done
 
 [ -n "$interactive" -o -n "$Interactive" ] && chroot "$CHROOT_DIR" ash
 
-# Cleanup source
-# Support image upgrade

@@ -1,17 +1,3 @@
-DIR_LIBICONV="libiconv-1.14"
-SRC_LIBICONV="$DIR_LIBICONV.tar.gz"
-URL_LIBICONV="http://ftp.gnu.org/pub/gnu/libiconv/$SRC_LIBICONV"
-CHK_LIBICONV="be7d67e50d72ff067b2c0291311bc283add36965"
-SUM_LIBICONV="sha1"
-BLD_LIBICONV() {
-  ./configure "--prefix=$INSTALL_DIR"
-  make
-  make install
-}
-PST_LIBICONV() {
-  :
-}
-
 DIR_PKGCONFIG="pkg-config-0.28"
 SRC_PKGCONFIG="$DIR_PKGCONFIG.tar.gz"
 URL_PKGCONFIG="http://pkgconfig.freedesktop.org/releases/$SRC_PKGCONFIG"
@@ -24,6 +10,21 @@ BLD_PKGCONFIG() {
 }
 PST_PKGCONFIG() {
   export PKG_CONFIG_PATH="$(pkg-config --variable pc_path pkg-config)"
+}
+
+DIR_LIBICONV="libiconv-1.14"
+SRC_LIBICONV="$DIR_LIBICONV.tar.gz"
+URL_LIBICONV="http://ftp.gnu.org/pub/gnu/libiconv/$SRC_LIBICONV"
+CHK_LIBICONV="be7d67e50d72ff067b2c0291311bc283add36965"
+SUM_LIBICONV="sha1"
+BLD_LIBICONV() {
+  rm -f "$INSTALL_DIR"/bin/*pkg-config*
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_LIBICONV() {
+  :
 }
 
 DIR_LIBFFI="libffi-3.1"
@@ -81,6 +82,7 @@ BLD_BZIP2() {
   make -f Makefile-libbz2_so
   make
   make install "PREFIX=$INSTALL_DIR"
+  rm -f "$INSTALL_DIR"/lib/libbz2.so*
   cp -a libbz2.so* "$INSTALL_DIR/lib"
   ( cd "$INSTALL_DIR/lib"; ln -s libbz2.so.1.0 libbz2.so )
 }
@@ -405,6 +407,9 @@ BLD_THIN_PROVISIONING_TOOLS() {
 +	block_manager<>::write_ref w = bm->superblock_zero(location, _validator::mk_v());
  	superblock_traits::pack(sb, *reinterpret_cast<superblock_disk *>(w.data()));
  }
+ 
+EOF
+  patch -p0 <<EOF
 --- persistent-data/space-maps/disk.cc.orig
 +++ persistent-data/space-maps/disk.cc
 @@ -112,7 +112,7 @@
@@ -425,6 +430,8 @@ BLD_THIN_PROVISIONING_TOOLS() {
  				it(offset + b, result);
  			}
  		}
+EOF
+  patch -p0 <<EOF
 --- thin-provisioning/thin_pool.cc.orig
 +++ thin-provisioning/thin_pool.cc
 @@ -203,7 +203,7 @@
@@ -436,6 +443,8 @@ BLD_THIN_PROVISIONING_TOOLS() {
  thin_pool::get_data_block_size() const
  {
  	return md_->sb_.data_block_size_;
+EOF
+  patch -p0 <<EOF
 --- thin-provisioning/thin_metadata_size.cc.orig
 +++ thin-provisioning/thin_metadata_size.cc
 @@ -324,7 +324,7 @@
@@ -447,6 +456,8 @@ BLD_THIN_PROVISIONING_TOOLS() {
  
  	if (full)
  		printf("%s - ", g->prg);
+EOF
+  patch -p0 <<EOF
 --- persistent-data/run_set.h.orig
 +++ persistent-data/run_set.h
 @@ -29,7 +29,7 @@
@@ -539,6 +550,8 @@ BLD_UTIL_LINUX() {
  			rc = colors_add_scheme(cc, cn, seq);	/* set rc=0 on success */
  		if (rc) {
  			free(cn);
+EOF
+  patch -p0 <<EOF
 --- lib/loopdev.c.orig
 +++ lib/loopdev.c
 @@ -1108,7 +1108,7 @@
@@ -602,18 +615,19 @@ BLD_BTRFS_PROGS() {
 --- Makefile.orig
 +++ Makefile
 @@ -47,7 +47,7 @@
- MAKEOPTS = --no-print-directory Q=$(Q)
+ MAKEOPTS = --no-print-directory Q=\$(Q)
  
- progs = mkfs.btrfs btrfs-debug-tree btrfsck \
--	btrfs btrfs-map-logical btrfs-image btrfs-zero-log btrfs-convert \
-+	btrfs btrfs-map-logical btrfs-image btrfs-zero-log \
+ progs = mkfs.btrfs btrfs-debug-tree btrfsck \\
+-	btrfs btrfs-map-logical btrfs-image btrfs-zero-log btrfs-convert \\
++	btrfs btrfs-map-logical btrfs-image btrfs-zero-log \\
  	btrfs-find-root btrfstune btrfs-show-super
  
- progs_static = $(foreach p,$(progs),$(p).static)
+ progs_static = \$(foreach p,\$(progs),\$(p).static)
 EOF
   mkdir attr
   cp /usr/include/sys/xattr.h attr
   echo '#define ENOATTR ENODATA' >> attr/xattr.h
+  rm -f "$INSTALL_DIR"/lib/libbtrfs.*
   prefix="$INSTALL_DIR" CPATH="$INSTALL_DIR/include:$PWD" DISABLE_BACKTRACE=1 DISABLE_DOCUMENTATION=1 make install
 }
 PST_BTRFS_PROGS() {
@@ -651,11 +665,20 @@ source() {\
  static const char *kNsEnter = "nsenter";
 EOF
   AUTO_GOPATH=1 DOCKER_GITCOMMIT=4e9bbfa CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
+  rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }
 PST_DOCKER() {
   :
 }
+
+#DIR_RUNIT="runit-2.1.2"
+#SRC_RUNIT="$DIR_RUNIT.tar.gz"
+#URL_RUNIT="http://smarden.org/runit/$SRC_RUNIT"
+#CHK_RUNIT="6fd0160cb0cf1207de4e66754b6d39750cff14bb0aa66ab49490992c0c47ba18"
+#SUM_DOCKER="sha256"
+#BLD_DOCKER() {
+
 
 PACKAGES=(LIBICONV
           PKGCONFIG

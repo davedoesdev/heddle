@@ -126,7 +126,8 @@ wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 rm get-pip.py
 
-# SysVinit
+# Runit
+# Syslog?
 # Weave
 # nfdhcpd
 # kvm
@@ -136,6 +137,7 @@ rm get-pip.py
 
 #TODO
 # Remove source once built
+# Image upgrade
 
 ---
 Later we can combine to make it all bootable
