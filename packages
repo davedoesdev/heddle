@@ -680,10 +680,15 @@ CHK_RUNIT="6fd0160cb0cf1207de4e66754b6d39750cff14bb0aa66ab49490992c0c47ba18"
 SUM_RUNIT="sha256"
 BLD_RUNIT() {
   sed -i "s/\\/usr\\/local/$(echo "$INSTALL_DIR" | sed 's/\//\\\//g')/g" package/upgrade
-  sed -i 's/^here=.*/here="$PWD"/' package/{compile,upgrade}
+  sed -i -r 's/^(here=).*/\1"$PWD"/' package/{compile,upgrade}
   sed -i -r -e 's/^.*(ctmp=)/\1/' -e 's/(cat) -v/\1/' src/check-local
-  sed -i -r "s/ (\\/command)/ $(echo "$INSTALL_DIR" | sed 's/\//\\\//g')\\1/g" package/upgrade
+  chroot "$CHROOT_DIR" ash <<EOF
+  rm -rf "/package/admin/$(basename "$PWD")"
+  mkdir -p /package/admin
+  cp -a "$PWD" /package/admin
+  cd "/package/admin/$(basename "$PWD")"
   ./package/install
+EOF
 }
 PST_RUNIT() {
   :
