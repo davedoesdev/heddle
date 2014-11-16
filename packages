@@ -672,13 +672,22 @@ PST_DOCKER() {
   :
 }
 
-#DIR_RUNIT="runit-2.1.2"
-#SRC_RUNIT="$DIR_RUNIT.tar.gz"
-#URL_RUNIT="http://smarden.org/runit/$SRC_RUNIT"
-#CHK_RUNIT="6fd0160cb0cf1207de4e66754b6d39750cff14bb0aa66ab49490992c0c47ba18"
-#SUM_DOCKER="sha256"
-#BLD_DOCKER() {
-
+VER_RUNIT="2.1.2"
+DIR_RUNIT="admin/runit-$VER_RUNIT"
+SRC_RUNIT="runit-$VER_RUNIT.tar.gz"
+URL_RUNIT="http://smarden.org/runit/$SRC_RUNIT"
+CHK_RUNIT="6fd0160cb0cf1207de4e66754b6d39750cff14bb0aa66ab49490992c0c47ba18"
+SUM_RUNIT="sha256"
+BLD_RUNIT() {
+  sed -i "s/\\/usr\\/local/$(echo "$INSTALL_DIR" | sed 's/\//\\\//g')/g" package/upgrade
+  sed -i 's/^here=.*/here="$PWD"/' package/{compile,upgrade}
+  sed -i -r -e 's/^.*(ctmp=)/\1/' -e 's/(cat) -v/\1/' src/check-local
+  sed -i -r "s/ (\\/command)/ $(echo "$INSTALL_DIR" | sed 's/\//\\\//g')\\1/g" package/upgrade
+  ./package/install
+}
+PST_RUNIT() {
+  :
+}
 
 PACKAGES=(LIBICONV
           PKGCONFIG
@@ -704,4 +713,5 @@ PACKAGES=(LIBICONV
           UTIL_LINUX
           LZO
           BTRFS_PROGS
-          DOCKER)
+          DOCKER
+          RUNIT)
