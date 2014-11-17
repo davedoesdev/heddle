@@ -582,7 +582,7 @@ EOF
  			return -errno;
  		}
 EOF
-  ./configure "--prefix=$INSTALL_DIR" --disable-all-programs --enable-libuuid --enable-libblkid --without-systemd --without-systemdsystemunitdir
+  ./configure "--prefix=$INSTALL_DIR" --disable-all-programs --enable-libuuid --enable-libblkid --enable-agetty --without-systemd --without-systemdsystemunitdir
   make
   make install
 }

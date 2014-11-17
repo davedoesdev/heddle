@@ -7,7 +7,9 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-if [ ! -e "$1" ]; then
+if [ -e "$1" ]; then
+  tar -C "$1" -xf "$HERE/chroot.tar.gz" service
+else
   mkdir -p "$1"
   tar -C "$1" -xf "$HERE/chroot.tar.gz"
 fi
