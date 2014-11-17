@@ -1,2 +1,2 @@
 #!/bin/sh
-exec agetty 38400 tty1 linux
+exec agetty ttyS0
