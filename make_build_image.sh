@@ -19,10 +19,10 @@ copy common.sh
 copy packages
 copy make_chroot.sh
 
-(cd chroot; tar -zcf ../chroot.tar.gz *)
+(cd chroot; tar --owner root --group root -zcf ../chroot.tar.gz *)
 copy chroot.tar.gz
 
-(cd supplemental; tar -zcf ../supplemental.tar.gz *)
+(cd supplemental; tar --owner root --group root -zcf ../supplemental.tar.gz *)
 copy supplemental.tar.gz
 
 . ./packages

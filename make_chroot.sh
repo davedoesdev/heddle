@@ -8,7 +8,7 @@ if [ $# -ne 1 ]; then
 fi
 
 if [ -e "$1" ]; then
-  tar -C "$1" -xf "$HERE/chroot.tar.gz" service
+  tar -C "$1" -xf "$HERE/chroot.tar.gz" service startup
 else
   mkdir -p "$1"
   tar -C "$1" -xf "$HERE/chroot.tar.gz"
@@ -22,15 +22,13 @@ for x in /*; do
   if [ "$x" = /etc ]; then
     for y in "$x"/*; do
       d="$1$y";
-      if [ ! -e "$d" ]; then
-        if [ -f "$y" ]; then
-          touch "$d"
-        else
-          mkdir -p "$d"
+      if [ -d "$y" ]; then
+        mkdir -p "$d"
+        if ! mount | grep -q "$d "; then
+          mount -o bind "$y" "$d"
         fi
-      fi
-      if ! mount | grep -q "$d "; then
-        mount -o bind "$y" "$d"
+      elif [ ! -e "$d" ]; then
+        cp "$y" "$d"
       fi
     done
   else
