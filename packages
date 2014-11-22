@@ -324,9 +324,11 @@ EOF
 EOF
   rm -rf "$INSTALL_DIR/go"
   cp -a "$PWD" "$INSTALL_DIR/go"
+  mkdir -p "$INSTALL_DIR/gopath"
 }
 PST_GO() {
-  PATH="$PATH:$INSTALL_DIR/go/bin"
+  export GOPATH="$INSTALL_DIR/gopath"
+  PATH="$PATH:$INSTALL_DIR/go/bin:$GOPATH/bin"
 }
 
 DIR_LIBAIO="libaio-0.3.110-1"
@@ -906,6 +908,23 @@ PST_CONNTRACK_TOOLS() {
   :
 }
 
+VER_WEAVE="6d1792ebdfe4b6d60841d8d9b6d73834a2206182"
+DIR_WEAVE="weave-$VER_WEAVE"
+SRC_WEAVE="$DIR_WEAVE.tar.gz"
+URL_WEAVE="https://github.com/zettio/weave/archive/$VER_WEAVE.tar.gz"
+CHK_WEAVE="e319277036273ec641dc42c1d086576789fafb0c43725bab52e7f46e89baf4b6"
+SUM_WEAVE="sha256"
+BLD_WEAVE() {
+  WEAVE_DIR="$GOPATH/src/github.com/zettio/weave"
+  rm -rf "$WEAVE_DIR"
+  mkdir -p "$(dirname "$WEAVE_DIR")"
+  cp -a "$PWD" "$WEAVE_DIR"
+  cd "$WEAVE_DIR"
+}
+PST_WEAVE() {
+  :
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -944,4 +963,5 @@ PACKAGES=(LIBICONV
           LIBNETFILTER_QUEUE
           REFLEX
           BYACC
-          CONNTRACK_TOOLS)
+          CONNTRACK_TOOLS
+          WEAVE)
