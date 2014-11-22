@@ -14,6 +14,11 @@ if [ ! -d /home/root ]; then
   echo 'export LD_LIBRARY_PATH="$LD_LIB_PATH"' > /home/root/.profile
 fi
 
-nohup chroot "$CHROOT_DIR" runsvdir /service 'log: ...........................................................................................................................................................................................................................................................................................................................................................................................................' &
+if [ -b /dev/[hsv]dd ]; then
+  chroot "$CHROOT_DIR" mount /dev/[hsv]dd /extra
+fi
 
-exec chroot "$CHROOT_DIR" /startup/run
+chroot "$CHROOT_DIR" cgroupfs-mount
+
+nohup chroot "$CHROOT_DIR" /startup/runsvdir > "$CHROOT_DIR/var/log/runsvdir-startup.log" &
+exec chroot "$CHROOT_DIR" /startup/agetty-default

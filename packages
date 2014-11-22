@@ -604,6 +604,47 @@ PST_LZO() {
   :
 }
 
+VER_E2FSPROGS="1.42.12"
+DIR_E2FSPROGS="e2fsprogs-$VER_E2FSPROGS"
+SRC_E2FSPROGS="$DIR_E2FSPROGS.tar.gz"
+URL_E2FSPROGS="http://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v$VER_E2FSPROGS/$SRC_E2FSPROGS"
+CHK_E2FSPROGS="e17846d91a0edd89fa59b064bde8f8e5cec5851e35f587bcccb4014dbd63186c"
+SUM_E2FSPROGS="sha256"
+BLD_E2FSPROGS() {
+  # uClibC seems to buffer stderr differently to glibc through a pipe
+  patch -p0 <<EOF
+--- lib/ss/test_script_expected.orig
++++ lib/ss/test_script_expected
+@@ -1,5 +1,7 @@
+ test_ss 1.0.  Type '?' for a list of commands.
+ 
++test_ss: Command not found quux
++test_ss: Command not found quux
+ test_icount: test
+ Hello, world!
+ Args: 
+@@ -10,9 +12,7 @@
+ Hello, world!
+ Args: 'bar', 'quux'
+ test_icount: quux bar
+-test_ss: Command not found quux
+ test_icount: quux
+-test_ss: Command not found quux
+ test_icount: test quux
+ Hello, world!
+ Args: 'quux'
+EOF
+  mkdir build
+  cd build
+  ../configure "--prefix=$INSTALL_DIR" --disable-debugfs --disable-imager --disable-resizer --disable-defrag
+  sed -i 's/diff -c/diff -u/g' lib/et/Makefile
+  make
+  make install
+}
+PST_E2FSPROGS() {
+  :
+}
+
 VER_BTRFS_PROGS="3.17"
 DIR_BTRFS_PROGS="btrfs-progs-v$VER_BTRFS_PROGS"
 SRC_BTRFS_PROGS="btrfs-tools_$VER_BTRFS_PROGS.orig.tar.xz"
@@ -634,6 +675,34 @@ PST_BTRFS_PROGS() {
   :
 }
 
+VER_CGROUPFS_MOUNT="1.1"
+DIR_CGROUPFS_MOUNT="cgroupfs-mount-$VER_CGROUPFS_MOUNT"
+SRC_CGROUPFS_MOUNT="$DIR_CGROUPFS_MOUNT.tar.gz"
+URL_CGROUPFS_MOUNT="https://github.com/tianon/cgroupfs-mount/archive/$VER_CGROUPFS_MOUNT.tar.gz"
+CHK_CGROUPFS_MOUNT="cc32a52f4e1fe707d7475c87ebf8059cb90c29623b79738e2d335e09c1434515"
+SUM_CGROUPFS_MOUNT="sha256"
+BLD_CGROUPFS_MOUNT() {
+  sed -i 's/\/etc\/fstab/\/dev\/null/g' cgroupfs-mount
+  cp cgroupfs-* "$INSTALL_DIR/bin"
+}
+PST_CGROUPFS_MOUNT() {
+  :
+}
+
+DIR_IPTABLES="iptables-1.4.21"
+SRC_IPTABLES="$DIR_IPTABLES.tar.bz2"
+URL_IPTABLES="http://www.netfilter.org/projects/iptables/files/$SRC_IPTABLES"
+CHK_IPTABLES="536d048c8e8eeebcd9757d0863ebb0c0"
+SUM_IPTABLES="md5"
+BLD_IPTABLES() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_IPTABLES() {
+  :
+}
+
 VER_DOCKER="1.3.1"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
@@ -641,7 +710,7 @@ URL_DOCKER="https://github.com/docker/docker/archive/v$VER_DOCKER.tar.gz"
 CHK_DOCKER="5eb5578945438dce485c2628a3df47a6f6ca8fff7366f1ec8335b37955f82f70"
 SUM_DOCKER="sha256"
 BLD_DOCKER() {
-  # We have bash v2 without '+=', pipefail and BASH_SOURCE:
+  # We have bash v2 without '+=', pipefail, BASH_SOURCE and 'declare -A':
   sed -i -E 's/([A-Z]+)\+=/\1="$\1"/g' hack/make.sh
   sed -i 's/set -o pipefail//g' hack/make.sh
   sed -i 's/set -e/\0\
@@ -652,6 +721,7 @@ source() {\
   . "$@"\
   BASH_SOURCE=("${BASH_SOURCE_SAVE[@]}")\
 }/g' hack/make.sh
+  sed -i -E -e 's/declare -A//g' -e 's/([a-z]+)\+=\(/\1=( "${\1[@]}" /g' contrib/check-config.sh
   patch -p0 << EOF
 --- vendor/src/github.com/docker/libcontainer/namespaces/nsenter/nsenter.c.orig
 +++ vendor/src/github.com/docker/libcontainer/namespaces/nsenter/nsenter.c
@@ -694,6 +764,148 @@ PST_RUNIT() {
   :
 }
 
+DIR_ETHTOOL="ethtool-3.16"
+SRC_ETHTOOL="$DIR_ETHTOOL.tar.gz"
+URL_ETHTOOL="https://www.kernel.org/pub/software/network/ethtool/$SRC_ETHTOOL"
+CHK_ETHTOOL="a6f1433824af7b390ed4e66dfc7cee047d6d1f56dbb8ceef9fe905d63aef5275"
+SUM_ETHTOOL="sha256"
+BLD_ETHTOOL() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_ETHTOOL() {
+  :
+}
+
+DIR_LIBNFNETLINK="libnfnetlink-1.0.1"
+SRC_LIBNFNETLINK="$DIR_LIBNFNETLINK.tar.bz2"
+URL_LIBNFNETLINK="http://www.netfilter.org/projects/libnfnetlink/files/$SRC_LIBNFNETLINK"
+CHK_LIBNFNETLINK="98927583d2016a9fb1936fed992e2c5e"
+SUM_LIBNFNETLINK="md5"
+BLD_LIBNFNETLINK() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_LIBNFNETLINK() {
+  :
+}
+
+DIR_LIBMNL="libmnl-1.0.3"
+SRC_LIBMNL="$DIR_LIBMNL.tar.bz2"
+URL_LIBMNL="http://www.netfilter.org/projects/libmnl/files/$SRC_LIBMNL"
+CHK_LIBMNL="c27e25f67c6422ebf893fc3a844af8085a1c5b63"
+SUM_LIBMNL="sha1"
+BLD_LIBMNL() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_LIBMNL() {
+  :
+}
+
+DIR_LIBNETFILTER_CONNTRACK="libnetfilter_conntrack-1.0.4"
+SRC_LIBNETFILTER_CONNTRACK="$DIR_LIBNETFILTER_CONNTRACK.tar.bz2"
+URL_LIBNETFILTER_CONNTRACK="http://www.netfilter.org/projects/libnetfilter_conntrack/files/$SRC_LIBNETFILTER_CONNTRACK"
+CHK_LIBNETFILTER_CONNTRACK="18cf80c4b339a3285e78822dbd4f08d7"
+SUM_LIBNETFILTER_CONNTRACK="md5"
+BLD_LIBNETFILTER_CONNTRACK() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_LIBNETFILTER_CONNTRACK() {
+  :
+}
+
+DIR_LIBNETFILTER_CTTIMEOUT="libnetfilter_cttimeout-1.0.0"
+SRC_LIBNETFILTER_CTTIMEOUT="$DIR_LIBNETFILTER_CTTIMEOUT.tar.bz2"
+URL_LIBNETFILTER_CTTIMEOUT="http://www.netfilter.org/projects/libnetfilter_cttimeout/files/$SRC_LIBNETFILTER_CTTIMEOUT"
+CHK_LIBNETFILTER_CTTIMEOUT="7697437fc9ebb6f6b83df56a633db7f9"
+SUM_LIBNETFILTER_CTTIMEOUT="md5"
+BLD_LIBNETFILTER_CTTIMEOUT() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_LIBNETFILTER_CTTIMEOUT() {
+  :
+}
+
+DIR_LIBNETFILTER_CTHELPER="libnetfilter_cthelper-1.0.0"
+SRC_LIBNETFILTER_CTHELPER="$DIR_LIBNETFILTER_CTHELPER.tar.bz2"
+URL_LIBNETFILTER_CTHELPER="http://www.netfilter.org/projects/libnetfilter_cthelper/files/$SRC_LIBNETFILTER_CTHELPER"
+CHK_LIBNETFILTER_CTHELPER="b2efab1a3a198a5add448960ba011acd"
+SUM_LIBNETFILTER_CTHELPER="md5"
+BLD_LIBNETFILTER_CTHELPER() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_LIBNETFILTER_CTHELPER() {
+  :
+}
+
+DIR_LIBNETFILTER_QUEUE="libnetfilter_queue-1.0.2"
+SRC_LIBNETFILTER_QUEUE="$DIR_LIBNETFILTER_QUEUE.tar.bz2"
+URL_LIBNETFILTER_QUEUE="http://www.netfilter.org/projects/libnetfilter_queue/files/$SRC_LIBNETFILTER_QUEUE"
+CHK_LIBNETFILTER_QUEUE="df09befac35cb215865b39a36c96a3fa"
+SUM_LIBNETFILTER_QUEUE="md5"
+BLD_LIBNETFILTER_QUEUE() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_LIBNETFILTER_QUEUE() {
+  :
+}
+
+DIR_REFLEX="reflex-20131209"
+SRC_REFLEX="$DIR_REFLEX.tar.gz"
+URL_REFLEX="http://invisible-island.net/datafiles/release/reflex.tar.gz"
+CHK_REFLEX="0ebbfa2d564e1e211ccf862ad6f12dbffa784164ea4492d08b9d50a592aaf0e2"
+SUM_REFLEX="sha256"
+BLD_REFLEX() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+  ( cd "$INSTALL_DIR/bin"; ln -s reflex flex )
+}
+PST_REFLEX() {
+  :
+}
+
+DIR_BYACC="byacc-20141006"
+SRC_BYACC="$DIR_BYACC.tar.gz"
+URL_BYACC="http://invisible-island.net/datafiles/release/byacc.tar.gz"
+CHK_BYACC="391b0ac550e94920a86960c6973ec539784dc84849e7c2bb1645ae6d8178b14d"
+SUM_BYACC="sha256"
+BLD_BYACC() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+  ( cd "$INSTALL_DIR/bin"; ln -s yacc byacc )
+}
+PST_BYACC() {
+  :
+}
+
+DIR_CONNTRACK_TOOLS="conntrack-tools-1.4.2"
+SRC_CONNTRACK_TOOLS="$DIR_CONNTRACK_TOOLS.tar.bz2"
+URL_CONNTRACK_TOOLS="http://www.netfilter.org/projects/conntrack-tools/files/$SRC_CONNTRACK_TOOLS"
+CHK_CONNTRACK_TOOLS="50b89305bb689973d42a163c480dc77a5c0f6fe0"
+SUM_CONNTRACK_TOOLS="sha1"
+BLD_CONNTRACK_TOOLS() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_CONNTRACK_TOOLS() {
+  :
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -717,6 +929,19 @@ PACKAGES=(LIBICONV
           LVM
           UTIL_LINUX
           LZO
+          E2FSPROGS
           BTRFS_PROGS
+          CGROUPFS_MOUNT
+          IPTABLES
           DOCKER
-          RUNIT)
+          RUNIT
+          ETHTOOL
+          LIBNFNETLINK
+          LIBMNL
+          LIBNETFILTER_CONNTRACK
+          LIBNETFILTER_CTTIMEOUT
+          LIBNETFILTER_CTHELPER
+          LIBNETFILTER_QUEUE
+          REFLEX
+          BYACC
+          CONNTRACK_TOOLS)

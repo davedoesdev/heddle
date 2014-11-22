@@ -1,3 +1,4 @@
+sysctl -q kernel.printk="3 4 1 3"
 ifconfig lo 127.0.0.1
 CHROOT_DIR="$HOME/chroot"
 "$HERE/make_chroot.sh" "$CHROOT_DIR"
