@@ -41,12 +41,18 @@ for pkg in "${PACKAGES[@]}"; do
   vsum="SUM_$pkg"
   dest="$IMG_BUILD:download/${!vsrc}"
   if ! e2ls "$dest" >& /dev/null; then
-    wget "${!vurl}" -O - | copy - "download/${!vsrc}"
-    sum="$(e2cp "$dest" - | "${!vsum}sum" | awk '{print $1}')"
-    if [ "$sum" != "${!vchk}" ]; then
-      e2rm "$dest"
-      echo "$0: checksum mismatch for $pkg: $sum != ${!vchk}" 1>&2
-      exit
+    if type GET_$pkg | grep -q function; then
+      tmpd="$(mktemp -d)"
+      ( cd "$tmpd"; GET_$pkg ) | copy - "download/${!vsrc}"
+      rm -rf "$tmpd"
+    else
+      wget "${!vurl}" -O - | copy - "download/${!vsrc}"
+      sum="$(e2cp "$dest" - | "${!vsum}sum" | awk '{print $1}')"
+      if [ "$sum" != "${!vchk}" ]; then
+        e2rm "$dest"
+        echo "$0: checksum mismatch for $pkg: $sum != ${!vchk}" 1>&2
+        exit
+      fi
     fi
   fi
 done
