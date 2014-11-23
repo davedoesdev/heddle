@@ -322,7 +322,7 @@ EOF
   cd "$PWD/src"
   GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
 EOF
-  rm -rf "$INSTALL_DIR/go"
+  rm -rf "$INSTALL_DIR"/{go,gopath}
   cp -a "$PWD" "$INSTALL_DIR/go"
   mkdir -p "$INSTALL_DIR/gopath"
 }
@@ -919,7 +919,7 @@ GET_WEAVE_DEPS() {
   tar -zc "$DIR_WEAVE_DEPS"
 }
 BLD_WEAVE_DEPS() {
-  :
+  cp -a * "$GOPATH"
 }
 PST_WEAVE_DEPS() {
   :
