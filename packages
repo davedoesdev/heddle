@@ -956,6 +956,7 @@ BLD_WEAVE() {
   go install -a -tags netgo std
   # We can't make the docker images themselves until we have docker running
   CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" make SUDO= weaver/weaver weavedns/weavedns
+  ln -sf "$WEAVE_DIR/weave" "$GOPATH/bin"
 }
 PST_WEAVE() {
   :

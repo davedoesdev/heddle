@@ -1,0 +1,26 @@
+#!/bin/sh
+exec 2>&1
+set -e
+
+# start docker
+sv start docker
+
+# check docker is ready
+docker info
+
+# create scratch image if it doesn't exist
+if ! docker history scratch; then
+  python -c 'import sys, tarfile; tarfile.open(fileobj=sys.stdout, mode="w|").close()' | docker import - scratch
+fi
+
+# check if weave image exists
+if docker history zettio/weave; then
+  # weave image exists, tell sv not to restart us
+  echo weave image exists
+  exec sv down weave-maker
+fi
+
+# weave image doesn't exist, make it
+cd "$GOPATH/src/github.com/zettio/weave"
+CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" make SUDO=
+rm -f /var/tmp/weave*.tar
