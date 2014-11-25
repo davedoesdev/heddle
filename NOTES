@@ -111,6 +111,8 @@ CONFIG_NF_CT_NETLINK=y
 CONFIG_NF_CONNTRACK_EVENTS=y
 CONFIG_NF_CONNTRACK_TIMEOUT=y
 CONFIG_NF_CT_NETLINK_TIMEOUT=y
+CONFIG_DUMMY=y
+
 
 In system-image.sh, function qemu_defaults(), add -enable-kvm before -nographic
 

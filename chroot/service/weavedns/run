@@ -1,0 +1,7 @@
+#!/bin/sh
+exec 2>&1
+set -e
+docker history zettio/weavedns
+# change IP address below to suit
+weave launch-dns 10.250.250.250/8
+exec docker wait weavedns

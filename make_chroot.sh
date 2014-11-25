@@ -15,6 +15,10 @@ else
   tar -C "$1" -xf "$HERE/chroot.tar.gz"
 fi
 
+# make sure chroot is a mount point
+cd "$1"
+mount -o bind . .
+
 for x in /*; do
   d="$1$x"
   if [ ! -e "$d" ]; then

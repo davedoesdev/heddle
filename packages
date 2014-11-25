@@ -885,7 +885,7 @@ URL_BYACC="http://invisible-island.net/datafiles/release/byacc.tar.gz"
 CHK_BYACC="391b0ac550e94920a86960c6973ec539784dc84849e7c2bb1645ae6d8178b14d"
 SUM_BYACC="sha256"
 BLD_BYACC() {
-  ./configure "--prefix=$INSTALL_DIR"
+  ./configure "--prefix=$INSTALL_DIR" --enable-btyacc
   make
   make install
   ( cd "$INSTALL_DIR/bin"; ln -s yacc byacc )
@@ -908,6 +908,21 @@ PST_CONNTRACK_TOOLS() {
   :
 }
 
+DIR_IPROUTE2="iproute2-3.16.0"
+SRC_IPROUTE2="$DIR_IPROUTE2.tar.gz"
+URL_IPROUTE2="https://www.kernel.org/pub/linux/utils/net/iproute2/$SRC_IPROUTE2"
+CHK_IPROUTE2="2a11aa1e120bf5b4e65c3d2700e9d5ab6acdb69d4d349840790ac6684c220c42"
+SUM_IPROUTE2="sha256"
+BLD_IPROUTE2() {
+  sed -ri -e '/%error-verbose/d' -e '/%name-prefix="ematch_"/d' -e '/extern void yyerror/d' -e 's/(void yyerror\()/\1YYLTYPE loc, /' tc/emp_ematch.y
+  sed -ri -e 's/bison ([^ ]+) (.*)/byacc \2 \1/g' -e '/^TARGETS/s@arpd@@g' misc/Makefile
+  make DESTDIR="$INSTALL_DIR" PREFIX= YACC=byacc YACCFLAGS="-d -t -v -L -p ematch_" install
+  ln -sf "$INSTALL_DIR/etc/iproute2" /etc
+}
+PST_IPROUTE2() {
+  :
+}
+
 DIR_LIBPCAP="libpcap-1.6.2"
 SRC_LIBPCAP="$DIR_LIBPCAP.tar.gz"
 URL_LIBPCAP="http://www.tcpdump.org/release/$SRC_LIBPCAP"
@@ -919,6 +934,20 @@ BLD_LIBPCAP() {
   make install
 }
 PST_LIBPCAP() {
+  :
+}
+
+DIR_CURL="curl-7.39.0"
+SRC_CURL="$DIR_CURL.tar.bz2"
+URL_CURL="http://curl.haxx.se/download/$SRC_CURL"
+CHK_CURL="b222566e7087cd9701b301dd6634b360ae118cc1cbc7697e534dc451102ea4e0"
+SUM_CURL="sha256"
+BLD_CURL() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+PST_CURL() {
   :
 }
 
@@ -1001,6 +1030,8 @@ PACKAGES=(LIBICONV
           REFLEX
           BYACC
           CONNTRACK_TOOLS
+          IPROUTE2
           LIBPCAP
+          CURL
           WEAVE_DEPS
           WEAVE)
