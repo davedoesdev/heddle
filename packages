@@ -991,6 +991,20 @@ PST_WEAVE() {
   :
 }
 
+DIR_SHADOW="shadow-4.2.1"
+SRC_SHADOW="$DIR_SHADOW.tar.xz"
+URL_SHADOW="http://pkg-shadow.alioth.debian.org/releases/$SRC_SHADOW"
+CHK_SHADOW="3b0893d1476766868cd88920f4f1231c4795652aa407569faff802bcda0f3d41"
+SUM_SHADOW="sha256"
+BLD_SHADOW() {
+  ./configure "--prefix=$INSTALL_DIR" --sysconfdir=/etc
+  make
+  make install
+}
+PST_SHADOW() {
+  :
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -1034,4 +1048,5 @@ PACKAGES=(LIBICONV
           LIBPCAP
           CURL
           WEAVE_DEPS
-          WEAVE)
+          WEAVE
+          SHADOW)

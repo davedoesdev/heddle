@@ -8,10 +8,12 @@ for pkg in "${PACKAGES[@]}"; do
   PST_$pkg
 done
 
-export LD_LIB_PATH="$LD_LIBRARY_PATH"
+export THE_PATH="$PATH"
+export THE_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 if [ ! -d /home/root ]; then
   mkdir /home/root
-  echo 'export LD_LIBRARY_PATH="$LD_LIB_PATH"' > /home/root/.profile
+  echo 'export PATH="$THE_PATH"' > /home/root/.profile
+  echo 'export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"' >> /home/root/.profile
 fi
 
 if [ -b /dev/[hsv]dd ]; then

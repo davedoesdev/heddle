@@ -29,7 +29,7 @@ for x in /*; do
       d="$1$y";
       if [ -d "$y" ]; then
         mkdir -p "$d"
-        if ! mount | grep -q "$d "; then
+        if [ "$y" != /etc/default ] && ! mount | grep -q "$d "; then
           mount -o bind "$y" "$d"
         fi
       elif [ ! -e "$d" ]; then

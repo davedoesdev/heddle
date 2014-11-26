@@ -8,6 +8,8 @@ UCLIBC_HAS_STDIO_FUTEXES=y
 UCLIBC_HAS_SSP=y
 UCLIBC_USE_NETLINK=y
 UCLIBC_SUPPORT_AI_ADDRCONFIG=y
+UCLIBC_HAS_SHA256_CRYPT_IMPL=y
+UCLIBC_HAS_SHA512_CRYPT_IMPL=y
 
 Remove this line from sources/targets/x86_64:
 
@@ -151,7 +153,6 @@ wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 rm get-pip.py
 
-# Weave
 # nfdhcpd
 # kvm
 # capstan

@@ -17,7 +17,13 @@ if [ ! -e "$IMG_BUILD" ]; then
 fi
 
 copy() {
-  e2cp -P 500 -O 0 -G 0 "$1" "$IMG_BUILD:$2"
+  local p
+  if [ -x "$1" ]; then
+    p=500
+  else
+    p=400
+  fi
+  e2cp -P $p -O 0 -G 0 "$1" "$IMG_BUILD:$2"
 }
 
 copy build.sh init
