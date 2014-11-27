@@ -16,6 +16,8 @@ if [ ! -d /home/root ]; then
   echo 'export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"' >> /home/root/.profile
 fi
 
+mkdir -p /home/heddle
+
 if [ -b /dev/[hsv]dd ]; then
   chroot "$CHROOT_DIR" mount /dev/[hsv]dd /extra
 fi
