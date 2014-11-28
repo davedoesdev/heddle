@@ -23,9 +23,6 @@ BLD_LIBICONV() {
   make
   make install
 }
-PST_LIBICONV() {
-  :
-}
 
 DIR_LIBFFI="libffi-3.1"
 SRC_LIBFFI="$DIR_LIBFFI.tar.gz"
@@ -55,9 +52,6 @@ BLD_BDB() {
   make
   make install
 }
-PST_BDB() {
-  :
-}
 
 DIR_GDBM="gdbm-1.11"
 SRC_GDBM="$DIR_GDBM.tar.gz"
@@ -68,9 +62,6 @@ BLD_GDBM() {
   ./configure "--prefix=$INSTALL_DIR" --enable-libgdbm-compat
   make
   make install
-}
-PST_GDBM() {
-  :
 }
 
 DIR_BZIP2="bzip2-1.0.6"
@@ -86,9 +77,6 @@ BLD_BZIP2() {
   cp -a libbz2.so* "$INSTALL_DIR/lib"
   ( cd "$INSTALL_DIR/lib"; ln -s libbz2.so.1.0 libbz2.so )
 }
-PST_BZIP2() {
-  :
-}
 
 DIR_ZLIB="zlib-1.2.8"
 SRC_ZLIB="$DIR_ZLIB.tar.gz"
@@ -100,9 +88,6 @@ BLD_ZLIB() {
   make
   make install
 }
-PST_ZLIB() {
-  :
-}
 
 DIR_SQLITE="sqlite-autoconf-3080701"
 SRC_SQLITE="$DIR_SQLITE.tar.gz"
@@ -113,9 +98,6 @@ BLD_SQLITE() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-}
-PST_SQLITE() {
-  :
 }
 
 DIR_NCURSES="ncurses-5.9"
@@ -142,9 +124,6 @@ BLD_READLINE() {
   make SHLIB_LIBS=-lncurses
   make install
 }
-PST_READLINE() {
-  :
-}
 
 # Perl is needed by OpenSSL!
 DIR_PERL="perl-5.20.1"
@@ -156,9 +135,6 @@ BLD_PERL() {
   ./Configure -de "-Dprefix=$INSTALL_DIR" -Dusenm=n < /dev/null
   make
   make install
-}
-PST_PERL() {
-  :
 }
 
 DIR_OPENSSL="openssl-1.0.1j"
@@ -190,9 +166,6 @@ BLD_EXPAT() {
   make
   make install
 }
-PST_EXPAT() {
-  :
-}
 
 VER_PYTHON="2.7.8"
 DIR_PYTHON="Python-$VER_PYTHON"
@@ -205,9 +178,6 @@ BLD_PYTHON() {
   make
   make install
 }
-PST_PYTHON() {
-  :
-}
 
 # PCRE for Go (one of the tests complains without it)
 DIR_PCRE="pcre-8.36"
@@ -219,9 +189,6 @@ BLD_PCRE() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-}
-PST_PCRE() {
-  :
 }
 
 # Race detector for Go
@@ -242,9 +209,6 @@ BLD_LLVM_COMPILER_RT() {
   sed -i 's/-std=c++11//g' buildgo.sh
   sed -i 's/-ffreestanding/-fno-strict-aliasing -D__libc_malloc=malloc -D__libc_free=free -D__libc_mallinfo=mallinfo -Dnullptr=0/g' buildgo.sh
   ./buildgo.sh
-}
-PST_LLVM_COMPILER_RT() {
-  :
 }
 
 DIR_GO="go"
@@ -338,9 +302,6 @@ CHK_LIBAIO="5c69f43b71d0979b870f49a6cb9e2547ae2344575d8428698ebf5fde13b33529"
 SUM_LIBAIO="sha256"
 BLD_LIBAIO() {
   make "prefix=$INSTALL_DIR" install
-}
-PST_LIBAIO() {
-  :
 }
 
 # Boost is required by thin-provisioning-tools - a heavy requirement!
@@ -493,9 +454,6 @@ EOF
   CXXFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -lm" make
   make install
 }
-PST_THIN_PROVISIONING_TOOLS() {
-  :
-}
 
 DIR_LVM="LVM2.2.02.111"
 SRC_LVM="$DIR_LVM.tgz"
@@ -510,9 +468,6 @@ BLD_LVM() {
   PATH="$PATH:$PWD/autoconf" make install_device-mapper
   cp -a autoconf/fmt "$INSTALL_DIR/bin"
   cp libdm/libdevmapper.pc "$INSTALL_DIR/lib/pkgconfig"
-}
-PST_LVM() {
-  :
 }
 
 VER_UTIL_LINUX="2.25.2"
@@ -588,9 +543,6 @@ EOF
   make
   make install
 }
-PST_UTIL_LINUX() {
-  :
-}
 
 DIR_LZO="lzo-2.08"
 SRC_LZO="$DIR_LZO.tar.gz"
@@ -601,9 +553,6 @@ BLD_LZO() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-}
-PST_LZO() {
-  :
 }
 
 VER_E2FSPROGS="1.42.12"
@@ -643,9 +592,6 @@ EOF
   make
   make install
 }
-PST_E2FSPROGS() {
-  :
-}
 
 VER_BTRFS_PROGS="3.17"
 DIR_BTRFS_PROGS="btrfs-progs-v$VER_BTRFS_PROGS"
@@ -673,9 +619,6 @@ EOF
   rm -f "$INSTALL_DIR"/lib/libbtrfs.*
   prefix="$INSTALL_DIR" CPATH="$INSTALL_DIR/include:$PWD" DISABLE_BACKTRACE=1 DISABLE_DOCUMENTATION=1 make install
 }
-PST_BTRFS_PROGS() {
-  :
-}
 
 VER_CGROUPFS_MOUNT="1.1"
 DIR_CGROUPFS_MOUNT="cgroupfs-mount-$VER_CGROUPFS_MOUNT"
@@ -687,9 +630,6 @@ BLD_CGROUPFS_MOUNT() {
   sed -i 's/\/etc\/fstab/\/dev\/null/g' cgroupfs-mount
   cp cgroupfs-* "$INSTALL_DIR/bin"
 }
-PST_CGROUPFS_MOUNT() {
-  :
-}
 
 DIR_IPTABLES="iptables-1.4.21"
 SRC_IPTABLES="$DIR_IPTABLES.tar.bz2"
@@ -700,9 +640,6 @@ BLD_IPTABLES() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-}
-PST_IPTABLES() {
-  :
 }
 
 VER_DOCKER="1.3.1"
@@ -740,9 +677,6 @@ EOF
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }
-PST_DOCKER() {
-  :
-}
 
 VER_RUNIT="2.1.2"
 DIR_RUNIT="admin/runit-$VER_RUNIT"
@@ -762,9 +696,6 @@ BLD_RUNIT() {
   ./package/install
 EOF
 }
-PST_RUNIT() {
-  :
-}
 
 DIR_ETHTOOL="ethtool-3.16"
 SRC_ETHTOOL="$DIR_ETHTOOL.tar.gz"
@@ -775,9 +706,6 @@ BLD_ETHTOOL() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-}
-PST_ETHTOOL() {
-  :
 }
 
 DIR_LIBNFNETLINK="libnfnetlink-1.0.1"
@@ -790,9 +718,6 @@ BLD_LIBNFNETLINK() {
   make
   make install
 }
-PST_LIBNFNETLINK() {
-  :
-}
 
 DIR_LIBMNL="libmnl-1.0.3"
 SRC_LIBMNL="$DIR_LIBMNL.tar.bz2"
@@ -803,9 +728,6 @@ BLD_LIBMNL() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-}
-PST_LIBMNL() {
-  :
 }
 
 DIR_LIBNETFILTER_CONNTRACK="libnetfilter_conntrack-1.0.4"
@@ -818,9 +740,6 @@ BLD_LIBNETFILTER_CONNTRACK() {
   make
   make install
 }
-PST_LIBNETFILTER_CONNTRACK() {
-  :
-}
 
 DIR_LIBNETFILTER_CTTIMEOUT="libnetfilter_cttimeout-1.0.0"
 SRC_LIBNETFILTER_CTTIMEOUT="$DIR_LIBNETFILTER_CTTIMEOUT.tar.bz2"
@@ -831,9 +750,6 @@ BLD_LIBNETFILTER_CTTIMEOUT() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-}
-PST_LIBNETFILTER_CTTIMEOUT() {
-  :
 }
 
 DIR_LIBNETFILTER_CTHELPER="libnetfilter_cthelper-1.0.0"
@@ -846,9 +762,6 @@ BLD_LIBNETFILTER_CTHELPER() {
   make
   make install
 }
-PST_LIBNETFILTER_CTHELPER() {
-  :
-}
 
 DIR_LIBNETFILTER_QUEUE="libnetfilter_queue-1.0.2"
 SRC_LIBNETFILTER_QUEUE="$DIR_LIBNETFILTER_QUEUE.tar.bz2"
@@ -859,24 +772,6 @@ BLD_LIBNETFILTER_QUEUE() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-}
-PST_LIBNETFILTER_QUEUE() {
-  :
-}
-
-DIR_REFLEX="reflex-20131209"
-SRC_REFLEX="$DIR_REFLEX.tar.gz"
-URL_REFLEX="http://invisible-island.net/datafiles/release/reflex.tar.gz"
-CHK_REFLEX="0ebbfa2d564e1e211ccf862ad6f12dbffa784164ea4492d08b9d50a592aaf0e2"
-SUM_REFLEX="sha256"
-BLD_REFLEX() {
-  ./configure "--prefix=$INSTALL_DIR"
-  make
-  make install
-  ( cd "$INSTALL_DIR/bin"; ln -s reflex flex; ln -s reflex lex )
-}
-PST_REFLEX() {
-  :
 }
 
 DIR_BYACC="byacc-20141006"
@@ -890,8 +785,17 @@ BLD_BYACC() {
   make install
   ( cd "$INSTALL_DIR/bin"; ln -s yacc byacc )
 }
-PST_BYACC() {
-  :
+
+DIR_REFLEX="reflex-20131209"
+SRC_REFLEX="$DIR_REFLEX.tar.gz"
+URL_REFLEX="http://invisible-island.net/datafiles/release/reflex.tar.gz"
+CHK_REFLEX="0ebbfa2d564e1e211ccf862ad6f12dbffa784164ea4492d08b9d50a592aaf0e2"
+SUM_REFLEX="sha256"
+BLD_REFLEX() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+  ( cd "$INSTALL_DIR/bin"; ln -s reflex flex; ln -s reflex lex )
 }
 
 DIR_CONNTRACK_TOOLS="conntrack-tools-1.4.2"
@@ -904,9 +808,6 @@ BLD_CONNTRACK_TOOLS() {
   make
   make install
 }
-PST_CONNTRACK_TOOLS() {
-  :
-}
 
 DIR_IPROUTE2="iproute2-3.16.0"
 SRC_IPROUTE2="$DIR_IPROUTE2.tar.gz"
@@ -917,10 +818,7 @@ BLD_IPROUTE2() {
   sed -ri -e '/%error-verbose/d' -e '/%name-prefix="ematch_"/d' -e '/extern void yyerror/d' -e 's/(void yyerror\()/\1YYLTYPE loc, /' tc/emp_ematch.y
   sed -ri -e 's/bison ([^ ]+) (.*)/byacc \2 \1/g' -e '/^TARGETS/s@arpd@@g' misc/Makefile
   make DESTDIR="$INSTALL_DIR" PREFIX= YACC=byacc YACCFLAGS="-d -t -v -L -p ematch_" install
-  ln -sf "$INSTALL_DIR/etc/iproute2" /etc
-}
-PST_IPROUTE2() {
-  :
+  chroot "$CHROOT_DIR" ln -sf "$INSTALL_DIR/etc/iproute2" /etc
 }
 
 DIR_LIBPCAP="libpcap-1.6.2"
@@ -933,9 +831,6 @@ BLD_LIBPCAP() {
   make
   make install
 }
-PST_LIBPCAP() {
-  :
-}
 
 DIR_CURL="curl-7.39.0"
 SRC_CURL="$DIR_CURL.tar.bz2"
@@ -946,9 +841,6 @@ BLD_CURL() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-}
-PST_CURL() {
-  :
 }
 
 VER_WEAVE="6d1792ebdfe4b6d60841d8d9b6d73834a2206182"
@@ -967,9 +859,6 @@ GET_WEAVE_DEPS() {
 BLD_WEAVE_DEPS() {
   cp -a * "$GOPATH"
 }
-PST_WEAVE_DEPS() {
-  :
-}
 
 DIR_WEAVE="weave-$VER_WEAVE"
 SRC_WEAVE="$DIR_WEAVE.tar.gz"
@@ -987,9 +876,6 @@ BLD_WEAVE() {
   CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" make SUDO= weaver/weaver weavedns/weavedns
   ln -sf "$WEAVE_DIR/weave" "$GOPATH/bin"
 }
-PST_WEAVE() {
-  :
-}
 
 DIR_SHADOW="shadow-4.2.1"
 SRC_SHADOW="$DIR_SHADOW.tar.xz"
@@ -999,10 +885,12 @@ SUM_SHADOW="sha256"
 BLD_SHADOW() {
   ./configure "--prefix=$INSTALL_DIR" --sysconfdir=/etc
   make
+  chroot "$CHROOT_DIR" ash <<EOF
+  cp /etc/login.defs /etc/login.defs.save
+  cd "$PWD"
   make install
-}
-PST_SHADOW() {
-  :
+  mv /etc/login.defs.save /etc/login.defs
+EOF
 }
 
 PACKAGES=(LIBICONV
@@ -1041,8 +929,8 @@ PACKAGES=(LIBICONV
           LIBNETFILTER_CTTIMEOUT
           LIBNETFILTER_CTHELPER
           LIBNETFILTER_QUEUE
-          REFLEX
           BYACC
+          REFLEX
           CONNTRACK_TOOLS
           IPROUTE2
           LIBPCAP

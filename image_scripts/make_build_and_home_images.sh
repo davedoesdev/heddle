@@ -39,7 +39,7 @@ for pkg in "${PACKAGES[@]}"; do
   vsum="SUM_$pkg"
   dest="$IMG_BUILD:download/${!vsrc}"
   if ! e2ls "$dest" >& /dev/null; then
-    if type GET_$pkg | grep -q function; then
+    if type GET_$pkg 2> /dev/null | grep -q function; then
       tmpd="$(mktemp -d)"
       ( cd "$tmpd"; GET_$pkg ) | copy - "download/${!vsrc}"
       rm -rf "$tmpd"

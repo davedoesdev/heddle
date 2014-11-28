@@ -5,7 +5,9 @@ HERE="$(dirname "$0")"
 
 . "$HERE/packages"
 for pkg in "${PACKAGES[@]}"; do
-  PST_$pkg
+  if type PST_$pkg 2> /dev/null | grep -q function; then
+    PST_$pkg
+  fi
 done
 
 export THE_PATH="$PATH"

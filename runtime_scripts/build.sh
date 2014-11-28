@@ -35,7 +35,9 @@ for pkg in "${PACKAGES[@]}"; do
     popd
     touch "${!vdir}.built"
   fi
-  PST_$pkg
+  if type PST_$pkg 2> /dev/null | grep -q function; then
+    PST_$pkg
+  fi
 done
 
 [ -n "$interactive" -o -n "$Interactive" ] && chroot "$CHROOT_DIR" ash
