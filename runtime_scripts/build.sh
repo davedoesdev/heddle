@@ -22,6 +22,8 @@ do
   esac
 done
 
+unset updated
+
 . "$HERE/packages"
 for pkg in "${PACKAGES[@]}"; do
   vdir="DIR_$pkg"
@@ -34,11 +36,17 @@ for pkg in "${PACKAGES[@]}"; do
     BLD_$pkg
     popd
     touch "${!vdir}.built"
+    updated=1
   fi
   if type PST_$pkg 2> /dev/null | grep -q function; then
     PST_$pkg
   fi
 done
+
+sqf="$INSTALL_DIR/../install.sqf"
+if [ -z "$Interactive" -a \( -n "$updated" -o ! -e "$sqf" \) ]; then
+  mksquashfs "$INSTALL_DIR" "$sqf" -noappend -all-root -mem 512M
+fi
 
 [ -n "$interactive" -o -n "$Interactive" ] && chroot "$CHROOT_DIR" ash
 

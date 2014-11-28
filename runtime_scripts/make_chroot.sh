@@ -17,7 +17,10 @@ fi
 
 # make sure chroot is a mount point
 cd "$1"
-mount -o bind . .
+
+if ! mount | grep -q "$1 "; then
+  mount -o bind . .
+fi
 
 for x in /*; do
   d="$1$x"

@@ -893,6 +893,18 @@ BLD_SHADOW() {
 EOF
 }
 
+VER_SQUASHFS_TOOLS="9c1db6d13a51a2e009f0027ef336ce03624eac0d"
+DIR_SQUASHFS_TOOLS="squashfs-tools-$VER_SQUASHFS_TOOLS"
+SRC_SQUASHFS_TOOLS="$DIR_SQUASHFS_TOOLS.tar.gz"
+URL_SQUASHFS_TOOLS="https://github.com/plougher/squashfs-tools/archive/$VER_SQUASHFS_TOOLS.tar.gz"
+CHK_SQUASHFS_TOOLS="4294b3f9be9163bc0c610cf2894e6e0833b23d529296ea3dcb50bfb5ba04739f"
+SUM_SQUASHFS_TOOLS="sha256"
+BLD_SQUASHFS_TOOLS() {
+  cd squashfs-tools
+  make
+  make INSTALL_DIR="$INSTALL_DIR/bin" install
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -937,4 +949,5 @@ PACKAGES=(LIBICONV
           CURL
           WEAVE_DEPS
           WEAVE
-          SHADOW)
+          SHADOW
+          SQUASHFS_TOOLS)
