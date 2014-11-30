@@ -43,10 +43,5 @@ for pkg in "${PACKAGES[@]}"; do
   fi
 done
 
-sqf="$INSTALL_DIR/../install.sqf"
-if [ -z "$Interactive" -a \( -n "$updated" -o ! -e "$sqf" \) ]; then
-  mksquashfs "$INSTALL_DIR" "$sqf" -noappend -all-root -mem 512M
-fi
-
 [ -n "$interactive" -o -n "$Interactive" ] && chroot "$CHROOT_DIR" ash
 
