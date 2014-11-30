@@ -18,6 +18,7 @@ copy() {
 copy "$HERE/../runtime_scripts/dist.sh" init
 copy "$HERE/../images/run.img"
 copy "build/system-image-${1:-x86_64}/hda.sqf"
+copy "$HERE/../runtime_scripts/init.sh"
 
 if [ ! -e "$HERE/../images/heddle.img" ]; then
   # assume cp recognises sparse files

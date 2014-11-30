@@ -6,6 +6,8 @@ In aboriginal-1.2.9:
 /path/to/heddle/aboriginal_scripts/build_heddle.sh
 /path/to/heddle/image_scripts/make_run_and_extra_images.sh
 /path/to/heddle/aboriginal_scripts/run_heddle.sh
+/path/to/heddle/image_scripts/make_dist_image.sh
+/path/to/heddle/aboriginal_scripts/dist_heddle.sh
 
 ---
 
