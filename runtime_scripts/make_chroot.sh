@@ -17,9 +17,8 @@ fi
 
 # make sure chroot is a mount point
 cd "$1"
-
 if ! mount | grep -q "$1 "; then
-  mount -o bind . .
+  mount -o rbind . .
 fi
 
 for x in /*; do
@@ -33,7 +32,7 @@ for x in /*; do
       if [ -d "$y" ]; then
         mkdir -p "$d"
         if [ "$y" != /etc/default ] && ! mount | grep -q "$d "; then
-          mount -o bind "$y" "$d"
+          mount -o rbind "$y" "$d"
         fi
       elif [ ! -e "$d" ]; then
         cp "$y" "$d"
@@ -41,7 +40,7 @@ for x in /*; do
     done
   else
     if ! mount | grep -q "$d "; then
-      mount -o bind "$x" "$d"
+      mount -o rbind "$x" "$d"
     fi
   fi
 done

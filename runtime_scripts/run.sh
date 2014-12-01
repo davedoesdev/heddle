@@ -20,11 +20,11 @@ fi
 
 mkdir -p /home/heddle
 
-if [ -b /dev/[hsv]dd ]; then
+if [ -b /dev/[hsv]dd ] && ! mount | grep -q "/extra/docker "; then
   chroot "$CHROOT_DIR" mount /dev/[hsv]dd /extra
 fi
 
 chroot "$CHROOT_DIR" cgroupfs-mount
 
-nohup chroot "$CHROOT_DIR" /startup/runsvdir > "$CHROOT_DIR/var/log/runsvdir-startup.log" &
+nohup chroot "$CHROOT_DIR" /startup/runsvdir >& "$CHROOT_DIR/var/log/runsvdir-startup.log" &
 exec chroot "$CHROOT_DIR" /startup/agetty-default

@@ -8,6 +8,7 @@ In aboriginal-1.2.9:
 /path/to/heddle/aboriginal_scripts/run_heddle.sh
 /path/to/heddle/image_scripts/make_dist_image.sh
 /path/to/heddle/aboriginal_scripts/dist_heddle.sh
+/path/to/heddle/image_scripts/boot_heddle.sh
 
 ---
 
@@ -27,21 +28,19 @@ wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 rm get-pip.py
 
+#TODO
+# boot in graphic mode, get logins on vts, console and ttyS0
+# resize image file
+#   Resize to disk when boots
+# test on bare metal
+# patch init.sh outside qemu so doesn't try to mount hdb and hdc
+# Image upgrade
+#   Use salt to update image itself. 
+# Networking: dhcp on metal
+
 # nfdhcpd
 # kvm
 # capstan
 # Fold
 # Saltstack
-
-#TODO
-# Remove source once built
-# Image upgrade
-
----
-Later we can combine to make it all bootable
-And we can have a /dev/hdc whose /mnt/init does boot tasks like resizing hdb
-and configuring networking
-Although it will be partitions on a real machine?
-
-Use salt to update image itself. 
 
