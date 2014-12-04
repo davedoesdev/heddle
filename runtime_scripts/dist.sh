@@ -16,7 +16,7 @@ rm -rf "$DIST_DIR"
 mkdir "$DIST_DIR"
 
 cp -a "$here/hda.sqf" "$DIST_DIR/root.sqf"
-mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M
+mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M -noI -noD -noF -noX
 mksquashfs /tmp/mnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
 
 cp /bin/{bash,mount,mkdir,ls} /sbin/chroot "$here/init.sh" "$DIST_DIR"

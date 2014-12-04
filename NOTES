@@ -29,9 +29,17 @@ python get-pip.py
 rm get-pip.py
 
 #TODO
-# boot in graphic mode, get logins on vts, console and ttyS0
+# add usb support for keyboard on vts
+# check usb storage support
+# make bootable
+#   Just one big disk?
+#     need to spec root indenpedent of device
+#     Otherwise need to spec how to split things up
+#   Should work on usb stick too
+#   Fix init.sh so if mount points on /home or /mnt then don't mount
 # resize image file
 #   Resize to disk when boots
+#   Swap partition/file
 # test on bare metal
 # patch init.sh outside qemu so doesn't try to mount hdb and hdc
 # Image upgrade

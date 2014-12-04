@@ -1,3 +1,0 @@
-#!/bin/sh
-login "$@"
-exec /startup/agetty-default
