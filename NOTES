@@ -29,19 +29,17 @@ python get-pip.py
 rm get-pip.py
 
 #TODO
-# add usb support for keyboard on vts
-# check usb storage support
 # make bootable
 #   Just one big disk?
-#     need to spec root indenpedent of device
+#     need to spec root independent of device
 #     Otherwise need to spec how to split things up
 #   Should work on usb stick too
 #   Fix init.sh so if mount points on /home or /mnt then don't mount
+#   (patch init.sh outside qemu so doesn't try to mount hdb and hdc)
 # resize image file
 #   Resize to disk when boots
 #   Swap partition/file
 # test on bare metal
-# patch init.sh outside qemu so doesn't try to mount hdb and hdc
 # Image upgrade
 #   Use salt to update image itself. 
 # Networking: dhcp on metal
