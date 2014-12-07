@@ -587,7 +587,7 @@ BLD_E2FSPROGS() {
 EOF
   mkdir build
   cd build
-  ../configure "--prefix=$INSTALL_DIR" --disable-debugfs --disable-imager --disable-resizer --disable-defrag
+  ../configure "--prefix=$INSTALL_DIR" --disable-debugfs --disable-imager --disable-defrag
   sed -i 's/diff -c/diff -u/g' lib/et/Makefile
   make
   make install

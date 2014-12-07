@@ -13,7 +13,22 @@ fi
 
 if [ ! -e "$IMG_EXTRA" ]; then
   dd if=/dev/zero "of=$IMG_EXTRA" bs=1024 "seek=$((32 * 1024 * 1024))" count=0
-  mke2fs -t ext4 "$IMG_EXTRA"
+  parted "$IMG_EXTRA" mklabel gpt \
+                      mkpart esp fat32 0% 513MiB \
+                      set 1 boot on \
+                      mkpart root ext4 513MiB 100%
+
+  tmp="$(mktemp)"
+  dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
+  mkfs.fat "$tmp"
+  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
+  rm -f "$tmp"
+
+  tmp="$(mktemp)"
+  dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
+  mke2fs -t ext4 "$tmp"
+  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$((513 * 1024))" conv=sparse,notrunc
+  rm -f "$tmp"
 fi
 
 copy() {

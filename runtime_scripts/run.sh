@@ -20,8 +20,9 @@ fi
 
 mkdir -p /home/heddle
 
-if [ -b /dev/[hsv]dd ] && ! mount | grep -q "/extra/docker "; then
-  chroot "$CHROOT_DIR" mount /dev/[hsv]dd /extra
+if [ -b /dev/[hsv]dd2 ] && ! mount | grep -q "/extra/docker "; then
+  resize2fs /dev/[hsv]dd2
+  chroot "$CHROOT_DIR" mount /dev/[hsv]dd2 /extra
 fi
 
 chroot "$CHROOT_DIR" cgroupfs-mount

@@ -8,8 +8,8 @@ HERE=/tmp/mnt . /tmp/mnt/common.sh
 EXTRA_DIR="$CHROOT_DIR/extra"
 DIST_DIR="$EXTRA_DIR/dist"
 
-if [ -b /dev/[hsv]dd ]; then
-  mount /dev/[hsv]dd "$EXTRA_DIR"
+if [ -b /dev/[hsv]dd2 ]; then
+  mount /dev/[hsv]dd2 "$EXTRA_DIR"
 fi
 
 rm -rf "$DIST_DIR"
