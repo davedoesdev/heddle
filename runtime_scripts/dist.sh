@@ -8,8 +8,8 @@ HERE=/tmp/mnt . /tmp/mnt/common.sh
 EXTRA_DIR="$CHROOT_DIR/extra"
 DIST_DIR="$EXTRA_DIR/dist"
 
-if [ -b /dev/[hsv]dd2 ]; then
-  mount /dev/[hsv]dd2 "$EXTRA_DIR"
+if [ -b /dev/[hsv]dd3 ]; then
+  mount /dev/[hsv]dd3 "$EXTRA_DIR"
 fi
 
 rm -rf "$DIST_DIR"
@@ -19,7 +19,7 @@ cp -a "$here/hda.sqf" "$DIST_DIR/root.sqf"
 mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M -noI -noD -noF -noX
 mksquashfs /tmp/mnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
 
-cp /bin/{bash,mount,mkdir,ls} /sbin/chroot "$here/init.sh" "$DIST_DIR"
+cp /bin/{bash,mount} "$here/init.sh" "$DIST_DIR"
 
 rm -rf "$EXTRA_DIR/home"
 mkdir "$EXTRA_DIR/home"{,/install}
@@ -38,4 +38,10 @@ done
 
 rm -rf "$EXTRA_DIR"/{root,dev}
 mkdir -p "$EXTRA_DIR"/{root,dev}
+
+mkdir /tmp/initrd
+cp /bin/bash /tmp/initrd
+cp "$here/initrd.sh" /tmp/initrd/init
+( cd /tmp/initrd; find . | cpio -o -H newc | gzip > "$DIST_DIR/initrd.img" )
+python -c 'import uu, sys; uu.encode("-", "-", "initrd.img")' < "$DIST_DIR/initrd.img"
 

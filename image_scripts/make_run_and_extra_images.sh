@@ -5,6 +5,7 @@ set -e
 cd "$(dirname "$0")"
 IMG_RUN=../images/run.img
 IMG_EXTRA=../images/extra.img
+SWAP_GB=4
 
 if [ ! -e "$IMG_RUN" ]; then
   dd if=/dev/zero "of=$IMG_RUN" bs=1024 "seek=$((1 * 1024))" count=0
@@ -16,7 +17,8 @@ if [ ! -e "$IMG_EXTRA" ]; then
   parted "$IMG_EXTRA" mklabel gpt \
                       mkpart esp fat32 0% 513MiB \
                       set 1 boot on \
-                      mkpart root ext4 513MiB 100%
+                      mkpart swap linux-swap 513MiB "$((513 + $SWAP_GB * 1024))MiB" \
+                      mkpart root ext4 "$((513 + $SWAP_GB * 1024))MiB" 100%
 
   tmp="$(mktemp)"
   dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
@@ -25,9 +27,16 @@ if [ ! -e "$IMG_EXTRA" ]; then
   rm -f "$tmp"
 
   tmp="$(mktemp)"
+  dd if=/dev/zero "of=$tmp" bs=1024 "seek=$(($SWAP_GB * 1024 * 1024))" count=0
+  mkswap "$tmp"
+  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$((513 * 1024))" conv=sparse,notrunc
+  rm -f "$tmp"
+
+
+  tmp="$(mktemp)"
   dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
   mke2fs -t ext4 "$tmp"
-  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$((513 * 1024))" conv=sparse,notrunc
+  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$(((513 + 4 * 1024) * 1024))" conv=sparse,notrunc
   rm -f "$tmp"
 fi
 

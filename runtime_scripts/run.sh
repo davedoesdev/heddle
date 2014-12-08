@@ -20,9 +20,16 @@ fi
 
 mkdir -p /home/heddle
 
-if [ -b /dev/[hsv]dd2 ] && ! mount | grep -q "/extra/docker "; then
-  resize2fs /dev/[hsv]dd2
-  chroot "$CHROOT_DIR" mount /dev/[hsv]dd2 /extra
+if [ -b /dev/[hsv]dd2 -a "$(cat /proc/swaps | wc -l)" -eq 1 ]; then
+  swapon /dev/[hsv]dd2
+fi
+
+if [ -b /dev/[hsv]dd3 ] && ! mount | grep -q "/extra/docker "; then
+  ( e2fsck -fy /dev/[hsv]dd3 2>&1 || echo "e2fsck failed: $?" ) | tee "$CHROOT_DIR/var/log/e2fsck-startup.log"
+  resize2fs /dev/[hsv]dd3
+  chroot "$CHROOT_DIR" mount /dev/[hsv]dd3 /extra
+else
+  rm -f "$CHROOT_DIR/var/log/e2fsck-startup.log"
 fi
 
 chroot "$CHROOT_DIR" cgroupfs-mount
