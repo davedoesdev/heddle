@@ -1,6 +1,9 @@
 #!/bin/bash
 # build enough to get weave, fold and salt working
 set -e
+if [ ! -h /dev/fd ]; then
+  ln -s /proc/self/fd /dev
+fi
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
 

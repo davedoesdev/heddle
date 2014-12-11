@@ -905,6 +905,17 @@ BLD_SQUASHFS_TOOLS() {
   make INSTALL_DIR="$INSTALL_DIR/bin" install
 }
 
+DIR_PARTED="parted-3.2"
+SRC_PARTED="$DIR_PARTED.tar.xz"
+URL_PARTED="http://ftp.gnu.org/gnu/parted/$SRC_PARTED"
+CHK_PARTED="858b589c22297cacdf437f3baff6f04b333087521ab274f7ab677cb8c6bb78e4"
+SUM_PARTED="sha256"
+BLD_PARTED() {
+  LIBS=-liconv ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -950,4 +961,5 @@ PACKAGES=(LIBICONV
           WEAVE_DEPS
           WEAVE
           SHADOW
-          SQUASHFS_TOOLS)
+          SQUASHFS_TOOLS
+          PARTED)

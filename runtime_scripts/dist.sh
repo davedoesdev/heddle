@@ -19,7 +19,7 @@ cp -a "$here/hda.sqf" "$DIST_DIR/root.sqf"
 mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M -noI -noD -noF -noX
 mksquashfs /tmp/mnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
 
-cp /bin/{bash,mount} "$here/init.sh" "$DIST_DIR"
+cp /bin/{bash,busybox,toybox} "$here/init.sh" "$DIST_DIR"
 
 rm -rf "$EXTRA_DIR/home"
 mkdir "$EXTRA_DIR/home"{,/install}
@@ -39,9 +39,13 @@ done
 rm -rf "$EXTRA_DIR"/{root,dev}
 mkdir -p "$EXTRA_DIR"/{root,dev}
 
-mkdir /tmp/initrd
-cp /bin/bash /tmp/initrd
-cp "$here/initrd.sh" /tmp/initrd/init
-( cd /tmp/initrd; find . | cpio -o -H newc | gzip > "$DIST_DIR/initrd.img" )
-python -c 'import uu, sys; uu.encode("-", "-", "initrd.img")' < "$DIST_DIR/initrd.img"
-
+mkdir /tmp/{mnt2,initrd}
+cd /tmp/initrd
+mkdir bin lib etc proc dev newroot
+cp /bin/{bash,busybox,toybox} "$INSTALL_DIR/sbin"/{e2fsck,resize2fs,parted} bin
+cp /lib/{libpthread.so.0,libc.so.0,ld-uClibc.so.0,libdl.so.0} "$INSTALL_DIR/lib"/{libiconv.so.2,libparted.so.2,libreadline.so.6,libncurses.so.5,libuuid.so.1,libdevmapper.so.1.02,libblkid.so.1} lib
+cp "$here/initrd.sh" init
+find . | cpio -o -H newc | gzip > "$DIST_DIR/initrd.img"
+mount /dev/sda /tmp/mnt2
+cp "$DIST_DIR/initrd.img" /tmp/mnt2
+umount /dev/sda

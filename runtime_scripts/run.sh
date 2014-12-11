@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
+if [ ! -h /dev/fd ]; then
+  ln -s /proc/self/fd /dev
+fi
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
 
@@ -24,15 +27,20 @@ if [ -b /dev/[hsv]dd2 -a "$(cat /proc/swaps | wc -l)" -eq 1 ]; then
   swapon /dev/[hsv]dd2
 fi
 
-if [ -b /dev/[hsv]dd3 ] && ! mount | grep -q "/extra/docker "; then
-  ( e2fsck -fy /dev/[hsv]dd3 2>&1 || echo "e2fsck failed: $?" ) | tee "$CHROOT_DIR/var/log/e2fsck-startup.log"
-  resize2fs /dev/[hsv]dd3
-  chroot "$CHROOT_DIR" mount /dev/[hsv]dd3 /extra
-else
-  rm -f "$CHROOT_DIR/var/log/e2fsck-startup.log"
+dev="$(echo /dev/[hsv]dd3)"
+if [ -b "$dev" ] && ! mount | grep -q "/extra/docker "; then
+  cat <<EOF | parted ---pretend-input-tty "${dev%3}" resizepart 3 100%
+fix
+3
+100%
+EOF
+  parted "${dev%3}" print
+  e2fsck -fy "$dev" || if [ $? -ne 1 ]; then exit $?; fi
+  resize2fs "$dev"
+  chroot "$CHROOT_DIR" mount "$dev" /extra
 fi
 
 chroot "$CHROOT_DIR" cgroupfs-mount
 
-exec chroot "$CHROOT_DIR" /startup/runsvdir >& "$CHROOT_DIR/var/log/runsvdir-startup.log"
+exec chroot "$CHROOT_DIR" /startup/runsvdir
 
