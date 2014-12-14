@@ -34,6 +34,7 @@ for pkg in "${PACKAGES[@]}"; do
   if [ -z "$Interactive" -a ! -e "${!vdir}.built" ]; then
     rm -rf "${!vdir}"
     tar -xf "$HERE/download/${!vsrc}"
+    chown -R root:root "${!vdir}"
     tar -xf "$HERE/supplemental.tar.gz" "${!vdir}" >& /dev/null || true
     pushd "${!vdir}"
     BLD_$pkg

@@ -916,6 +916,26 @@ BLD_PARTED() {
   make install
 }
 
+DIR_POPT="popt-1.16"
+SRC_POPT="$DIR_POPT.tar.gz"
+URL_POPT="http://rpm5.org/files/popt/$SRC_POPT"
+CHK_POPT="e728ed296fe9f069a0e005003c3d6b2dde3d9cad453422a10d6558616d304cc8"
+SUM_POPT="sha256"
+BLD_POPT() {
+  ./configure "--prefix=$INSTALL_DIR"
+}
+
+VER_GPTFDISK="0.8.10"
+DIR_GPTFDISK="gptfdisk-$VER_GPTFDISK"
+SRC_GPTFDISK="$DIR_GPTFDISK.tar.gz"
+URL_GPTFDISK="http://downloads.sourceforge.net/project/gptfdisk/gptfdisk/$VER_GPTFDISK/$SRC_GPTFDISK"
+CHK_GPTFDISK="73e64151203ae0c347c488358e71ca582bb7fb7f0d66df86b71c42050390eb9b"
+SUM_GPTFDISK="sha256"
+BLD_GPTFDISK() {
+  LDFLAGS="$LDFLAGS -lm" make sgdisk
+  cp sgdisk "$INSTALL_DIR/sbin"
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -962,4 +982,6 @@ PACKAGES=(LIBICONV
           WEAVE
           SHADOW
           SQUASHFS_TOOLS
-          PARTED)
+          PARTED
+          POPT
+          GPTFDISK)

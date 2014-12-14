@@ -29,8 +29,6 @@ python get-pip.py
 rm get-pip.py
 
 #TODO
-# exec tee thing - test by outputting later
-# how do we handle GUID root specs?
 # support image updates
 # make bootable
 #   refind to boot from partition 3
