@@ -1,5 +1,5 @@
 #!/bin/bash
-# copy files from /etc in run.img to chroot
+# copy files from /etc in home.img to chroot
 set -e
 cd "$(dirname "$0")"
 IMG_HOME=../images/home.img

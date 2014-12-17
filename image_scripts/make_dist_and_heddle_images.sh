@@ -1,5 +1,6 @@
 #!/bin/bash
 # make dist.img, copy dist.sh and hda.sqf into it
+# make heddle.img (copy of extra.img)
 set -e
 HERE="$(dirname "$0")"
 IMG_DIST="$HERE/../images/dist.img"

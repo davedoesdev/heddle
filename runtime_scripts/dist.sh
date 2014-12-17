@@ -8,8 +8,17 @@ HERE=/tmp/mnt . /tmp/mnt/common.sh
 EXTRA_DIR="$CHROOT_DIR/extra"
 DIST_DIR="$EXTRA_DIR/dist"
 
-if [ -b /dev/[hsv]dd3 ]; then
-  mount /dev/[hsv]dd3 "$EXTRA_DIR"
+dev="$(echo /dev/[hsv]dd3)"
+if [ -b "$dev" ]; then
+  cat <<EOF | parted ---pretend-input-tty "${dev%3}" resizepart 3 100%
+fix
+3
+100%
+EOF
+  parted "${dev%3}" print
+  e2fsck -fy "$dev" || if [ $? -ne 1 ]; then exit $?; fi
+  resize2fs "$dev"
+  mount "$dev" "$EXTRA_DIR"
 fi
 
 rm -rf "$DIST_DIR"
@@ -48,4 +57,6 @@ cp "$here/initrd.sh" init
 find . | cpio -o -H newc | gzip > "$DIST_DIR/initrd.img"
 mount /dev/sda /tmp/mnt2
 cp "$DIST_DIR/initrd.img" /tmp/mnt2
+cp /tmp/mnt2/bzImage "$DIST_DIR"
 umount /dev/sda
+ls -l "$DIST_DIR"

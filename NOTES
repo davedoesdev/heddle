@@ -29,16 +29,15 @@ python get-pip.py
 rm get-pip.py
 
 #TODO
-# support image updates
 # make bootable
 #   refind to boot from partition 3
-#   need to spec root independent of device (guids)
-#   Should work on usb stick too
-#   Fix init.sh so if mount points on /home or /mnt then don't mount
-#     (patch init.sh outside qemu so doesn't try to mount hdb and hdc)
+# support image updates
 # mbr version
+# Fix init.sh so if mount points on /home or /mnt then don't mount
+#   (patch init.sh outside qemu so doesn't try to mount hdb and hdc)
 # Support btrfs raid for multiple disks
 # test on bare metal
+#   Should work on usb stick too (could drive with -usbdevice disk:foo.img -boot menu=on)
 # Networking: dhcp on metal
 
 # nfdhcpd

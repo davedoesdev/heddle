@@ -1,6 +1,6 @@
 #!/bin/sh
 exec 2>&1
-mkdir -p /var/lib
+mkdir -p /extra/docker /var/lib
 ln -sf /extra/docker /var/lib
 rm -f /var/run/docker.pid
 exec docker -d

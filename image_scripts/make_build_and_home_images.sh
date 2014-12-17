@@ -49,9 +49,14 @@ for pkg in "${PACKAGES[@]}"; do
       if [ "$sum" != "${!vchk}" ]; then
         e2rm "$dest"
         echo "$0: checksum mismatch for $pkg: $sum != ${!vchk}" 1>&2
-        exit
+        exit 1
       fi
     fi
+  fi
+  if [ "$(e2ls -l "$dest" | awk '{print $5}')" -eq 0 ]; then
+    e2rm "$dest"
+    echo "$0: $pkg is empty"
+    exit 2
   fi
 done
 
