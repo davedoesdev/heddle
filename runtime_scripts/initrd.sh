@@ -10,8 +10,10 @@ if [ -n "$port" ]; then
 fi
 # find root device
 for dev in /dev/[hsv]d?; do
-  name="$(sgdisk -i 3 "$dev" | toybox grep 'Partition name' | busybox awk "{gsub(/'/, \"\", \$NF); print \$NF}")"
-  if [ "$name" = "heddle_root" ]; then
+  name="$(sgdisk -i 3 "$dev" | toybox grep 'Partition name' | toybox cut -d ' ' -f 3-)"
+  if [ "$name" = "'heddle_root'" ] ||
+     ( [ "$name" = "'Linux filesystem'" ] &&
+       [ "$(e2label "${dev}3")" = "heddle_root" ] ); then
     root="${dev}3"
     break
   fi

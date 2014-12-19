@@ -51,12 +51,10 @@ mkdir -p "$EXTRA_DIR"/{root,dev}
 mkdir /tmp/{mnt2,initrd}
 cd /tmp/initrd
 mkdir bin lib etc proc dev newroot
-cp /bin/{bash,busybox,toybox} "$INSTALL_DIR/sbin"/{e2fsck,resize2fs,parted,sgdisk} bin
+cp /bin/{bash,busybox,toybox} "$INSTALL_DIR/sbin"/{e2fsck,e2label,resize2fs,parted,sgdisk} bin
 cp /lib/{libpthread.so.0,libc.so.0,ld-uClibc.so.0,libdl.so.0,libm.so.0,libuClibc++.so.0,libgcc_s.so.1} "$INSTALL_DIR/lib"/{libiconv.so.2,libparted.so.2,libreadline.so.6,libncurses.so.5,libuuid.so.1,libdevmapper.so.1.02,libblkid.so.1,libpopt.so.0} lib
 cp "$here/initrd.sh" init
-find . | cpio -o -H newc | gzip > "$DIST_DIR/initrd.img"
 mount /dev/sda /tmp/mnt2
-cp "$DIST_DIR/initrd.img" /tmp/mnt2
-cp /tmp/mnt2/bzImage "$DIST_DIR"
+find . | cpio -o -H newc | gzip > "/tmp/mnt2/initrd.img"
 umount /dev/sda
 ls -l "$DIST_DIR"

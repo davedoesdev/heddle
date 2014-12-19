@@ -7,6 +7,26 @@ IMG_RUN=../images/run.img
 IMG_EXTRA=../images/extra.img
 SWAP_GB=4
 
+part_type=gpt
+primary=
+while getopts m opt
+do
+  case $opt in
+    m)
+      part_type=msdos
+      primary=primary
+      ;;
+  esac
+done
+
+part_name() {
+  if [ $part_type = gpt ]; then
+    echo "$1"
+  else
+    echo primary
+  fi
+}
+
 VER_REFIND="0.8.4"
 DIR_REFIND="refind-bin-$VER_REFIND"
 SRC_REFIND="$DIR_REFIND.zip"
@@ -31,23 +51,29 @@ fi
 
 if [ ! -e "$IMG_EXTRA" ]; then
   dd if=/dev/zero "of=$IMG_EXTRA" bs=1024 "seek=$((32 * 1024 * 1024))" count=0
-  parted "$IMG_EXTRA" mklabel gpt \
-                      mkpart esp fat32 0% 513MiB \
-                      set 1 boot on \
-                      mkpart swap linux-swap 513MiB "$((513 + $SWAP_GB * 1024))MiB" \
-                      mkpart heddle_root ext4 "$((513 + $SWAP_GB * 1024))MiB" 100%
+  parted "$IMG_EXTRA" mklabel $part_type \
+                      mkpart "$(part_name esp)" fat32 0% 513MiB \
+                      mkpart "$(part_name swap)" linux-swap 513MiB "$((513 + $SWAP_GB * 1024))MiB" \
+                      mkpart "$(part_name heddle_root)" ext4 "$((513 + $SWAP_GB * 1024))MiB" 100% \
+                      set 1 boot on
 
   tmp="$(mktemp)"
   dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
   mkfs.fat -F 32 "$tmp"
-  mcopy -i "$tmp" -s "../boot/$DIR_REFIND/refind" ::
-  mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample,drivers_x64/{hfs,ext2,iso9660,reiserfs}_x64.efi}
-  mdeltree -i "$tmp" ::/refind/{drivers_ia32,tools_{ia32,x64}}
-  mcopy -i "$tmp" ../boot/refind.conf ::/refind
-  mmd -i "$tmp" ::/EFI
-  mmove -i "$tmp" ::/refind ::/EFI/BOOT
-  mmove -i "$tmp" ::/EFI/BOOT/{refind_,boot}x64.efi 
-  mdir -i "$tmp" -/ ::
+  if [ $part_type = gpt ]; then
+    mcopy -i "$tmp" -s "../boot/$DIR_REFIND/refind" ::
+    mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample,drivers_x64/{hfs,ext2,iso9660,reiserfs}_x64.efi}
+    mdeltree -i "$tmp" ::/refind/{drivers_ia32,tools_{ia32,x64}}
+    mcopy -i "$tmp" ../boot/refind.conf ::/refind
+    mmd -i "$tmp" ::/EFI
+    mmove -i "$tmp" ::/refind ::/EFI/BOOT
+    mmove -i "$tmp" ::/EFI/BOOT/{refind_,boot}x64.efi 
+  else
+    syslinux "$tmp"
+    mcopy -i "$tmp" ../boot/syslinux.cfg ::
+    dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr/mbr.bin "of=$IMG_EXTRA"
+  fi
+  mdir -i "$tmp" -/ -a ::
   dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
   rm -f "$tmp"
 
@@ -60,6 +86,7 @@ if [ ! -e "$IMG_EXTRA" ]; then
   tmp="$(mktemp)"
   dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
   mke2fs -t ext4 "$tmp"
+  e2label "$tmp" heddle_root
   dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$(((513 + $SWAP_GB * 1024) * 1024))" conv=sparse,notrunc
   rm -f "$tmp"
 fi
