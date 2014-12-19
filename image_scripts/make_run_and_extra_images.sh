@@ -39,8 +39,7 @@ if [ ! -e "$IMG_EXTRA" ]; then
 
   tmp="$(mktemp)"
   dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
-  mkfs.fat "$tmp"
-  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
+  mkfs.fat -F 32 "$tmp"
   mcopy -i "$tmp" -s "../boot/$DIR_REFIND/refind" ::
   mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample,drivers_x64/{hfs,ext2,iso9660,reiserfs}_x64.efi}
   mdeltree -i "$tmp" ::/refind/{drivers_ia32,tools_{ia32,x64}}
@@ -49,6 +48,7 @@ if [ ! -e "$IMG_EXTRA" ]; then
   mmove -i "$tmp" ::/refind ::/EFI/BOOT
   mmove -i "$tmp" ::/EFI/BOOT/{refind_,boot}x64.efi 
   mdir -i "$tmp" -/ ::
+  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
   rm -f "$tmp"
 
   tmp="$(mktemp)"
@@ -60,7 +60,7 @@ if [ ! -e "$IMG_EXTRA" ]; then
   tmp="$(mktemp)"
   dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
   mke2fs -t ext4 "$tmp"
-  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$(((513 + 4 * 1024) * 1024))" conv=sparse,notrunc
+  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$(((513 + $SWAP_GB * 1024) * 1024))" conv=sparse,notrunc
   rm -f "$tmp"
 fi
 
