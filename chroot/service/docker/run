@@ -3,4 +3,7 @@ exec 2>&1
 mkdir -p /extra/docker /var/lib
 ln -sf /extra/docker /var/lib
 rm -f /var/run/docker.pid
+# set cgroup options
+echo -n 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
+# run docker
 exec docker -d

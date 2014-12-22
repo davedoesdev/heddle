@@ -3,11 +3,8 @@ set -e
 busybox mount -t proc proc /proc
 busybox mount -t devtmpfs dev /dev
 toybox ln -s /proc/self/fd /dev
-# duplicate output to serial port
-port="$(toybox grep -oE 'console=tty(S|USB)[0-9]+' /proc/cmdline | toybox head -n 1 | busybox sed 's/console=//')"
-if [ -n "$port" ]; then
-  exec > /dev/kmsg 2>&1
-fi
+# make sure output goes to all consoles
+exec > /dev/kmsg 2>&1
 # find root device
 for dev in /dev/[hsv]d?; do
   name="$(sgdisk -i 3 "$dev" | toybox grep 'Partition name' | toybox cut -d ' ' -f 3-)"
