@@ -5,10 +5,12 @@ In aboriginal-1.2.9:
 /path/to/heddle/image_scripts/make_build_and_home_images.sh
 /path/to/heddle/aboriginal_scripts/build_heddle.sh
 /path/to/heddle/image_scripts/make_run_and_extra_images.sh
-/path/to/heddle/aboriginal_scripts/run_heddle.sh
+/path/to/heddle/aboriginal_scripts/run_heddle.sh -p
 /path/to/heddle/image_scripts/make_dist_image.sh
 /path/to/heddle/aboriginal_scripts/dist_heddle.sh
-/path/to/heddle/image_scripts/kboot_heddle.sh
+/path/to/heddle/image_scripts/kboot_heddle.sh or
+  /path/to/heddle/image_scripts/boot_heddle.sh
+/path/to/heddle/image_scripts/make_heddle_qcow2.sh
 
 ---
 
@@ -29,7 +31,7 @@ python get-pip.py
 rm get-pip.py
 
 #TODO
-# Support btrfs raid for multiple disks; how detect that should not use e2label?
+# Support btrfs raid for multiple disks
 # Fix init.sh so if mount points on /home or /mnt then don't mount
 #   (patch init.sh outside qemu so doesn't try to mount hdb and hdc)
 #   AND don't wait for keypress?

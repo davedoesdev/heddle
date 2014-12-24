@@ -7,12 +7,12 @@ IMG_BUILD=../images/build.img
 
 if [ ! -e "$IMG_HOME" ]; then
   dd if=/dev/zero "of=$IMG_HOME" bs=1024 "seek=$((4 * 1024 * 1024))" count=0
-  mke2fs -t ext4 "$IMG_HOME"
+  mkfs.ext4 "$IMG_HOME"
 fi
 
 if [ ! -e "$IMG_BUILD" ]; then
   dd if=/dev/zero "of=$IMG_BUILD" bs=1024 "seek=$((1 * 1024 * 1024))" count=0
-  mke2fs "$IMG_BUILD"
+  mkfs.ext2 "$IMG_BUILD"
 fi
 
 copy() {

@@ -35,9 +35,9 @@ fix
 100%
 EOF
   parted "${dev%3}" print
-  e2fsck -fy "$dev" || if [ $? -ne 1 ]; then exit $?; fi
-  resize2fs "$dev"
+  fsck -fy "$dev" || if [ $? -ne 1 ]; then exit $?; fi
   chroot "$CHROOT_DIR" mount "$dev" /extra
+  resize2fs "$dev" || chroot "$CHROOT_DIR" btrfs filesystem resize max /extra
 fi
 
 chroot "$CHROOT_DIR" cgroupfs-mount
