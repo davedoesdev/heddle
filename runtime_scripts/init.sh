@@ -15,7 +15,6 @@ busybox mount -o bind /home /root/home
 busybox mount -o loop -t squashfs "$HERE/install.sqf" /root/home/install
 toybox mkdir -p /docker
 busybox mount -o bind /docker /root/home/chroot/extra/docker
-# prevent tmpfs mount of home
-export HOMEDEV=foobar
-busybox mount -o loop -t squashfs "$HERE/run.sqf" /root/mnt
+busybox mount -o loop -t squashfs "$HERE/run.sqf" /root/home/run
+busybox mount -o bind "$HERE/init2.sh" /root/sbin/init.sh
 exec /root/sbin/chroot /root /sbin/init.sh

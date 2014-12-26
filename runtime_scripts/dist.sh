@@ -28,10 +28,10 @@ cp -a "$here/hda.sqf" "$DIST_DIR/root.sqf"
 mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M -noI -noD -noF -noX
 mksquashfs /tmp/mnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
 
-cp /bin/{bash,busybox,toybox} "$here/init.sh" "$DIST_DIR"
+cp /bin/{bash,busybox,toybox} "$here"/{init,init2}.sh "$DIST_DIR"
 
 rm -rf "$EXTRA_DIR/home"
-mkdir "$EXTRA_DIR/home"{,/install}
+mkdir "$EXTRA_DIR/home"{,/install,/run}
 find "$CHROOT_DIR"/home \
      -mindepth 1 -maxdepth 1 \
      -not -name install \
