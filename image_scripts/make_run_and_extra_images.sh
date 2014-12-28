@@ -62,26 +62,6 @@ if [ ! -e "$IMG_EXTRA" ]; then
                       set 1 boot on
 
   tmp="$(mktemp)"
-  dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
-  mkfs.fat -F 32 "$tmp"
-  if [ $part_type = gpt ]; then
-    mcopy -i "$tmp" -s "../boot/$DIR_REFIND/refind" ::
-    mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample}
-    mdeltree -i "$tmp" ::/refind/{drivers_{ia32,x64},tools_{ia32,x64}}
-    mcopy -i "$tmp" ../boot/refind.conf ::/refind
-    mmd -i "$tmp" ::/EFI
-    mmove -i "$tmp" ::/refind ::/EFI/BOOT
-    mmove -i "$tmp" ::/EFI/BOOT/{refind_,boot}x64.efi 
-  else
-    syslinux "$tmp"
-    mcopy -i "$tmp" ../boot/syslinux.cfg ::
-    dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr/mbr.bin "of=$IMG_EXTRA"
-  fi
-  mdir -i "$tmp" -/ -a ::
-  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
-  rm -f "$tmp"
-
-  tmp="$(mktemp)"
   dd if=/dev/zero "of=$tmp" bs=1024 "seek=$(($SWAP_GB * 1024 * 1024))" count=0
   mkswap "$tmp"
   dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$((513 * 1024))" conv=sparse,notrunc
@@ -93,6 +73,26 @@ if [ ! -e "$IMG_EXTRA" ]; then
   dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$(((513 + $SWAP_GB * 1024) * 1024))" conv=sparse,notrunc
   rm -f "$tmp"
 fi
+
+tmp="$(mktemp)"
+dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
+mkfs.fat -F 32 "$tmp"
+if [ $part_type = gpt ]; then
+  mcopy -i "$tmp" -s "../boot/$DIR_REFIND/refind" ::
+  mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample}
+  mdeltree -i "$tmp" ::/refind/{drivers_{ia32,x64},tools_{ia32,x64}}
+  mcopy -i "$tmp" ../boot/refind.conf ::/refind
+  mmd -i "$tmp" ::/EFI
+  mmove -i "$tmp" ::/refind ::/EFI/BOOT
+  mmove -i "$tmp" ::/EFI/BOOT/{refind_,boot}x64.efi 
+else
+  syslinux "$tmp"
+  mcopy -i "$tmp" ../boot/syslinux.cfg ::
+  dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr/mbr.bin "of=$IMG_EXTRA"
+fi
+mdir -i "$tmp" -/ -a ::
+dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
+rm -f "$tmp"
 
 copy() {
   local p=400
