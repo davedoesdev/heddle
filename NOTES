@@ -31,11 +31,10 @@ python get-pip.py
 rm get-pip.py
 
 #TODO
-# Support btrfs raid for multiple disks
+# support image updates
 # date/time and network setup
 # test on bare metal
 #   Should work on usb stick too (could drive with -usbdevice disk:foo.img -boot menu=on)
-# support image updates
 # Certificates?
 
 # nfdhcpd

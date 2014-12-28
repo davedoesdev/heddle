@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+source init_config
 
 # mount builtin filesystems
 busybox mount -t proc proc /proc
@@ -9,11 +10,8 @@ toybox ln -s /proc/self/fd /dev
 # make sure output goes to all consoles
 exec > /dev/kmsg 2>&1
 
-# determine btrfs RAID options
-btrfs_raid_level="$(toybox grep -oE 'heddle_btrfs_raid_level=[0-9]+' /proc/cmdline | toybox tail -n 1 | busybox sed 's/heddle_btrfs_raid_level=//')"
-btrfs_balance="$(toybox grep -oE 'heddle_btrfs_balance=[0-9]+' /proc/cmdline | toybox tail -n 1 | busybox sed 's/heddle_btrfs_balance=//')"
+# log config options
 echo "btrfs_raid_level: $btrfs_raid_level"
-echo "btrfs_balance: $btrfs_balance"
 
 # sgdisk needs mtab
 toybox ln -s /proc/mounts /etc/mtab
@@ -78,10 +76,12 @@ busybox mount "$root_part" /newroot
 
 if [ "$root_type" = btrfs ]; then
   # add partitions to RAID set if required
+  unset btrfs_raid_changed
   if [ -n "$btrfs_raid_level" ]; then
     for part in "${btrfs_partitions[@]}"; do
       if btrfs device add -f "$part" /newroot; then # false if mounted
         echo "added RAID partition: $part"
+        btrfs_raid_changed=1
       fi
     done
   fi
@@ -90,17 +90,10 @@ if [ "$root_type" = btrfs ]; then
   while btrfs filesystem resize $dev:max /newroot; do
     dev=$((dev + 1))
   done
-  # balance data if required
-  if [ -n "$btrfs_raid_level" -a -n "$btrfs_balance" ]; then
-    # may have been interrupted by reboot so start if required
-# TODO: Is cmdline right place to put raid options?
-# what if want to change later when upgrading? Maybe it should be part
-# of the dist - top of this script perhaps!
-    if [ "$btrfs_balance" -eq 1 ]; then
-      btrfs balance start -dconvert=raid$btrfs_raid_level /newroot || true
-    elif [ "$btrfs_balance" -eq 2 ]; then
-      btrfs balance start -dconvert=raid$btrfs_raid_level /newroot &
-    fi
+  # balance data for RAID sets if required
+  if [ -n "$btrfs_raid_level" -a -n "$btrfs_raid_changed" ]; then
+    # fails for a single disk
+    btrfs balance start -dconvert=raid$btrfs_raid_level /newroot || true
   fi
   # display filesystem info
   btrfs filesystem show

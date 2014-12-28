@@ -22,6 +22,7 @@ copy "build/system-image-${1:-x86_64}/hda.sqf"
 copy "$HERE/../runtime_scripts/init.sh"
 copy "$HERE/../runtime_scripts/init2.sh"
 copy "$HERE/../runtime_scripts/initrd.sh"
+copy "$HERE/../runtime_scripts/initrd_config.sh"
 
 if [ ! -e "$HERE/../images/heddle.img" ]; then
   # assume cp recognises sparse files
