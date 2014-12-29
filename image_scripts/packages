@@ -923,6 +923,8 @@ CHK_POPT="e728ed296fe9f069a0e005003c3d6b2dde3d9cad453422a10d6558616d304cc8"
 SUM_POPT="sha256"
 BLD_POPT() {
   ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
 }
 
 VER_GPTFDISK="0.8.10"
@@ -934,6 +936,17 @@ SUM_GPTFDISK="sha256"
 BLD_GPTFDISK() {
   LDFLAGS="$LDFLAGS -lm" make sgdisk
   cp sgdisk "$INSTALL_DIR/sbin"
+}
+
+DIR_DHCPCD="dhcpcd-6.6.7"
+SRC_DHCPCD="$DIR_DHCPCD.tar.bz2"
+URL_DHCPCD="http://roy.marples.name/downloads/dhcpcd/$SRC_DHCPCD"
+CHK_DHCPCD="43f93a0a536b93e26e4c7733582df7595d73aff9acfef298323e59dd8db8cdab"
+SUM_DHCPCD="sha256"
+BLD_DHCPCD() {
+  CPPFLAGS="$CPPFLAGS -D_BSD_SOURCE -D_GNU_SOURCE -D_IPV6_H" ./configure "--prefix=$INSTALL_DIR" "--build=$(uname -m)-unknown-$(uname -s | tr A-Z a-z)"
+  make
+  make install
 }
 
 PACKAGES=(LIBICONV
@@ -984,4 +997,5 @@ PACKAGES=(LIBICONV
           SQUASHFS_TOOLS
           PARTED
           POPT
-          GPTFDISK)
+          GPTFDISK
+          DHCPCD)
