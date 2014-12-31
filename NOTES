@@ -31,7 +31,7 @@ python get-pip.py
 rm get-pip.py
 
 #TODO
-# date/time
+# change pool to heddle.pool.ntp.org and remember when documenting to ask users to add to pool, with instructions
 # test on bare metal
 #   Should work on usb stick too (could drive with -usbdevice disk:foo.img -boot menu=on)
 #   Network drivers?

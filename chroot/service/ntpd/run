@@ -1,0 +1,4 @@
+#!/bin/sh
+exec 2>&1
+peers=(0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org)
+exec ntpd -n ${peers[@]/#/-p }
