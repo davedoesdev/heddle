@@ -31,12 +31,11 @@ python get-pip.py
 rm get-pip.py
 
 #TODO
-# change pool to heddle.pool.ntp.org and remember when documenting to ask users to add to pool, with instructions
+# wget with https support (above)
+# pip (above)?
 # test on bare metal
 #   Should work on usb stick too (could drive with -usbdevice disk:foo.img -boot menu=on)
-#   Network drivers?
 # support image updates
-# Certificates?
 
 # nfdhcpd
 # kvm
@@ -44,6 +43,8 @@ rm get-pip.py
 # Fold - add dhcpcd -Z rules
 # Saltstack (inc ota updates)
 
-Weave and Salt should be done in dobby - still in an image but add 'extension'
+*** change pool to heddle.pool.ntp.org and remember when documenting to ask users to add to pool, with instructions
+
+*** Weave and Salt should be done in dobby - still in an image but add 'extension'
 support to heddle so can easily supply extra packages from another project
 (including adding prepare steps at runtime)
