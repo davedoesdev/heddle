@@ -168,14 +168,14 @@ BLD_EXPAT() {
   make install
 }
 
-VER_PYTHON="2.7.8"
+VER_PYTHON="2.7.9"
 DIR_PYTHON="Python-$VER_PYTHON"
 SRC_PYTHON="$DIR_PYTHON.tgz"
 URL_PYTHON="http://www.python.org/ftp/python/$VER_PYTHON/$SRC_PYTHON"
-CHK_PYTHON="d4bca0159acb0b44a781292b5231936f"
+CHK_PYTHON="5eebcaa0030dc4061156d3429657fb83"
 SUM_PYTHON="md5"
 BLD_PYTHON() {
-  ./configure "--prefix=$INSTALL_DIR" --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi --with-system-expat
+  ./configure "--prefix=$INSTALL_DIR" --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi --with-system-expat --with-ensurepip=install
   make
   make install
 }

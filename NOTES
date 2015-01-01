@@ -14,20 +14,15 @@ In aboriginal-1.2.9:
   /path/to/heddle/image_scripts/boot_heddle.sh [-m] -q
 ---
 
-# pip
-wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py
-python get-pip.py
-rm get-pip.py
-
 #TODO
-# pip (above)?
 # test on bare metal
 #   Should work on usb stick too (could drive with -usbdevice disk:foo.img -boot menu=on)
 # support image updates
-
-# nfdhcpd
 # kvm
 # capstan
+
+
+# nfdhcpd
 # Fold - add dhcpcd -Z rules
 # Saltstack (inc ota updates)
 
@@ -36,5 +31,5 @@ rm get-pip.py
 *** Weave and Salt should be done in dobby - still in an image but add 'extension'
 support to heddle so can easily supply extra packages from another project
 (including adding prepare steps at runtime)
-same with nfdhcpd, Fold?
+same for nfdhcpd, Fold
 
