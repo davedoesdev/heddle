@@ -17,9 +17,8 @@ In aboriginal-1.2.9:
 #TODO
 # test on bare metal
 #   Should work on usb stick too (could drive with -usbdevice disk:foo.img -boot menu=on)
-# support image updates
-# kvm
 # capstan
+# support image updates
 
 
 # nfdhcpd

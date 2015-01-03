@@ -916,6 +916,97 @@ BLD_DHCPCD() {
   make install
 }
 
+DIR_GETTEXT="gettext-0.19.4"
+SRC_GETTEXT="$DIR_GETTEXT.tar.xz"
+URL_GETTEXT="http://ftp.gnu.org/pub/gnu/gettext/$SRC_GETTEXT"
+CHK_GETTEXT="719adadb8bf3e36bac52c243a01c0add18d23506a3a40437e6f5899ceab18d20"
+SUM_GETTEXT="sha256"
+BLD_GETTEXT() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+
+VER_GLIB="2.42.1"
+DIR_GLIB="glib-$VER_GLIB"
+SRC_GLIB="$DIR_GLIB.tar.xz"
+URL_GLIB="http://ftp.gnome.org/pub/gnome/sources/glib/$(echo "$VER_GLIB" | sed -r 's/([0-9]+\.[0-9]+).*/\1/')/$SRC_GLIB"
+CHK_GLIB="8f3f0865280e45b8ce840e176ef83bcfd511148918cc8d39df2ee89b67dcf89a"
+SUM_GLIB="sha256"
+BLD_GLIB() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+
+DIR_PIXMAN="pixman-0.32.6"
+SRC_PIXMAN="$DIR_PIXMAN.tar.gz"
+URL_PIXMAN="http://cairographics.org/releases/$SRC_PIXMAN"
+CHK_PIXMAN="8791343cbf6d99451f4d08e8209d6ac11bf96df2"
+SUM_PIXMAN="sha1"
+BLD_PIXMAN() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+
+DIR_QEMU="qemu-2.2.0"
+SRC_QEMU="$DIR_QEMU.tar.bz2"
+URL_QEMU="http://wiki.qemu-project.org/download/$SRC_QEMU"
+CHK_QEMU="b68c9b6c7c694f5489b5a6bffe993cd976ffbb78e7d178eb3bc016caf460039c"
+SUM_QEMU="sha256"
+BLD_QEMU() {
+  # Adapt for reflex/byacc
+  patch -p0 <<EOF
+--- dtc/srcpos.h.orig
++++ dtc/srcpos.h
+@@ -83,4 +83,38 @@
+ extern void srcpos_warn(struct srcpos *pos, char const *, ...)
+      __attribute__((format(printf, 2, 3)));
+ 
++#define YYRHSLOC(Rhs, K) ((Rhs)[K])
++#ifdef YY_BUFFER_NEW
++#include "util.h"
++
++static struct buffer_stack
++{
++	YY_BUFFER_STATE buffer;
++	struct buffer_stack *prev;
++} *current_buffer = NULL;
++
++void yypush_buffer_state(YY_BUFFER_STATE new_buffer)
++{
++	struct buffer_stack *bs = xmalloc(sizeof(struct buffer_stack));
++
++	bs->buffer = yy_current_buffer;
++	bs->prev = current_buffer;
++
++	current_buffer = bs;
++
++	yy_switch_to_buffer(new_buffer);
++}
++
++void yypop_buffer_state(void)
++{
++	if (current_buffer)
++	{
++		struct buffer_stack *prev = current_buffer->prev;
++		yy_switch_to_buffer(current_buffer->buffer);
++		free(current_buffer);
++		current_buffer = prev;
++	}
++}
++
++#endif
+ #endif /* _SRCPOS_H_ */
+EOF
+  ./configure "--prefix=$INSTALL_DIR" "--extra-cflags=$CPPFLAGS" "--extra-ldflags=$LDFLAGS" --target-list=x86_64-softmmu --with-system-pixman
+  make
+  #tests pass but hang when done
+  #make 'BISON=byacc -b $*' WARNINGS= V=1 check
+  make install
+}
+
 VER_WEAVE="6d1792ebdfe4b6d60841d8d9b6d73834a2206182"
 
 DIR_WEAVE_DEPS="weave-deps-$VER_WEAVE"
@@ -998,6 +1089,10 @@ PACKAGES=(LIBICONV
           POPT
           GPTFDISK
           DHCPCD
+          GETTEXT
+          GLIB
+          PIXMAN
+          QEMU
 
           WEAVE_DEPS
           WEAVE)
