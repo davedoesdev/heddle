@@ -20,12 +20,13 @@ In aboriginal-1.2.9:
 # capstan
 # support image updates
 
+# upgrade to latest aboriginal linux
 
 # nfdhcpd
 # Fold - add dhcpcd -Z rules
 # Saltstack (inc ota updates)
 
-*** change pool to heddle.pool.ntp.org and remember when documenting to ask users to add to pool, with instructions
+*** remember when documenting to ask users to add to ntp pool, with instructions
 
 *** Weave and Salt should be done in dobby - still in an image but add 'extension'
 support to heddle so can easily supply extra packages from another project
