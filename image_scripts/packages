@@ -1002,8 +1002,7 @@ BLD_QEMU() {
 EOF
   ./configure "--prefix=$INSTALL_DIR" "--extra-cflags=$CPPFLAGS" "--extra-ldflags=$LDFLAGS" --target-list=x86_64-softmmu --with-system-pixman
   make
-  #tests pass but hang when done
-  #make 'BISON=byacc -b $*' WARNINGS= V=1 check
+  make 'BISON=byacc -b $*' WARNINGS= V=1 check
   make install
 }
 
