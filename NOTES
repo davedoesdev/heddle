@@ -16,20 +16,19 @@ In aboriginal-1.2.9:
 
 #TODO
 # test on bare metal
-#   Should work on usb stick too (could drive with -usbdevice disk:foo.img -boot menu=on)
-# capstan
+#   Should work on usb stick too
+# upgrade to latest aboriginal linux - try compiling on its own first, see if pthread_once patch is required
 # support image updates
 
-# upgrade to latest aboriginal linux
-
-# nfdhcpd
-# Fold - add dhcpcd -Z rules
-# Saltstack (inc ota updates)
 
 *** remember when documenting to ask users to add to ntp pool, with instructions
 
 *** Weave and Salt should be done in dobby - still in an image but add 'extension'
+- make a start by splitting weave off into dobby
 support to heddle so can easily supply extra packages from another project
 (including adding prepare steps at runtime)
 same for nfdhcpd, Fold
+# nfdhcpd
+# Fold - add dhcpcd -Z rules
+# Saltstack (inc ota updates)
 

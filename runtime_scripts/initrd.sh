@@ -21,6 +21,7 @@ unset root_part
 unset root_type
 highest_generation=-1
 btrfs_partitions=()
+while true; do
 for dev in /dev/[hsv]d?; do
   name="$(sgdisk -i 3 "$dev" | toybox grep 'Partition name' | toybox cut -d ' ' -f 3-)"
   if [ "$name" = "'heddle_root'" ] ||
@@ -60,9 +61,12 @@ EOF
   fi
 done
 if [ -z "$root_part" ]; then
-  echo "no root partition found" 1>&2
-  exit 1
+  echo "root partition not found yet" 1>&2
+  toybox sleep 1
+else
+  break
 fi
+done
 echo "root partition: $root_part"
 echo "root type: $root_type"
 

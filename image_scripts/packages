@@ -1006,6 +1006,38 @@ EOF
   make install
 }
 
+VER_CAPSTAN="0.1.7"
+
+DIR_CAPSTAN_DEPS="capstan-deps-$VER_CAPSTAN"
+SRC_CAPSTAN_DEPS="$DIR_CAPSTAN_DEPS.tar.gz"
+GET_CAPSTAN_DEPS() {
+  mkdir "$DIR_CAPSTAN_DEPS"
+  wget "https://raw.githubusercontent.com/cloudius-systems/capstan/v$VER_CAPSTAN/capstan.go"
+  GOPATH="$DIR_CAPSTAN_DEPS" go get -d -tags netgo .
+  tar -zc "$DIR_CAPSTAN_DEPS"
+}
+BLD_CAPSTAN_DEPS() {
+  cp -a * "$GOPATH"
+}
+
+DIR_CAPSTAN="capstan-$VER_CAPSTAN"
+SRC_CAPSTAN="$DIR_CAPSTAN.tar.gz"
+URL_CAPSTAN="https://github.com/cloudius-systems/capstan/archive/v$VER_CAPSTAN.tar.gz"
+CHK_CAPSTAN="d251f4d8bb1a80bd0942d815c8cbc2e43d2f754e1202c81682b6291d20e796fc"
+SUM_CAPSTAN="sha256"
+BLD_CAPSTAN() {
+  CAPSTAN_DIR="$GOPATH/src/github.com/cloudius-systems/capstan"
+  rm -rf "$CAPSTAN_DIR"
+  mkdir -p "$(dirname "$CAPSTAN_DIR")"
+  cp -a "$PWD" "$CAPSTAN_DIR"
+  cd "$CAPSTAN_DIR"
+  go install -a -tags netgo std
+  go install -ldflags "-X main.VERSION '$VER_CAPSTAN'" -tags netgo
+}
+PST_CAPSTAN() {
+  export CAPSTAN_QEMU_PATH="$INSTALL_DIR/bin/qemu-system-x86_64"
+}
+
 VER_WEAVE="6d1792ebdfe4b6d60841d8d9b6d73834a2206182"
 
 DIR_WEAVE_DEPS="weave-deps-$VER_WEAVE"
@@ -1092,6 +1124,8 @@ PACKAGES=(LIBICONV
           GLIB
           PIXMAN
           QEMU
+          CAPSTAN_DEPS
+          CAPSTAN
 
           WEAVE_DEPS
           WEAVE)
