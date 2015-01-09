@@ -14,9 +14,21 @@ In aboriginal-1.2.9:
   /path/to/heddle/image_scripts/boot_heddle.sh [-m] -q
 ---
 
+Use ddpt to write heddle.img to disk since it supports sparse device writes:
+
+ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
+
+(man ddpt - if writing to SSD could use trim)
+
+
+
 #TODO
+# set noirqdebug 
+# find /sys/devices -name modalias | xargs modprobe -a  ** need modprobe **
+# check service logs on bare metal: probably serial will keep failing when no device so need to check device exists too
 # test on bare metal
 #   Should work on usb stick too
+#   either fog or clonezilla se
 # upgrade to latest aboriginal linux - try compiling on its own first, see if pthread_once patch is required
 # support image updates
 

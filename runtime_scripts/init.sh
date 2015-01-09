@@ -13,6 +13,7 @@ for dev in /dev/[hsv]d?3; do
 done
 busybox mount -o bind /home /root/home
 busybox mount -o loop -t squashfs "$HERE/install.sqf" /root/home/install
+busybox mount -o loop -t squashfs "$HERE/modules.sqf" /root/lib/modules
 toybox mkdir -p /docker
 busybox mount -o bind /docker /root/home/chroot/extra/docker
 busybox mount -o loop -t squashfs "$HERE/run.sqf" /root/home/run

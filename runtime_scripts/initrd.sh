@@ -21,54 +21,55 @@ unset root_part
 unset root_type
 highest_generation=-1
 btrfs_partitions=()
+echo "searching for root partition..."
 while true; do
-for dev in /dev/[hsv]d?; do
-  name="$(sgdisk -i 3 "$dev" | toybox grep 'Partition name' | toybox cut -d ' ' -f 3-)"
-  if [ "$name" = "'heddle_root'" ] ||
-     ( [ "$name" = "'Linux filesystem'" ] &&
-       ( [ "$(e2label "${dev}3")" = "heddle_root" ] ||
-         [ "$(btrfs filesystem label "${dev}3")" = "heddle_root" ] ) ); then
-    # expand partition to fill disk
-    toybox cat <<EOF | parted ---pretend-input-tty "$dev" resizepart 3 100%
+  for dev in /dev/[hsv]d?; do
+    if [ "$dev" != '/dev/[hsv]d?' ]; then
+      name="$(sgdisk -i 3 "$dev" | toybox grep 'Partition name' | toybox cut -d ' ' -f 3-)"
+      if [ "$name" = "'heddle_root'" ] ||
+         ( [ "$name" = "'Linux filesystem'" ] &&
+           ( [ "$(e2label "${dev}3")" = "heddle_root" ] ||
+             [ "$(btrfs filesystem label "${dev}3")" = "heddle_root" ] ) ); then
+        # expand partition to fill disk
+        toybox cat <<EOF | parted ---pretend-input-tty "$dev" resizepart 3 100%
 fix
 3
 100%
 EOF
-    parted "$dev" print
-    # check and repair filesystem
-    fsck -fy "${dev}3" || if [ $? -ne 1 ]; then exit $?; fi
-    # find generation/mount count
-    generation="$(tune2fs -l "${dev}3" | toybox grep 'Mount count:' | busybox awk '{print $NF}')"
-    if [ -n "$generation" ]; then
-      dev_type=ext4
-      # resize filesystem
-      resize2fs "${dev}3"
-    else
-      generation="$(btrfs-show-super "${dev}3" | toybox grep '^generation' | busybox awk '{print $NF}')"
-      if [ -n "$generation" ]; then
-        dev_type=btrfs
-        btrfs_partitions=("${btrfs_partitions[@]}" "${dev}3")
-      else
-        continue
+        parted "$dev" print
+        # check and repair filesystem
+        fsck -fy "${dev}3" || if [ $? -ne 1 ]; then exit $?; fi
+        # find generation/mount count
+        generation="$(tune2fs -l "${dev}3" | toybox grep 'Mount count:' | busybox awk '{print $NF}')"
+        if [ -n "$generation" ]; then
+          dev_type=ext4
+          # resize filesystem
+          resize2fs "${dev}3"
+        else
+          generation="$(btrfs-show-super "${dev}3" | toybox grep '^generation' | busybox awk '{print $NF}')"
+          if [ -n "$generation" ]; then
+            dev_type=btrfs
+            btrfs_partitions=("${btrfs_partitions[@]}" "${dev}3")
+          else
+            continue
+          fi
+        fi
+        # partition with highest mount count will be root
+        if [ "$generation" -gt "$highest_generation" ]; then
+          root_part="${dev}3"
+          root_type="$dev_type"
+          highest_generation="$generation"
+        fi
       fi
     fi
-    # partition with highest mount count will be root
-    if [ "$generation" -gt "$highest_generation" ]; then
-      root_part="${dev}3"
-      root_type="$dev_type"
-      highest_generation="$generation"
-    fi
+  done
+  if [ -n "$root_part" ]; then
+    echo "root partition: $root_part"
+    echo "root type: $root_type"
+    break
   fi
-done
-if [ -z "$root_part" ]; then
-  echo "root partition not found yet" 1>&2
   toybox sleep 1
-else
-  break
-fi
 done
-echo "root partition: $root_part"
-echo "root type: $root_type"
 
 # scan btrfs partitions before mounting
 if [ "$root_type" = btrfs ]; then

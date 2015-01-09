@@ -15,10 +15,6 @@ mountpoint -q dev/pts || mount -t devpts dev/pts dev/pts
 # (The shell gives us a default, but it's local, not exported.)
 export PATH
 
-# TODO: network setup and date
-#  # If we have no RTC, try rdate instead:
-#  [ "$(date +%s)" -lt 1000 ] && rdate 10.0.2.2 # or time-b.nist.gov
-
 mount -t tmpfs /tmp /tmp
 
 cd "$HOME"

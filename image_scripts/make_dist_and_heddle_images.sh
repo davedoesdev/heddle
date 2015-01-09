@@ -18,7 +18,11 @@ copy() {
 
 copy "$HERE/../runtime_scripts/dist.sh" init
 copy "$HERE/../images/run.img"
-copy "build/system-image-${1:-x86_64}/hda.sqf"
+copy "build/system-image-${1:-x86_64}/hda.sqf" root.sqf
+tmp="$(mktemp)"
+mksquashfs "build/system-image-${1:-x86_64}/modules/lib/modules" "$tmp" -noappend -all-root
+copy "$tmp" modules.sqf
+rm -f "$tmp"
 copy "$HERE/../runtime_scripts/init.sh"
 copy "$HERE/../runtime_scripts/init2.sh"
 copy "$HERE/../runtime_scripts/initrd.sh"

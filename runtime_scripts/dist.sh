@@ -24,7 +24,7 @@ fi
 rm -rf "$DIST_DIR"
 mkdir "$DIST_DIR"
 
-cp -a "$here/hda.sqf" "$DIST_DIR/root.sqf"
+cp -a "$here"/{root,modules}.sqf "$DIST_DIR"
 mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M -noI -noD -noF -noX
 mksquashfs /tmp/mnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
 

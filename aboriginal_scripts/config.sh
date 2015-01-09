@@ -40,12 +40,26 @@ echo UCLIBCXX_SUPPORT_WCLOG=n >> .config &&
 w
 EOF
 
+ed -s linux-kernel.sh << 'EOF'
+/cp "$KERNEL_PATH" "$STAGE_DIR"/i
+make "INSTALL_MOD_PATH=$STAGE_DIR/modules" ARCH=$BOOT_KARCH $LINUX_FLAGS $VERBOSITY modules_install &&
+.
+w
+EOF
+
+ed -s root-filesystem.sh << 'EOF'
+/create_stage_tarball/i
+mkdir -p "$STAGE_DIR/lib/modules"
+.
+w
+EOF
+
 sed -i -e 's/uClibc++-0\.2\.2/uClibc++-0.2.4/g' -e 's/f5582d206378d7daee6f46609c80204c1ad5c0f7/ffadcb8555a155896a364a9b954f19d09972cb83/g' download.sh
 
 cp "$HERE"/*.patch sources/patches
 rm -f sources/patches/uClibc++-unwind-cxx.patch
 
-sed -i 's/-nographic/-enable-kvm \0/g' system-image.sh
+sed -i -e 's/-nographic/-enable-kvm \0/g' -e 's/$(ls)/$(ls | grep -v modules)/' -e 's/ln "$KERNEL"/cp -al */' system-image.sh
 
 cat >> sources/baseconfig-linux << EOF
 
@@ -107,7 +121,7 @@ CONFIG_SERIO_SERPORT=y
 CONFIG_SERIO_LIBPS2=y
 CONFIG_INPUT_KEYBOARD=y
 CONFIG_KEYBOARD_ATKBD=y
-CONFIG_USB_HID=m
+CONFIG_USB_HID=y
 CONFIG_USB_SUPPORT=y
 CONFIG_USB_COMMON=y
 CONFIG_USB_ARCH_HAS_HCD=y
@@ -116,7 +130,7 @@ CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
 CONFIG_USB_DEFAULT_PERSIST=y
 CONFIG_USB_DYNAMIC_MINORS=y
 CONFIG_USB_XHCI_HCD=y
-CONFIG_USB_XHCI_PLATFORM=m
+CONFIG_USB_XHCI_PLATFORM=y
 CONFIG_USB_EHCI_HCD=y
 CONFIG_USB_EHCI_ROOT_HUB_TT=y
 CONFIG_USB_EHCI_TT_NEWSCHED=y
@@ -147,4 +161,11 @@ CONFIG_KVM=y
 CONFIG_KVM_INTEL=y
 CONFIG_KVM_AMD=y
 CONFIG_HIGH_RES_TIMERS=y
+
+CONFIG_MODULES=y
+CONFIG_WATCHDOG=y
+CONFIG_WATCHDOG_CORE=y
+CONFIG_INTEL_MEI=m
+CONFIG_INTEL_MEI_ME=m
+CONFIG_INTEL_MEI_TXE=m
 EOF
