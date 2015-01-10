@@ -1038,6 +1038,20 @@ PST_CAPSTAN() {
   export CAPSTAN_QEMU_PATH="$INSTALL_DIR/bin/qemu-system-x86_64"
 }
 
+DIR_KMOD="kmod-19"
+SRC_KMOD="$DIR_KMOD.tar.xz"
+URL_KMOD="https://www.kernel.org/pub/linux/utils/kernel/kmod/$SRC_KMOD"
+CHK_KMOD="3e7fee6eeff5435848b2dcc852bc8959066478d687d232284d67300c071e7b14"
+SUM_KMOD="sha256"
+BLD_KMOD() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+  for f in depmod insmod modinfo modprobe rmmod lsmod; do
+    ln -s ../bin/kmod "$INSTALL_DIR/sbin/$f"
+  done
+}
+
 VER_WEAVE="6d1792ebdfe4b6d60841d8d9b6d73834a2206182"
 
 DIR_WEAVE_DEPS="weave-deps-$VER_WEAVE"
@@ -1126,6 +1140,7 @@ PACKAGES=(LIBICONV
           QEMU
           CAPSTAN_DEPS
           CAPSTAN
+          KMOD
 
           WEAVE_DEPS
           WEAVE)
