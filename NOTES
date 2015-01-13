@@ -23,12 +23,10 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-# find /sys/devices -name modalias | xargs modprobe -a  ** need modprobe **
-# fix irq no-one cared problem
-# check service logs on bare metal: probably serial will keep failing when no device so need to check device exists too
+# program parted is using a deprecated scsi ioctl please convert it to sg_io
 # test on bare metal
-#   Should work on usb stick too
-#   either fog or clonezilla se
+  # check service logs on bare metal: probably serial will keep failing when no device so need to check device exists too
+# either fog or clonezilla se
 # upgrade to latest aboriginal linux - try compiling on its own first, see if pthread_once patch is required
 # support image updates
 
