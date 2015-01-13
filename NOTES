@@ -23,8 +23,8 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-# set noirqdebug 
 # find /sys/devices -name modalias | xargs modprobe -a  ** need modprobe **
+# fix irq no-one cared problem
 # check service logs on bare metal: probably serial will keep failing when no device so need to check device exists too
 # test on bare metal
 #   Should work on usb stick too

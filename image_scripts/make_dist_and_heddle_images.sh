@@ -20,7 +20,7 @@ copy "$HERE/../runtime_scripts/dist.sh" init
 copy "$HERE/../images/run.img"
 copy "build/system-image-${1:-x86_64}/hda.sqf" root.sqf
 tmp="$(mktemp)"
-mksquashfs "build/system-image-${1:-x86_64}/modules/lib/modules" "$tmp" -noappend -all-root
+mksquashfs "build/system-image-${1:-x86_64}/modules/lib/modules" "$tmp" -noappend -all-root -wildcards -e '*/build' '*/source'
 copy "$tmp" modules.sqf
 rm -f "$tmp"
 copy "$HERE/../runtime_scripts/init.sh"
