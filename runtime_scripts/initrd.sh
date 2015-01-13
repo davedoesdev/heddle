@@ -4,6 +4,7 @@ source init_config
 
 # mount builtin filesystems
 busybox mount -t proc proc /proc
+busybox mount -t sysfs sys /sys
 busybox mount -t devtmpfs dev /dev
 toybox ln -s /proc/self/fd /dev
 
@@ -105,7 +106,7 @@ if [ "$root_type" = btrfs ]; then
   btrfs filesystem df /newroot
 fi
 
-toybox umount /proc
+toybox umount /proc /sys
 boot=dist
 # toybox switch_root doesn't chroot
 toybox cat > /newroot/init <<EOF
