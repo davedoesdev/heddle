@@ -23,11 +23,11 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-# test on bare metal
-  # check service logs on bare metal: probably serial will keep failing when no device so need to check device exists too
+# ethernet modules on bare metal
 # either fog or clonezilla se
+# tboot/secure boot?
 # upgrade to latest aboriginal linux - try compiling on its own first, see if pthread_once patch is required
-# support image updates
+# support image updates; verify contents of update directory before kexec?
 
 
 *** remember when documenting to ask users to add to ntp pool, with instructions

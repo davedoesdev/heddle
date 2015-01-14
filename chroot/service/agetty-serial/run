@@ -1,8 +1,12 @@
 #!/bin/sh
 port="$(grep -oE 'console=tty(S|USB)[0-9]+' /proc/cmdline | head -n 1 | sed 's/console=//')"
-echo "agetty serial: running agetty on port $port"
-if [ -z "$port" ]; then
-  exec sv down agetty-serial
-else
+if [ -c "/dev/$port" ]; then
+  echo "agetty serial: running agetty on port $port"
   exec setsid agetty -o '-p -- \u' "$port"
 fi
+if [ -z "$port" ]; then
+  echo "agetty serial: no serial port specified"
+else
+  echo "agetty serial: not a block device: $port"
+fi
+exec sv down agetty-serial
