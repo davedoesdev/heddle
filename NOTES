@@ -23,7 +23,6 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-# ethernet modules on bare metal
 # either fog or clonezilla se
 # tboot/secure boot?
 # upgrade to latest aboriginal linux - try compiling on its own first, see if pthread_once patch is required

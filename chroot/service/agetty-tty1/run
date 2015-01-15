@@ -1,2 +1,2 @@
 #!/bin/sh
-exec setsid agetty -o '-p -- \u' tty1
+exec setsid agetty --nohostname -o '-p -- \u' tty1

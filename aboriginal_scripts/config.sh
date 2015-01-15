@@ -59,6 +59,8 @@ sed -i -e 's/uClibc++-0\.2\.2/uClibc++-0.2.4/g' -e 's/f5582d206378d7daee6f46609c
 cp "$HERE"/*.patch sources/patches
 rm -f sources/patches/uClibc++-unwind-cxx.patch
 
+sed -i -e 's/<= _NSIG/< _NSIG/g' sources/patches/uClibc-posix_spawn.patch
+
 sed -i -e 's/-nographic/-enable-kvm \0/g' -e 's/$(ls)/$(ls | grep -v modules)/' -e 's/ln "$KERNEL"/cp -al */' system-image.sh
 
 cat >> sources/baseconfig-linux << EOF
@@ -171,4 +173,5 @@ CONFIG_WATCHDOG_CORE=y
 CONFIG_INTEL_MEI=m
 CONFIG_INTEL_MEI_ME=m
 CONFIG_INTEL_MEI_TXE=m
+CONFIG_R8169=m
 EOF

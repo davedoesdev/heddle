@@ -22,4 +22,4 @@ if [ $part_type = gpt ]; then
   extra_args+=" -bios /usr/share/ovmf/OVMF.fd"
 fi
 
-kvm -m 2048 -cpu host -smp 2 -no-reboot -hda "$IMG_DIR/$img_file" $extra_args "$@"
+kvm -m 2048 -cpu host -smp 2 -no-reboot -hda "$IMG_DIR/$img_file" -net user,hostname=heddle -net nic $extra_args "$@"
