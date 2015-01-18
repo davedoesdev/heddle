@@ -59,5 +59,6 @@ ln -s bin sbin
 ln -s bash bin/sh
 mount /dev/sda /tmp/mnt2
 find . | cpio -o -H newc | gzip > "/tmp/mnt2/initrd.img"
+cp "$DIST_DIR/run.sqf" /tmp/mnt2
 umount /dev/sda
 ls -l "$DIST_DIR"

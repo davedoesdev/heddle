@@ -1,0 +1,5 @@
+dist/update/bzImage
+dist/update/initrd.img
+dist/update/modules.sqf
+dist/update/root.sqf
+dist/update/run.sqf
