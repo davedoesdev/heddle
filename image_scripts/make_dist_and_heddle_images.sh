@@ -3,14 +3,16 @@
 # make heddle.img (copy of extra.img)
 set -e
 HERE="$(dirname "$0")"
+ARCH="${1:-x86_64}"
 IMG_DIST="$HERE/../images/dist.img"
 UPDATE_DIR="$HERE/../dist/update"
 SQF_MODULES="$UPDATE_DIR/modules.sqf"
-SQF_ROOT="build/system-image-${1:-x86_64}/hda.sqf" 
+SQF_ROOT="build/system-image-$ARCH/hda.sqf" 
 
 if [ ! -e "$IMG_DIST" ]; then
-  dd if=/dev/zero "of=$IMG_DIST" bs=1024 "seek=$((1 * 1024 * 1024))" count=0
+  dd if=/dev/zero "of=$IMG_DIST" bs=1024 "seek=$((2 * 1024 * 1024))" count=0
   mkfs.ext2 "$IMG_DIST"
+  e2mkdir "$IMG_DIST:gen"
 fi
 
 copy() {
@@ -23,7 +25,8 @@ copy "$HERE/../runtime_scripts/dist.sh" init
 copy "$HERE/../images/run.img"
 copy "$SQF_ROOT" root.sqf
 ln -sf "$PWD/$SQF_ROOT" "$UPDATE_DIR/root.sqf"
-mksquashfs "build/system-image-${1:-x86_64}/modules/lib/modules" "$SQF_MODULES" -noappend -all-root -wildcards -e '*/build' '*/source'
+ln -sf "$PWD/build/root-filesystem-$ARCH/usr/bin"/{bash,busybox,toybox} "$UPDATE_DIR"
+mksquashfs "build/system-image-$ARCH/modules/lib/modules" "$SQF_MODULES" -noappend -all-root -wildcards -e '*/build' '*/source'
 copy "$SQF_MODULES"
 copy "$HERE/../runtime_scripts/init.sh"
 copy "$HERE/../runtime_scripts/init2.sh"

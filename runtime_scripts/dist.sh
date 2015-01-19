@@ -25,7 +25,7 @@ rm -rf "$DIST_DIR"
 mkdir "$DIST_DIR"
 
 cp -a "$here"/{root,modules}.sqf "$DIST_DIR"
-mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M -noI -noD -noF -noX
+mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M #-noI -noD -noF -noX
 mksquashfs /tmp/mnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
 
 cp /bin/{bash,busybox,toybox} "$here"/{init,init2}.sh "$DIST_DIR"
@@ -48,7 +48,7 @@ done
 rm -rf "$EXTRA_DIR"/{root,dev}
 mkdir -p "$EXTRA_DIR"/{root,dev}
 
-mkdir /tmp/{mnt2,initrd}
+mkdir /tmp/initrd
 cd /tmp/initrd
 mkdir bin lib etc proc dev sys newroot
 cp /bin/{bash,busybox,toybox} "$INSTALL_DIR/sbin"/{fsck{,.ext4},e2label,resize2fs,tune2fs,parted,sgdisk} "$INSTALL_DIR/bin"/{btrfs,fsck.btrfs,btrfs-show-super} bin
@@ -57,8 +57,9 @@ cp "$here/initrd.sh" init
 cp "$here/initrd_config.sh" init_config
 ln -s bin sbin
 ln -s bash bin/sh
-mount /dev/sda /tmp/mnt2
-find . | cpio -o -H newc | gzip > "/tmp/mnt2/initrd.img"
-cp "$DIST_DIR/run.sqf" /tmp/mnt2
-umount /dev/sda
+mount -o remount,rw /dev/hdc /mnt
+echo making initrd.img
+find . | cpio -o -H newc | gzip > "$here/gen/initrd.img"
+echo copying update files
+cp "$DIST_DIR"/{install,run}.sqf "$here/gen"
 ls -l "$DIST_DIR"

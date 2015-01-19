@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 IMG_DIR="$(dirname "$0")/../images"
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/build.img"

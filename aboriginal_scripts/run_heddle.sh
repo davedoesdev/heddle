@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 IMG_DIR="$(dirname "$0")/../images"
 
 prepare=0
