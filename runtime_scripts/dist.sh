@@ -7,6 +7,7 @@ HERE=/tmp/mnt . /tmp/mnt/common.sh
 
 EXTRA_DIR="$CHROOT_DIR/extra"
 DIST_DIR="$EXTRA_DIR/dist"
+UPDATES_DIR="$EXTRA_DIR/updates"
 
 dev="$(echo /dev/[hsv]dd3)"
 if [ -b "$dev" ]; then
@@ -22,7 +23,7 @@ EOF
 fi
 
 rm -rf "$DIST_DIR"
-mkdir "$DIST_DIR"
+mkdir -p "$DIST_DIR" "$UPDATES_DIR"
 
 cp -a "$here"/{root,modules}.sqf "$DIST_DIR"
 mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M #-noI -noD -noF -noX
@@ -51,7 +52,7 @@ mkdir -p "$EXTRA_DIR"/{root,dev}
 mkdir /tmp/initrd
 cd /tmp/initrd
 mkdir bin lib etc proc dev sys newroot
-cp /bin/{bash,busybox,toybox} "$INSTALL_DIR/sbin"/{fsck{,.ext4},e2label,resize2fs,tune2fs,parted,sgdisk} "$INSTALL_DIR/bin"/{btrfs,fsck.btrfs,btrfs-show-super} bin
+cp /bin/{bash,busybox,toybox} "$INSTALL_DIR/sbin"/{fsck{,.ext4},e2label,resize2fs,tune2fs,parted,sgdisk} "$INSTALL_DIR/bin"/{btrfs,fsck.btrfs,btrfs-show-super,natsort} bin
 cp /lib/{libpthread.so.0,libc.so.0,ld-uClibc.so.0,libdl.so.0,libm.so.0,libuClibc++.so.0,libgcc_s.so.1} "$INSTALL_DIR/lib"/{libiconv.so.2,libparted.so.2,libreadline.so.6,libncurses.so.5,libuuid.so.1,libdevmapper.so.1.02,libblkid.so.1,libpopt.so.0,libz.so.1} lib
 cp "$here/initrd.sh" init
 cp "$here/initrd_config.sh" init_config

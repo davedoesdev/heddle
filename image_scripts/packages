@@ -1053,6 +1053,19 @@ BLD_KMOD() {
   done
 }
 
+DIR_NATSORT="natsort"
+SRC_NATSORT="natsort.tar.gz"
+GET_NATSORT() {
+  mkdir "$DIR_NATSORT"
+  for f in strnatcmp.{c,h} natsort.c; do
+    wget -P "$DIR_NATSORT" "http://sourcefrog.net/projects/natsort/$f"
+  done
+  tar -zc "$DIR_NATSORT"
+}
+BLD_NATSORT() {
+  gcc -o "$INSTALL_DIR/bin/natsort" *.c
+}
+
 VER_WEAVE="6d1792ebdfe4b6d60841d8d9b6d73834a2206182"
 
 DIR_WEAVE_DEPS="weave-deps-$VER_WEAVE"
@@ -1142,6 +1155,7 @@ PACKAGES=(LIBICONV
           CAPSTAN_DEPS
           CAPSTAN
           KMOD
+          NATSORT
 
           WEAVE_DEPS
           WEAVE)

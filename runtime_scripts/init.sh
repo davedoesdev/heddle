@@ -16,5 +16,6 @@ busybox mount -o loop -t squashfs "$HERE/install.sqf" /root/home/install
 busybox mount -o loop -t squashfs "$HERE/modules.sqf" /root/lib/modules
 toybox mkdir -p /docker
 busybox mount -o bind /docker /root/home/chroot/extra/docker
+busybox mount -o bind /updates /root/home/chroot/updates
 busybox mount -o loop -t squashfs "$HERE/run.sqf" /root/home/run
 exec /root/sbin/chroot /root /bin/ash < "$HERE/init2.sh"
