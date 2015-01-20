@@ -21,8 +21,9 @@ fi
 if docker history zettio/weave && docker history zettio/weavedns; then
   # weave images exist
   echo weave images exist
-  # if we're just preparing, poweroff
+  # if we're just preparing, update PCI database and poweroff
   if grep -q 'heddle_prepare=1' /proc/cmdline; then
+    update-pciids
     # don't rely on clean shutdown (for fragile software only!)
     poweroff
   fi

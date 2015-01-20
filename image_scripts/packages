@@ -1054,16 +1054,31 @@ BLD_KMOD() {
 }
 
 DIR_NATSORT="natsort"
-SRC_NATSORT="natsort.tar.gz"
+SRC_NATSORT="$DIR_NATSORT.tar.gz"
 GET_NATSORT() {
   mkdir "$DIR_NATSORT"
   for f in strnatcmp.{c,h} natsort.c; do
     wget -P "$DIR_NATSORT" "http://sourcefrog.net/projects/natsort/$f"
   done
+  sha256sum -c --quiet <<EOF
+ec5af448936983188902ba264dc27caa6e64356d6b6909fa6ea5e1c399c9745e  natsort/natsort.c
+cdc409eb3e343324bac208b3a24112da1cf637f905b3b2e79fbc01d9739c5037  natsort/strnatcmp.c
+fc119e7c3e5535cd9f80b9410660c13aa698608dd8c2bb3aa9432bcd0cb37066  natsort/strnatcmp.h
+EOF
   tar -zc "$DIR_NATSORT"
 }
 BLD_NATSORT() {
   gcc -o "$INSTALL_DIR/bin/natsort" *.c
+}
+
+DIR_PCIUTILS="pciutils-3.3.0"
+SRC_PCIUTILS="$DIR_PCIUTILS.tar.gz"
+URL_PCIUTILS="ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/$SRC_PCIUTILS"
+CHK_PCIUTILS="4b576a1c2570046fda83fa2c5488661de698874ab04fd8e06eef4b6ab806d58a"
+SUM_PCIUTILS="sha256"
+BLD_PCIUTILS() {
+  make PREFIX="$INSTALL_DIR"
+  make PREFIX="$INSTALL_DIR" install
 }
 
 VER_WEAVE="6d1792ebdfe4b6d60841d8d9b6d73834a2206182"
@@ -1156,6 +1171,7 @@ PACKAGES=(LIBICONV
           CAPSTAN
           KMOD
           NATSORT
+          PCIUTILS
 
           WEAVE_DEPS
           WEAVE)

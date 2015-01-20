@@ -24,6 +24,7 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 #TODO
 # test on microserver
+    network driver
 # support image updates
     make dist and update dirs
 # upgrade to latest aboriginal linux - try compiling on its own first, see if pthread_once patch is required; can we deploy this in an update?

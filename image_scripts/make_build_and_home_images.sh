@@ -42,6 +42,11 @@ for pkg in "${PACKAGES[@]}"; do
     if type GET_$pkg 2> /dev/null | grep -q function; then
       tmpd="$(mktemp -d)"
       ( cd "$tmpd"; GET_$pkg ) | copy - "download/${!vsrc}"
+      if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+        e2rm "$dest"
+        echo "$0: failed to get $pkg"
+        exit 1
+      fi
       rm -rf "$tmpd"
     else
       wget "${!vurl}" -O - | copy - "download/${!vsrc}"
