@@ -106,8 +106,23 @@ if [ "$root_type" = btrfs ]; then
   btrfs filesystem df /newroot
 fi
 
-toybox umount /proc /sys
+# TODO: should allow manual intervention to choose dist or update to boot
+
 boot=dist
+update="$(toybox grep -oE 'update=[^ ]+' /proc/cmdline | toybox head -n 1 | busybox sed 's/update=//')"
+if [ -n "$update" ]; then
+  boot="updates/$update"
+else
+  update="$(toybox ls /newroot/updates/*/BOOT | natsort -r | toybox head -n 1 | busybox awk -F / '{print $(NF-1)}')"
+  if [ -n "$update" ]; then
+    kexec -l "/newroot/updates/$update/bzImage" "--initrd=/newroot/updates/$update/initrd.img" --command-line="$(toybox cat /proc/cmdline) update=$update"
+    toybox umount /newroot /proc /sys # using /dev/kmsg
+    kexec -e
+  fi
+fi
+
+toybox umount /proc /sys
+
 # toybox switch_root doesn't chroot
 toybox cat > /newroot/init <<EOF
 #!/newroot/$boot/bash

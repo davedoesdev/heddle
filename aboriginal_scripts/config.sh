@@ -49,7 +49,7 @@ EOF
 
 ed -s root-filesystem.sh << 'EOF'
 /create_stage_tarball/i
-mkdir -p "$STAGE_DIR/lib/modules"
+mkdir -p "$STAGE_DIR/lib"/{modules,firmware}
 .
 w
 EOF
@@ -167,6 +167,8 @@ CONFIG_PCI_MSI=y
 CONFIG_HT_IRQ=y
 CONFIG_ATA=y
 CONFIG_SATA_AHCI=y
+CONFIG_KEXEC=y
+CONFIG_RELOCATABLE=y
 
 CONFIG_MODULES=y
 CONFIG_MODULE_UNLOAD=y
@@ -176,4 +178,6 @@ CONFIG_INTEL_MEI=m
 CONFIG_INTEL_MEI_ME=m
 CONFIG_INTEL_MEI_TXE=m
 CONFIG_R8169=m
+CONFIG_NET_VENDOR_BROADCOM=y
+CONFIG_TIGON3=m
 EOF

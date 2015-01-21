@@ -23,8 +23,6 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-# test on microserver
-    network driver
 # support image updates
     make dist and update dirs
 # upgrade to latest aboriginal linux - try compiling on its own first, see if pthread_once patch is required; can we deploy this in an update?
@@ -32,9 +30,9 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 *** remember when documenting to ask users to add to ntp pool, with instructions
 
-*** Weave and Salt should be done in dobby - still in an image but add 'extension'
+*** Weave, Fold and Salt should be done in dobby - still in an image but add 'extension'
 - make a start by splitting weave off into dobby
-support to heddle so can easily supply extra packages from another project
+add support to heddle so can easily supply extra packages from another project
 (including adding prepare steps at runtime)
 same for nfdhcpd, Fold
 # nfdhcpd
