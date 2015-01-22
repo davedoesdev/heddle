@@ -106,16 +106,22 @@ if [ "$root_type" = btrfs ]; then
   btrfs filesystem df /newroot
 fi
 
-# TODO: should allow manual intervention to choose dist or update to boot
-
-boot=dist
-update="$(toybox grep -oE 'update=[^ ]+' /proc/cmdline | toybox head -n 1 | busybox sed 's/update=//')"
-if [ -n "$update" ]; then
-  boot="updates/$update"
-else
-  update="$(toybox ls /newroot/updates/*/BOOT | natsort -r | toybox head -n 1 | busybox awk -F / '{print $(NF-1)}')"
+echo "cmdline: $(toybox cat /proc/cmdline)"
+boot="$(toybox grep -oE 'heddle_boot=[^ ]+' /proc/cmdline | toybox head -n 1 | busybox sed 's/heddle_boot=//')"
+if [ -z "$boot" ]; then
+  boot=dist
+  update="$(toybox grep -oE 'heddle_update=[^ ]+' /proc/cmdline | toybox head -n 1 | busybox sed 's/heddle_update=//')"
+  if [ -z "$update" ]; then
+    update="$(toybox ls /newroot/updates/*/BOOT | natsort -r | toybox head -n 1 | busybox awk -F / '{print $(NF-1)}')"
+  fi
   if [ -n "$update" ]; then
-    kexec -l "/newroot/updates/$update/bzImage" "--initrd=/newroot/updates/$update/initrd.img" --command-line="$(toybox cat /proc/cmdline) update=$update"
+    update="updates/$update"
+    if [ -f "/newroot/$update/cmdline" ]; then
+      cmdline="/newroot/$update/cmdline"
+    else
+      cmdline=/proc/cmdline
+    fi
+    kexec -l "/newroot/$update/bzImage" "--initrd=/newroot/$update/initrd.img" --command-line="heddle_boot=$update $(toybox cat "$cmdline")"
     toybox umount /newroot /proc /sys # using /dev/kmsg
     kexec -e
   fi
