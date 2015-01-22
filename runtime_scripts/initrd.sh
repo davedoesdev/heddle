@@ -110,22 +110,33 @@ echo "cmdline: $(toybox cat /proc/cmdline)"
 boot="$(toybox grep -oE 'heddle_boot=[^ ]+' /proc/cmdline | toybox head -n 1 | busybox sed 's/heddle_boot=//')"
 if [ -z "$boot" ]; then
   boot=dist
+  echo "available updates:"
+  busybox find /newroot/updates -type d -mindepth 1 -maxdepth 1 | busybox sed 's@^/newroot/updates/@@g' | natsort
   update="$(toybox grep -oE 'heddle_update=[^ ]+' /proc/cmdline | toybox head -n 1 | busybox sed 's/heddle_update=//')"
   if [ -z "$update" ]; then
     update="$(toybox ls /newroot/updates/*/BOOT | natsort -r | toybox head -n 1 | busybox awk -F / '{print $(NF-1)}')"
   fi
   if [ -n "$update" ]; then
-    update="updates/$update"
-    if [ -f "/newroot/$update/cmdline" ]; then
-      cmdline="/newroot/$update/cmdline"
+    if [ -d "/newroot/updates/$update" -a "$update" != / ]; then
+      echo "selected update: $update"
+      update="updates/$update"
+      if [ -f "/newroot/$update/cmdline" ]; then
+        cmdline="/newroot/$update/cmdline"
+      else
+        cmdline=/proc/cmdline
+      fi
+      kexec -l "/newroot/$update/bzImage" "--initrd=/newroot/$update/initrd.img" --command-line="heddle_boot=$update $(toybox cat "$cmdline")"
+      toybox umount /newroot /proc /sys # using /dev/kmsg
+      kexec -e
+    elif toybox grep -q heddle_fallback=1 /proc/cmdline; then
+      echo "update '$update' not found, booting '$boot'"
     else
-      cmdline=/proc/cmdline
+      echo "update '$update' not found, press return to boot '$boot'"
+      read
     fi
-    kexec -l "/newroot/$update/bzImage" "--initrd=/newroot/$update/initrd.img" --command-line="heddle_boot=$update $(toybox cat "$cmdline")"
-    toybox umount /newroot /proc /sys # using /dev/kmsg
-    kexec -e
   fi
 fi
+echo "boot: $boot"
 
 toybox umount /proc /sys
 
