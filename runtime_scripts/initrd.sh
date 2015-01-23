@@ -111,13 +111,13 @@ boot="$(toybox grep -oE 'heddle_boot=[^ ]+' /proc/cmdline | toybox head -n 1 | b
 if [ -z "$boot" ]; then
   boot=dist
   echo "available updates:"
-  busybox find /newroot/updates -type d -mindepth 1 -maxdepth 1 | busybox sed 's@^/newroot/updates/@@g' | natsort
+  busybox find /newroot/updates -name BOOT -mindepth 2 -maxdepth 2 | busybox sed -e 's@^/newroot/updates/@@g' -e 's@/BOOT$@@g' | natsort
   update="$(toybox grep -oE 'heddle_update=[^ ]+' /proc/cmdline | toybox head -n 1 | busybox sed 's/heddle_update=//')"
   if [ -z "$update" ]; then
-    update="$(toybox ls /newroot/updates/*/BOOT | natsort -r | toybox head -n 1 | busybox awk -F / '{print $(NF-1)}')"
+    update="$(busybox find /newroot/updates -name BOOT -mindepth 2 -maxdepth 2 | natsort -r | toybox head -n 1 | busybox awk -F / '{print $(NF-1)}')"
   fi
   if [ -n "$update" ]; then
-    if [ -d "/newroot/updates/$update" -a "$update" != / ]; then
+    if [ "$update" != / -a -e "/newroot/updates/$update/BOOT" ]; then
       echo "selected update: $update"
       update="updates/$update"
       if [ -f "/newroot/$update/cmdline" ]; then
@@ -134,6 +134,8 @@ if [ -z "$boot" ]; then
       echo "update '$update' not found, press return to boot '$boot'"
       read
     fi
+  else
+    echo "no updates found, booting '$boot'"
   fi
 fi
 echo "boot: $boot"
