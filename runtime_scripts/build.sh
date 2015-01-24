@@ -1,5 +1,5 @@
 #!/bin/bash
-# build enough to get weave, fold and salt working
+# build enough to get docker and capstan working
 set -e
 if [ ! -h /dev/fd ]; then
   ln -s /proc/self/fd /dev
