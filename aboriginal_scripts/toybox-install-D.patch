@@ -1,0 +1,12 @@
+diff -ru toybox-0.5.1/toys/posix/cp.c toybox-0.5.1.new/toys/posix/cp.c
+--- toybox-0.5.1/toys/posix/cp.c	2014-11-20 03:38:00.000000000 +0000
++++ toybox-0.5.1.new/toys/posix/cp.c	2015-01-25 21:29:22.164128499 +0000
+@@ -378,6 +378,7 @@
+   }
+ 
+   if (toys.optflags & FLAG_D) {
++    TT.destname = toys.optargs[toys.optc-1];
+     if (mkpathat(AT_FDCWD, TT.destname, 0, 2))
+       perror_exit("-D '%s'", TT.destname);
+     if (toys.optc == 1) return;
+

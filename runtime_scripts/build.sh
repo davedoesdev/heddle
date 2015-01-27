@@ -24,14 +24,24 @@ do
       ;;
   esac
 done
+shift $((OPTIND-1))
 
 unset updated
 
 . "$HERE/packages"
+if [ $# -gt 0 ]; then
+  pkgs=("$@")
+else
+  pkgs=("${PACKAGES[@]}")
+fi
+for pkg in "${pkgs[@]}"; do
+  declare "BLD_$pkg"=1
+done
 for pkg in "${PACKAGES[@]}"; do
   vdir="DIR_$pkg"
   vsrc="SRC_$pkg"
-  if [ -z "$Interactive" -a ! -e "${!vdir}.built" ]; then
+  vbld="BLD_$pkg"
+  if [ -z "$Interactive" -a -n "${!vbld}" -a ! -e "${!vdir}.built" ]; then
     rm -rf "${!vdir}"
     tar -xf "$HERE/download/${!vsrc}"
     chown -R root:root "${!vdir}"

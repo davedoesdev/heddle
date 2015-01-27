@@ -1,27 +1,27 @@
-DIR_PKGCONFIG="pkg-config-0.28"
-SRC_PKGCONFIG="$DIR_PKGCONFIG.tar.gz"
-URL_PKGCONFIG="http://pkgconfig.freedesktop.org/releases/$SRC_PKGCONFIG"
-CHK_PKGCONFIG="71853779b12f958777bffcb8ca6d849b4d3bed46"
-SUM_PKGCONFIG="sha1"
-BLD_PKGCONFIG() {
-  ./configure "--prefix=$INSTALL_DIR" --with-internal-glib
-  make
-  make install
-}
-PST_PKGCONFIG() {
-  export PKG_CONFIG_PATH="$(pkg-config --variable pc_path pkg-config)"
-}
-
 DIR_LIBICONV="libiconv-1.14"
 SRC_LIBICONV="$DIR_LIBICONV.tar.gz"
 URL_LIBICONV="http://ftp.gnu.org/pub/gnu/libiconv/$SRC_LIBICONV"
 CHK_LIBICONV="be7d67e50d72ff067b2c0291311bc283add36965"
 SUM_LIBICONV="sha1"
 BLD_LIBICONV() {
-  rm -f "$INSTALL_DIR"/bin/*pkg-config*
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
+}
+
+DIR_PKGCONFIG="pkg-config-0.28"
+SRC_PKGCONFIG="$DIR_PKGCONFIG.tar.gz"
+URL_PKGCONFIG="http://pkgconfig.freedesktop.org/releases/$SRC_PKGCONFIG"
+CHK_PKGCONFIG="71853779b12f958777bffcb8ca6d849b4d3bed46"
+SUM_PKGCONFIG="sha1"
+BLD_PKGCONFIG() {
+  rm -f "$INSTALL_DIR"/bin/*pkg-config*
+  ./configure "--prefix=$INSTALL_DIR" --with-internal-glib
+  make
+  make install
+}
+PST_PKGCONFIG() {
+  export PKG_CONFIG_PATH="$(pkg-config --variable pc_path pkg-config)"
 }
 
 DIR_LIBFFI="libffi-3.1"
@@ -698,10 +698,10 @@ BLD_RUNIT() {
 EOF
 }
 
-DIR_ETHTOOL="ethtool-3.16"
-SRC_ETHTOOL="$DIR_ETHTOOL.tar.gz"
+DIR_ETHTOOL="ethtool-3.18"
+SRC_ETHTOOL="$DIR_ETHTOOL.tar.xz"
 URL_ETHTOOL="https://www.kernel.org/pub/software/network/ethtool/$SRC_ETHTOOL"
-CHK_ETHTOOL="a6f1433824af7b390ed4e66dfc7cee047d6d1f56dbb8ceef9fe905d63aef5275"
+CHK_ETHTOOL="813ffe59fddd2db423c578448b10e33e2e2d4cc2ba780f1f0c603642b20342f6"
 SUM_ETHTOOL="sha256"
 BLD_ETHTOOL() {
   ./configure "--prefix=$INSTALL_DIR"
@@ -775,10 +775,10 @@ BLD_LIBNETFILTER_QUEUE() {
   make install
 }
 
-DIR_BYACC="byacc-20141006"
+DIR_BYACC="byacc-20141128"
 SRC_BYACC="$DIR_BYACC.tar.gz"
 URL_BYACC="http://invisible-island.net/datafiles/release/byacc.tar.gz"
-CHK_BYACC="391b0ac550e94920a86960c6973ec539784dc84849e7c2bb1645ae6d8178b14d"
+CHK_BYACC="f517fc21f08c1a1f010177357df58fc64eb1131011e5dcd48c19fe44c47198d0"
 SUM_BYACC="sha256"
 BLD_BYACC() {
   ./configure "--prefix=$INSTALL_DIR" --enable-btyacc
@@ -810,13 +810,13 @@ BLD_CONNTRACK_TOOLS() {
   make install
 }
 
-DIR_IPROUTE2="iproute2-3.16.0"
-SRC_IPROUTE2="$DIR_IPROUTE2.tar.gz"
+DIR_IPROUTE2="iproute2-3.17.0"
+SRC_IPROUTE2="$DIR_IPROUTE2.tar.xz"
 URL_IPROUTE2="https://www.kernel.org/pub/linux/utils/net/iproute2/$SRC_IPROUTE2"
-CHK_IPROUTE2="2a11aa1e120bf5b4e65c3d2700e9d5ab6acdb69d4d349840790ac6684c220c42"
+CHK_IPROUTE2="09e406636e7598e46d5d4f7b928bf5db57049d65dbeb9a496005957ee16f6000"
 SUM_IPROUTE2="sha256"
 BLD_IPROUTE2() {
-  sed -ri -e '/%error-verbose/d' -e '/%name-prefix="ematch_"/d' -e '/extern void yyerror/d' -e 's/(void yyerror\()/\1YYLTYPE loc, /' tc/emp_ematch.y
+  sed -ri -e '/%error-verbose/d' -e '/%name-prefix "ematch_"/d' -e '/extern void yyerror/d' -e 's/(void yyerror\()/\1YYLTYPE loc, /' tc/emp_ematch.y
   sed -ri -e 's/bison ([^ ]+) (.*)/byacc \2 \1/g' -e '/^TARGETS/s@arpd@@g' misc/Makefile
   make DESTDIR="$INSTALL_DIR" PREFIX= YACC=byacc YACCFLAGS="-d -t -v -L -p ematch_" install
   chroot "$CHROOT_DIR" ln -sf "$INSTALL_DIR/etc/iproute2" /etc
@@ -913,7 +913,10 @@ SUM_DHCPCD="sha256"
 BLD_DHCPCD() {
   CPPFLAGS="$CPPFLAGS -D_BSD_SOURCE -D_GNU_SOURCE -D_IPV6_H" ./configure "--prefix=$INSTALL_DIR" "--build=$(uname -m)-unknown-$(uname -s | tr A-Z a-z)"
   make
+  chroot "$CHROOT_DIR" ash <<EOF
+  cd "$PWD"
   make install
+EOF
 }
 
 DIR_GETTEXT="gettext-0.19.4"

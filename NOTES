@@ -1,4 +1,4 @@
-In aboriginal-1.2.9:
+In aboriginal-1.3.0:
 
 /path/to/heddle/aboriginal_scripts/config.sh
 ./build.sh x86_64
@@ -24,6 +24,7 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 #TODO
 # upgrade to latest aboriginal linux - try compiling on its own first, see if pthread_once patch is required; can we deploy this in an update?
+# remove /var/tmp at boot
 
 
 *** remember when documenting to ask users to add to ntp pool, with instructions
