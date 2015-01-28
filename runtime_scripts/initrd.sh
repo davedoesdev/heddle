@@ -125,7 +125,12 @@ if [ -z "$boot" ]; then
       else
         cmdline=/proc/cmdline
       fi
-      kexec -l "/newroot/$update/bzImage" "--initrd=/newroot/$update/initrd.img" --command-line="heddle_boot=$update $(toybox cat "$cmdline")"
+      if [ -e "/sys/firmware/efi/systab" ]; then
+          acpi_rsdp="acpi_rsdp=$(toybox grep ^ACPI /sys/firmware/efi/systab | toybox head -n 1 | toybox cut -f2- -d=)"
+      else
+          acpi_rsdp=
+      fi
+      kexec -l "/newroot/$update/bzImage" "--initrd=/newroot/$update/initrd.img" --command-line="heddle_boot=$update $(toybox cat "$cmdline") $acpi_rsdp"
       toybox umount /newroot /proc /sys # using /dev/kmsg
       kexec -e
     elif toybox grep -q heddle_fallback=1 /proc/cmdline; then
