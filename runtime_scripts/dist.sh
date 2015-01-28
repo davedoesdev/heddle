@@ -2,7 +2,7 @@
 set -e
 here="$(dirname "$0")"
 mkdir -p /tmp/mnt
-mount -o loop "$here/run.img" /tmp/mnt
+mount -o loop,ro "$here/run.img" /tmp/mnt
 HERE=/tmp/mnt . /tmp/mnt/common.sh
 
 EXTRA_DIR="$CHROOT_DIR/extra"

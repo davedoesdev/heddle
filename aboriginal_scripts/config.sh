@@ -20,6 +20,10 @@ CONFIG_NTPD=y
 CONFIG_FEATURE_NTPD_SERVER=y
 CONFIG_HWCLOCK=y
 CONFIG_FEATURE_HWCLOCK_ADJTIME_FHS=y
+CONFIG_MOUNT=y
+CONFIG_FEATURE_MOUNT_FLAGS=y
+CONFIG_FEATURE_MOUNT_LOOP=y
+CONFIG_FEATURE_MOUNT_LOOP_CREATE=y
 
 .
 w
@@ -50,6 +54,7 @@ EOF
 ed -s root-filesystem.sh << 'EOF'
 /create_stage_tarball/i
 mkdir -p "$STAGE_DIR/lib"/{modules,firmware}
+ln -sf busybox "$STAGE_DIR/bin/mount"
 .
 w
 EOF

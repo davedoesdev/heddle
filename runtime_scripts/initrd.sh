@@ -111,10 +111,10 @@ boot="$(toybox grep -oE 'heddle_boot=[^ ]+' /proc/cmdline | toybox head -n 1 | b
 if [ -z "$boot" ]; then
   boot=dist
   echo "available updates:"
-  busybox find /newroot/updates -name BOOT -mindepth 2 -maxdepth 2 | busybox sed -e 's@^/newroot/updates/@@g' -e 's@/BOOT$@@g' | natsort
+  toybox find /newroot/updates -name BOOT -mindepth 2 -maxdepth 2 | busybox sed -e 's@^/newroot/updates/@@g' -e 's@/BOOT$@@g' | natsort
   update="$(toybox grep -oE 'heddle_update=[^ ]+' /proc/cmdline | toybox head -n 1 | busybox sed 's/heddle_update=//')"
   if [ -z "$update" ]; then
-    update="$(busybox find /newroot/updates -name BOOT -mindepth 2 -maxdepth 2 | natsort -r | toybox head -n 1 | busybox awk -F / '{print $(NF-1)}')"
+    update="$(toybox find /newroot/updates -name BOOT -mindepth 2 -maxdepth 2 | natsort -r | toybox head -n 1 | busybox awk -F / '{print $(NF-1)}')"
   fi
   if [ -n "$update" ]; then
     if [ "$update" != / -a -e "/newroot/updates/$update/BOOT" ]; then
