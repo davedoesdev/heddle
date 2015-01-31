@@ -2,9 +2,9 @@
 # make run.img and copy run into it as /init
 # use HDC=/path/to/run when running dev-environment.sh
 set -e
-cd "$(dirname "$0")"
-IMG_RUN=../images/run.img
-IMG_EXTRA=../images/extra.img
+HERE="$(dirname "$0")"
+IMG_RUN="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/run.img"
+IMG_EXTRA="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/extra.img"
 SWAP_GB=4
 
 part_type=gpt
@@ -38,14 +38,14 @@ URL_REFIND="http://downloads.sourceforge.net/project/refind/$VER_REFIND/$SRC_REF
 CHK_REFIND="08769aa9e4f41c0c267438d639bb37a5f97b3ddc8a5d208d75e95d204c73819e"
 SUM_REFIND="sha256"
 
-if [ ! -d "../boot/$DIR_REFIND" ]; then
+if [ ! -d "$HERE/../boot/$DIR_REFIND" ]; then
   rm -f "/tmp/$SRC_REFIND" 
   wget -O "/tmp/$SRC_REFIND" "$URL_REFIND"
   if [ "$("${SUM_REFIND}sum" "/tmp/$SRC_REFIND" | awk '{print $1}')" != "$CHK_REFIND" ]; then
     echo "refind checksum mismatch" 1>&2
     exit 1
   fi
-  unzip -d ../boot "/tmp/$SRC_REFIND"
+  unzip -d "$HERE/../boot" "/tmp/$SRC_REFIND"
 fi
 
 if [ ! -e "$IMG_RUN" ]; then
@@ -78,16 +78,16 @@ tmp="$(mktemp)"
 dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
 mkfs.fat -F 32 "$tmp"
 if [ $part_type = gpt ]; then
-  mcopy -i "$tmp" -s "../boot/$DIR_REFIND/refind" ::
+  mcopy -i "$tmp" -s "$HERE/../boot/$DIR_REFIND/refind" ::
   mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample}
   mdeltree -i "$tmp" ::/refind/{drivers_{ia32,x64},tools_{ia32,x64}}
-  mcopy -i "$tmp" ../boot/refind.conf ::/refind
+  mcopy -i "$tmp" "$HERE/../boot/refind.conf" ::/refind
   mmd -i "$tmp" ::/EFI
   mmove -i "$tmp" ::/refind ::/EFI/BOOT
   mmove -i "$tmp" ::/EFI/BOOT/{refind_,boot}x64.efi 
 else
   syslinux "$tmp"
-  mcopy -i "$tmp" ../boot/syslinux.cfg ::
+  mcopy -i "$tmp" "$HERE/../boot/syslinux.cfg" ::
   mcopy -i "$tmp" /usr/lib/syslinux/modules/bios/{menu,libutil}.c32 ::
   dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr/mbr.bin "of=$IMG_EXTRA"
 fi
@@ -101,9 +101,16 @@ copy() {
   e2cp -P $p -O 0 -G 0 "$1" "$IMG_RUN:$2"
 }
 
-copy packages
-copy ../runtime_scripts/run.sh init
-copy ../runtime_scripts/common.sh
-copy ../runtime_scripts/make_chroot.sh
+ext_packages=
+ext_chroot=
+if [ -n "$HEDDLE_EXT_DIR" ]; then
+  [ -e "$HEDDLE_EXT_DIR/packages" ] && ext_packages="$HEDDLE_EXT_DIR/packages"
+  [ -d "$HEDDLE_EXT_DIR/chroot"] && ext_chroot="-C $HEDDLE_EXT_DIR/chroot ."
+fi
 
-(cd ../chroot; tar --owner root --group root -zc *) | copy - chroot.tar.gz
+(cat "$HERE/packages" $ext_packages) | copy - packages
+copy "$HERE/../runtime_scripts/run.sh" init
+copy "$HERE/../runtime_scripts/common.sh"
+copy "$HERE/../runtime_scripts/make_chroot.sh"
+
+(tar --owner root --group root -zc -C "$HERE/../chroot" . -C "$PWD" $ext_chroot) | copy - chroot.tar.gz

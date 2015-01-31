@@ -6,33 +6,18 @@ else
 fi
 set -e
 
-# start docker
-sv start docker
-
-# check docker is ready
-docker info
-
-# create scratch image if it doesn't exist
-if ! docker history scratch; then
-  python -c 'import sys, tarfile; tarfile.open(fileobj=sys.stdout, mode="w|").close()' | docker import - scratch
+# check if any prepare_ services are still running
+if sv status /service/prepare_* | grep -v ^down; then
+  echo other prepare services are still running
+  # we'll be restarted and check for prepare_ services again
+  exit 1
 fi
 
-# check if weave images exist
-if docker history zettio/weave && docker history zettio/weavedns; then
-  # weave images exist
-  echo weave images exist
-  # if we're just preparing, update PCI database and poweroff
-  if grep -q 'heddle_prepare=1' /proc/cmdline; then
-    update-pciids
-    # don't rely on clean shutdown (for fragile software only!)
-    poweroff
-  fi
-  # tell sv not to restart us
-  exec sv down prepare
+# if we're just preparing, poweroff
+if grep -q 'heddle_prepare=1' /proc/cmdline; then
+  # don't rely on clean shutdown (for fragile software only!)
+  poweroff
 fi
 
-# weave images don't exist, make them
-cd "$GOPATH/src/github.com/zettio/weave"
-CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" make SUDO=
-rm -f /var/tmp/weave*.tar
-# we'll be restarted and check for the images again
+# tell sv not to restart us
+exec sv down prepare

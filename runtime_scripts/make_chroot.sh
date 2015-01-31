@@ -9,7 +9,7 @@ fi
 
 if [ -e "$1" ]; then
   rm -rf "$1"/{service,startup}
-  tar -C "$1" -xf "$HERE/chroot.tar.gz" service startup
+  tar -C "$1" -xf "$HERE/chroot.tar.gz" ./service ./startup ./var/log
 else
   mkdir -p "$1"
   tar -C "$1" -xf "$HERE/chroot.tar.gz"

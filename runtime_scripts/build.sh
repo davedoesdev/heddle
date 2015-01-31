@@ -45,7 +45,7 @@ for pkg in "${PACKAGES[@]}"; do
     rm -rf "${!vdir}"
     tar -xf "$HERE/download/${!vsrc}"
     chown -R root:root "${!vdir}"
-    tar -xf "$HERE/supplemental.tar.gz" "${!vdir}" >& /dev/null || true
+    tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
     pushd "${!vdir}"
     BLD_$pkg
     popd

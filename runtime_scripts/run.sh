@@ -42,5 +42,5 @@ fi
 
 chroot "$CHROOT_DIR" cgroupfs-mount
 
+rm -rf "$CHROOT_DIR/service"/*/supervise
 exec chroot "$CHROOT_DIR" /startup/runsvdir
-

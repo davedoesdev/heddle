@@ -1,0 +1,23 @@
+#!/bin/sh
+if grep -q 'heddle_prepare=1' /proc/cmdline; then
+  exec > /dev/ttyS0 2>&1
+else
+  exec 2>&1
+fi
+set -e
+
+# start docker
+sv start docker
+
+# check docker is ready
+docker info
+
+# check if scratch image exists
+if docker history scratch; then
+  echo scratch image exists
+  exec sv down prepare_docker
+fi
+
+# make scratch image
+python -c 'import sys, tarfile; tarfile.open(fileobj=sys.stdout, mode="w|").close()' | docker import - scratch
+# we'll be restarted and check for the image again

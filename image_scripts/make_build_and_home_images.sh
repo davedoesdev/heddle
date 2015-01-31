@@ -1,9 +1,9 @@
 #!/bin/bash
 # make build.img, download packages and copy build.sh into it as /init
 set -e
-cd "$(dirname "$0")"
-IMG_HOME=../images/home.img
-IMG_BUILD=../images/build.img
+HERE="$(dirname "$0")"
+IMG_HOME="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/home.img"
+IMG_BUILD="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/build.img"
 
 if [ ! -e "$IMG_HOME" ]; then
   dd if=/dev/zero "of=$IMG_HOME" bs=1024 "seek=$((4 * 1024 * 1024))" count=0
@@ -21,15 +21,24 @@ copy() {
   e2cp -P $p -O 0 -G 0 "$1" "$IMG_BUILD:$2"
 }
 
-copy packages
-copy ../runtime_scripts/build.sh init
-copy ../runtime_scripts/common.sh
-copy ../runtime_scripts/make_chroot.sh
+ext_packages=
+ext_chroot=
+ext_supplemental=
+if [ -n "$HEDDLE_EXT_DIR" ]; then
+  [ -e "$HEDDLE_EXT_DIR/packages" ] && ext_packages="$HEDDLE_EXT_DIR/packages"
+  [ -d "$HEDDLE_EXT_DIR/chroot"] && ext_chroot="-C $HEDDLE_EXT_DIR/chroot ."
+  [ -d "$HEDDLE_EXT_DIR/supplemental"] && ext_supplemental="-C $HEDDLE_EXT_DIR/supplemental ."
+fi
 
-(cd ../chroot; tar --owner root --group root -zc *) | copy - chroot.tar.gz
-(cd ../supplemental; tar --owner root --group root -zc *) | copy - supplemental.tar.gz
+(cat "$HERE/packages" $ext_packages) | copy - packages
+copy "$HERE/../runtime_scripts/build.sh" init
+copy "$HERE/../runtime_scripts/common.sh"
+copy "$HERE/../runtime_scripts/make_chroot.sh"
 
-. ./packages
+(tar --owner root --group root -zc -C "$HERE/../chroot" . -C "$PWD" $ext_chroot) | copy - chroot.tar.gz
+(tar --owner root --group root -zc -C "$HERE/../supplemental" . -C "$PWD" $ext_supplemental) | copy - supplemental.tar.gz
+
+. "$HERE/packages" $ext_packages
 e2mkdir "$IMG_BUILD:download"
 
 for pkg in "${PACKAGES[@]}"; do
