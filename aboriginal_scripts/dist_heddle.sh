@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 HERE="$(dirname "$0")"
-IMG_DIR="$HERE/../images"
-UPDATE_DIR="$HERE/../dist/update"
+IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/images"
+UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/dist/update"
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/dist.img"
 export QEMU_EXTRA="-hdd $IMG_DIR/heddle.img -cpu host -smp 2"

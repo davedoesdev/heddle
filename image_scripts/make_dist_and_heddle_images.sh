@@ -4,11 +4,16 @@
 set -e
 HERE="$(dirname "$0")"
 ARCH="${1:-x86_64}"
-IMG_DIST="$HERE/../images/dist.img"
-UPDATE_DIR="$HERE/../dist/update"
+IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/images"
+IMG_DIST="$IMG_DIR/dist.img"
+UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/dist/update"
 SQF_MODULES="$UPDATE_DIR/modules.sqf"
 SQF_FIRMWARE="$UPDATE_DIR/firmware.sqf"
 SQF_ROOT="build/system-image-$ARCH/hda.sqf" 
+
+if [ "$UPDATE_DIR" != "$HERE/../dist/update" ]; then
+  ln -sf "$HERE/../dist/update"/*.sh "$UPDATE_DIR"
+fi
 
 if [ ! -e "$IMG_DIST" ]; then
   dd if=/dev/zero "of=$IMG_DIST" bs=1024 "seek=$((2 * 1024 * 1024))" count=0
@@ -23,7 +28,7 @@ copy() {
 }
 
 copy "$HERE/../runtime_scripts/dist.sh" init
-copy "$HERE/../images/run.img"
+copy "$IMG_DIR/run.img"
 copy "$SQF_ROOT" root.sqf
 ln -sf "$PWD/$SQF_ROOT" "$UPDATE_DIR/root.sqf"
 ln -sf "$PWD/build/root-filesystem-$ARCH/usr/bin"/{bash,busybox,toybox} "$UPDATE_DIR"
@@ -36,8 +41,8 @@ copy "$HERE/../runtime_scripts/init2.sh"
 copy "$HERE/../runtime_scripts/initrd.sh"
 copy "$HERE/../runtime_scripts/initrd_config.sh"
 
-if [ ! -e "$HERE/../images/heddle.img" ]; then
+if [ ! -e "$IMG_DIR/heddle.img" ]; then
   # assume cp recognises sparse files
-  cp "$HERE/../images"/{extra,heddle}.img
+  cp "$IMG_DIR"/{extra,heddle}.img
 fi
 

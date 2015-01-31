@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
-IMG_DIR="$(dirname "$0")/../images"
+HERE="$(dirname "$0")"
+IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/images"
 
 prepare=0
 while getopts p opt
