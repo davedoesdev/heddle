@@ -12,6 +12,7 @@ SQF_FIRMWARE="$UPDATE_DIR/firmware.sqf"
 SQF_ROOT="build/system-image-$ARCH/hda.sqf" 
 
 if [ "$UPDATE_DIR" != "$HERE/../dist/update" ]; then
+  mkdir -p "$UPDATE_DIR"
   ln -sf "$HERE/../dist/update"/*.sh "$UPDATE_DIR"
 fi
 
