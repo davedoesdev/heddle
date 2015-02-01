@@ -104,8 +104,8 @@ copy() {
 ext_packages=
 ext_chroot=
 if [ -n "$HEDDLE_EXT_DIR" ]; then
-  [ -e "$HEDDLE_EXT_DIR/packages" ] && ext_packages="$HEDDLE_EXT_DIR/packages"
-  [ -d "$HEDDLE_EXT_DIR/chroot"] && ext_chroot="-C $HEDDLE_EXT_DIR/chroot ."
+  [ -e "$HEDDLE_EXT_DIR/image_scripts/packages" ] && ext_packages="$HEDDLE_EXT_DIR/image_scripts/packages"
+  [ -d "$HEDDLE_EXT_DIR/chroot" ] && ext_chroot="-C $HEDDLE_EXT_DIR/chroot ."
 fi
 
 (cat "$HERE/packages" $ext_packages) | copy - packages

@@ -25,9 +25,9 @@ ext_packages=
 ext_chroot=
 ext_supplemental=
 if [ -n "$HEDDLE_EXT_DIR" ]; then
-  [ -e "$HEDDLE_EXT_DIR/packages" ] && ext_packages="$HEDDLE_EXT_DIR/packages"
-  [ -d "$HEDDLE_EXT_DIR/chroot"] && ext_chroot="-C $HEDDLE_EXT_DIR/chroot ."
-  [ -d "$HEDDLE_EXT_DIR/supplemental"] && ext_supplemental="-C $HEDDLE_EXT_DIR/supplemental ."
+  [ -e "$HEDDLE_EXT_DIR/image_scripts/packages" ] && ext_packages="$HEDDLE_EXT_DIR/image_scripts/packages"
+  [ -d "$HEDDLE_EXT_DIR/chroot" ] && ext_chroot="-C $HEDDLE_EXT_DIR/chroot ."
+  [ -d "$HEDDLE_EXT_DIR/supplemental" ] && ext_supplemental="-C $HEDDLE_EXT_DIR/supplemental ."
 fi
 
 (cat "$HERE/packages" $ext_packages) | copy - packages
@@ -38,7 +38,9 @@ copy "$HERE/../runtime_scripts/make_chroot.sh"
 (tar --owner root --group root -zc -C "$HERE/../chroot" . -C "$PWD" $ext_chroot) | copy - chroot.tar.gz
 (tar --owner root --group root -zc -C "$HERE/../supplemental" . -C "$PWD" $ext_supplemental) | copy - supplemental.tar.gz
 
-. "$HERE/packages" $ext_packages
+. "$HERE/packages"
+[ -n "$ext_packages" ] && . "$ext_packages"
+
 e2mkdir "$IMG_BUILD:download"
 
 for pkg in "${PACKAGES[@]}"; do
