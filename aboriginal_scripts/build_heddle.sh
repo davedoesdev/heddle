@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-HERE="$(dirname "$0")"
+HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 export HDB="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/home.img"
 export HDC="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/build.img"
 export QEMU_MEMORY=2048
