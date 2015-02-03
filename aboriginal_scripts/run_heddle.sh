@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-HERE="$(dirname "$0")"
+HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/images"
 
 prepare=0
