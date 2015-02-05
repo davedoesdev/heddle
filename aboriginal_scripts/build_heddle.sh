@@ -19,7 +19,7 @@ export QEMU_MEMORY=2048
 cd "build/system-image-${1:-x86_64}"
 
 if [ -n "$use_chroot" ]; then
-  # snap-ci doesn't have nested virtualization
+  # Snap-CI doesn't have nested virtualization
   mkdir -p chroot
   sudo mount -o loop -t squashfs hda.sqf chroot
   sudo mount -o loop "$HDB" chroot/home
