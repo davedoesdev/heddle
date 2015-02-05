@@ -19,8 +19,7 @@ export QEMU_MEMORY=2048
 cd "build/system-image-${1:-x86_64}"
 
 if [ -n "$use_chroot" ]; then
-  # travis doesn't have nested virtualization:
-  # https://github.com/travis-ci/travis-ci/issues/1419
+  # snap-ci doesn't have nested virtualization
   mkdir -p chroot
   sudo mount -o loop -t squashfs hda.sqf chroot
   sudo mount -o loop "$HDB" chroot/home
