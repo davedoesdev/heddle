@@ -21,7 +21,9 @@ BLD_PKGCONFIG() {
   make install
 }
 PST_PKGCONFIG() {
-  export PKG_CONFIG_PATH="$(pkg-config --variable pc_path pkg-config)"
+  if command -v pkg-config > /dev/null 2>&1; then
+    export PKG_CONFIG_PATH="$(pkg-config --variable pc_path pkg-config)"
+  fi
 }
 
 DIR_LIBFFI="libffi-3.1"
@@ -209,6 +211,18 @@ BLD_LLVM_COMPILER_RT() {
   sed -i 's/-Wno-unknown-warning-option//g' buildgo.sh
   sed -i 's/-std=c++11//g' buildgo.sh
   sed -i 's/-ffreestanding/-fno-strict-aliasing -D__libc_malloc=malloc -D__libc_free=free -D__libc_mallinfo=mallinfo -Dnullptr=0/g' buildgo.sh
+  # Ignore test failure for thread sanitizer (TSAN) on User-mode Linux because
+  # TSAN uses very high virtual memory addresses (0x600000000000) with
+  # mmap(MAP_FIXED). UML only has 3 page table levels (up to 39-bit adddresses)
+  # so it fails mmap for these very high addresses. Consider testing again if
+  # UML gets 4 levels (you'll notice the absence of a test failure if it does).
+  # A related issue is: https://github.com/golang/go/issues/6787 - same failure
+  # but for a different reason (reduced virtual memory size due to a security
+  # system reducing the virtual address space). So it might get fixed as part
+  # of solving that issue.
+  if [ -b /dev/ubda ]; then
+    sed -i 's/^GORACE=.*/\0 || true/' buildgo.sh
+  fi
   ./buildgo.sh
 }
 
@@ -252,7 +266,11 @@ BLD_GO() {
  /* use futimesat */
 EOF
 
-  # Race detector crashes under uClibC so disable for now :(
+  # Race detector crashes under uClibC so disable testing it for now :(
+  # Note that it will also fail on User-mode Linux due to lack of 4 level page
+  # table support (see comment in BLD_LLVM_COMPILER_RT above). So if it starts
+  # working under uClibC then we should still patch here if we're running under
+  # User-mode Linux (until UML gets 4 page table levels of course).
   patch -p0 <<EOF
 --- src/run.bash.orig
 +++ src/run.bash

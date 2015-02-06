@@ -57,5 +57,9 @@ for pkg in "${PACKAGES[@]}"; do
   fi
 done
 
-[ -n "$interactive" -o -n "$Interactive" ] && chroot "$CHROOT_DIR" ash
+if [ -n "$interactive" -o -n "$Interactive" ]; then
+  chroot "$CHROOT_DIR" ash
+else
+  poweroff
+fi
 

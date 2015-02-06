@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-use_chroot=
-while getopts c opt
+uml=
+while getopts u opt
 do
   case $opt in
-    c)
-      use_chroot=1
+    u)
+      uml=1
       ;;
   esac
 done
@@ -16,20 +16,24 @@ HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 export HDB="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/home.img"
 export HDC="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/build.img"
 export QEMU_MEMORY=2048
+
+ROOT_DIR="$PWD/build/root-filesystem-${1:-x86_64}"
 cd "build/system-image-${1:-x86_64}"
 
-if [ -n "$use_chroot" ]; then
-  # Snap-CI doesn't have nested virtualization
-  mkdir -p chroot
-  sudo mount -o loop -t squashfs hda.sqf chroot
-  sudo mount -o loop "$HDB" chroot/home
-  sudo mount -o loop,ro "$HDC" chroot/mnt
-  sudo mount -t proc proc chroot/proc
-  sudo mount -t sysfs sys chroot/sys
-  sudo mount -t devtmpfs dev chroot/dev
-  sudo mount -t tmpfs tmp chroot/tmp
-  sudo chroot chroot /mnt/init
-  sudo umount chroot/{home,mnt,proc,sys,dev,tmp,}
+if [ -n "$uml" ]; then
+  cat > "$ROOT_DIR/init.uml" << 'EOF'
+#!/bin/ash
+mount -t proc proc /proc
+mount -t tmpfs tmp /tmp
+mkdir /tmp/root
+mount /dev/ubda /tmp/root
+mount -t devtmpfs dev /tmp/root/dev
+ln -s ubdb /tmp/root/dev/hdb
+ln -s ubdc /tmp/root/dev/hdc
+exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1'
+EOF
+  chmod +x "$ROOT_DIR/init.uml"
+  linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 else
   ./dev-environment.sh
 fi
