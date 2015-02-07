@@ -21,7 +21,6 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 (man ddpt - if writing to SSD could use trim)
 
 
-
 #TODO
 CI build
 
