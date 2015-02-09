@@ -26,13 +26,14 @@ if [ -n "$uml" ]; then
 mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
 mkdir /tmp/root
-[ ! -b /dev/ubda ] && mknod /dev/ubda b 98 0
-mount /dev/ubda /tmp/root
-if [ -b /dev/ubdb ]; then
+if [ -b /dev/ubda ]; then
+  mount /dev/ubda /tmp/root
   mount -t devtmpfs dev /tmp/root/dev
   ln -s ubdb /tmp/root/dev/hdb
   ln -s ubdc /tmp/root/dev/hdc
 else
+  mknod /tmp/ubda b 98 0
+  mount /tmp/ubda /tmp/root
   mknod /tmp/root/dev/hdb b 98 16
   mknod /tmp/root/dev/hdc b 98 32
 fi
