@@ -34,8 +34,10 @@ if [ -b /dev/ubda ]; then
 else
   mknod /tmp/ubda b 98 0
   mount /tmp/ubda /tmp/root
-  mknod /tmp/root/dev/hdb b 98 16
-  mknod /tmp/root/dev/hdc b 98 32
+  mkdir /tmp/dev
+  mknod /tmp/dev/hdb b 98 16
+  mknod /tmp/dev/hdc b 98 32
+  mount -o bind /tmp/dev /tmp/root/dev
 fi
 exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1'
 EOF
