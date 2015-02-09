@@ -26,12 +26,16 @@ if [ -n "$uml" ]; then
 mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
 mkdir /tmp/root
+[ ! -b /dev/ubda ] && mknod /dev/ubda b 98 0
 mount /dev/ubda /tmp/root
-ls /dev
-echo HI
-mount -t devtmpfs dev /tmp/root/dev
-ln -s ubdb /tmp/root/dev/hdb
-ln -s ubdc /tmp/root/dev/hdc
+if [ -b /dev/ubdb ]; then
+  mount -t devtmpfs dev /tmp/root/dev
+  ln -s ubdb /tmp/root/dev/hdb
+  ln -s ubdc /tmp/root/dev/hdc
+else
+  mknod /tmp/root/dev/hdb b 98 16
+  mknod /tmp/root/dev/hdc b 98 32
+fi
 exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1'
 EOF
   chmod +x "$ROOT_DIR/init.uml"
