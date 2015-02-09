@@ -37,6 +37,7 @@ else
   mkdir /tmp/dev
   mknod /tmp/dev/hdb b 98 16
   mknod /tmp/dev/hdc b 98 32
+  mknod /dev/ttyS0 c 4 64
   mount -o bind /tmp/dev /tmp/root/dev
 fi
 exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1'
