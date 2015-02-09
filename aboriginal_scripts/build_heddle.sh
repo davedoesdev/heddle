@@ -27,6 +27,8 @@ mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
 mkdir /tmp/root
 mount /dev/ubda /tmp/root
+ls /dev
+echo HI
 mount -t devtmpfs dev /tmp/root/dev
 ln -s ubdb /tmp/root/dev/hdb
 ln -s ubdc /tmp/root/dev/hdc
