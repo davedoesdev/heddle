@@ -52,6 +52,12 @@ EOF
   linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 elif [ -n "$chroot" ]; then
   mkdir /tmp/chroot
+  mkdir /tmp/foo /tmp/bar /tmp/wup
+  sudo mount -o bind /tmp/foo /tmp/bar
+  echo HERE
+  sudo mount -o loop "$HDB" /tmp/wup
+  echo THERE
+  exit
   sudo mount -o loop,ro hda.sqf /tmp/chroot
   sudo mount -t tmpfs tmp /tmp/chroot/tmp
   sudo mount -o loop "$HDB" /tmp/chroot/home
