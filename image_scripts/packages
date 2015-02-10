@@ -220,7 +220,7 @@ BLD_LLVM_COMPILER_RT() {
   # but for a different reason (reduced virtual memory size due to a security
   # system reducing the virtual address space). So it might get fixed as part
   # of solving that issue.
-  if [ -b /dev/ubda ]; then
+  if [ -b /dev/ubdb ]; then
     sed -i 's/^GORACE=.*/\0 || true/' buildgo.sh
   fi
   ./buildgo.sh
