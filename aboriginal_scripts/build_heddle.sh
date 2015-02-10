@@ -30,8 +30,8 @@ echo +DEV
 ls /dev
 echo -DEV
 mkdir /tmp/wup
-mount -t devtmpfs dev /dev
-ls /dev
+mount -t devtmpfs dev /tmp/wup
+ls /tmp/wup
 echo .DEV
 if [ -b /dev/ubda ]; then
 #delete this stuff
