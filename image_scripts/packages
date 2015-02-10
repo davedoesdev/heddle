@@ -318,7 +318,7 @@ EOF
  			t.Skipf("ignoring failure on %s; see golang.org/issue/6047", runtime.GOOS)
 +			return
 +		}
-+		if (os.GetEnv("IN_UML") == "1" {
++		if os.GetEnv("IN_UML") == "1" {
 +			t.Skip("ignore the failure in UML")
  			return
  		}
