@@ -11,6 +11,7 @@ cd e2tools-0.0.16
 ./configure
 make
 ln -s e2cp e2mkdir
+ln -s e2cp e2ls
 PATH="$PATH:$PWD"
 cd ../aboriginal-1.3.0
 ../image_scripts/make_build_and_home_images.sh
