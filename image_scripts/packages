@@ -316,12 +316,12 @@ EOF
  	if !ok {
  		if badOS[runtime.GOOS] {
  			t.Skipf("ignoring failure on %s; see golang.org/issue/6047", runtime.GOOS)
- 			return
- 		}
-+		if os.GetEnv("IN_UML") == "1" {
-+			t.Skip("ignore the failure in UML")
 +			return
 +		}
++		if (os.GetEnv("IN_UML") == "1" {
++			t.Skip("ignore the failure in UML")
+ 			return
+ 		}
  		t.FailNow()
 EOF
 
@@ -329,7 +329,10 @@ EOF
   cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/pkg/runtime/race
   chroot "$CHROOT_DIR" ash <<EOF
   cd "$PWD/src"
-  GOROOT_FINAL="$INSTALL_DIR/go" IN_UML=1 ./all.bash
+  if [ -b /dev/ubdb ]; then
+    export IN_UML=1
+  fi
+  GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
 EOF
   rm -rf "$INSTALL_DIR"/{go,gopath}
   cp -a "$PWD" "$INSTALL_DIR/go"
