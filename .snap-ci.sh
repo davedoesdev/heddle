@@ -10,6 +10,7 @@ curl "http://home.earthlink.net/~k_sheff/sw/e2tools/e2tools-0.0.16.tar.gz" | tar
 cd e2tools-0.0.16
 ./configure
 make
+ln -s e2cp e2mkdir
 PATH="$PATH:$PWD"
 cd ../aboriginal-1.3.0
 ../image_scripts/make_build_and_home_images.sh
