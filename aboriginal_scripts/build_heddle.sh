@@ -26,7 +26,16 @@ if [ -n "$uml" ]; then
 mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
 mkdir /tmp/root
+echo +DEV
+ls /dev
+echo -DEV
+mkdir /tmp/wup
+mount -t devtmpfs dev /dev
+ls /dev
+echo .DEV
 if [ -b /dev/ubda ]; then
+#delete this stuff
+#make build steps more robust against rerun and clean up
   mount /dev/ubda /tmp/root
   mount -t devtmpfs dev /tmp/root/dev
   ln -s ubdb /tmp/root/dev/hdb
