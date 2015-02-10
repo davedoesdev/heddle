@@ -14,6 +14,10 @@ make
 ln -s e2cp e2mkdir
 ln -s e2cp e2ls
 PATH="$PATH:$PWD"
-cd ../aboriginal-1.3.0
+cd ..
+curl -O "http://uml.devloop.org.uk/kernels/kernel64-2.6.32.58.xz" | unxz > linux.uml
+chmod +x linux.uml
+PATH="$PATH:$PWD"
+cd aboriginal-1.3.0
 ../image_scripts/make_build_and_home_images.sh
 ../aboriginal_scripts/build_heddle.sh -u
