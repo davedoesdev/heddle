@@ -3,15 +3,11 @@ set -e
 set -x
 
 uml=
-chroot=
 while getopts uc opt
 do
   case $opt in
     u)
       uml=1
-      ;;
-    c)
-      chroot=1
       ;;
   esac
 done
@@ -51,19 +47,6 @@ exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/t
 EOF
   chmod +x "$ROOT_DIR/init.uml"
   linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
-elif [ -n "$chroot" ]; then
-  mkdir /tmp/chroot
-  sudo usermod -a -G fuse "$(whoami)"
-  ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ''
-  cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
-  ssh-keyscan -t rsa localhost >> ~/.ssh/known_hosts
-  ssh localhost guestmount -a "$PWD/hda.sqf" -m /dev/sda --ro /tmp/chroot
-  sudo mount -t tmpfs tmp /tmp/chroot/tmp
-  sudo guestmount -a "$HDB" -m /dev/sdb /tmp/chroot/home
-  sudo guestmount -a "$HDC" -m /dev/sdc --ro /tmp/chroot/mnt
-  sudo chroot /tmp/chroot /sbin/init.sh << 'EOF'
-/mnt/init
-EOF
 else
   ./dev-environment.sh
 fi
