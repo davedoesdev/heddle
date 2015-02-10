@@ -52,10 +52,10 @@ EOF
   linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 elif [ -n "$chroot" ]; then
   mkdir /tmp/chroot
-  guestmount -a hda.sqf --ro /tmp/chroot
+  guestmount -a hda.sqf -m /dev/hda --ro /tmp/chroot
   sudo mount -t tmpfs tmp /tmp/chroot/tmp
-  guestmount -a "$HDB" /tmp/chroot/home
-  guestmount -a "$HDC" --ro /tmp/chroot/mnt
+  guestmount -a "$HDB" -m /dev/hdb /tmp/chroot/home
+  guestmount -a "$HDC" -m /dev/hdc --ro /tmp/chroot/mnt
   sudo chroot /tmp/chroot /sbin/init.sh << 'EOF'
 /mnt/init
 EOF
