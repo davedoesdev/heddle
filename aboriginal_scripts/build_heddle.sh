@@ -54,7 +54,10 @@ EOF
 elif [ -n "$chroot" ]; then
   mkdir /tmp/chroot
   sudo usermod -a -G fuse "$(whoami)"
-  sudo guestmount -a hda.sqf -m /dev/sda --ro /tmp/chroot
+  ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ''
+  cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+  ssh-keyscan -t rsa localhost >> ~/.ssh/known_hosts
+  ssh localhost guestmount -a "$PWD/hda.sqf" -m /dev/sda --ro /tmp/chroot
   sudo mount -t tmpfs tmp /tmp/chroot/tmp
   sudo guestmount -a "$HDB" -m /dev/sdb /tmp/chroot/home
   sudo guestmount -a "$HDC" -m /dev/sdc --ro /tmp/chroot/mnt
