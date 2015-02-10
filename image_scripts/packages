@@ -299,11 +299,37 @@ EOF
  
 EOF
 
+  # pprof test fails in UML - expected, it fails in QEMU too:
+  # https://go.googlesource.com/go/+/dc72db90ea880267ef4b8e3db71da410030fc1b5%5E!/
+  patch -p0 <<EOF
+--- src/pkg/runtime/pprof/pprof_test.go.orig
++++ src/pkg/runtime/pprof/pprof_test.go
+@@ -11,6 +11,7 @@
+ 	"fmt"
+ 	"hash/crc32"
+ 	"math/big"
++	"os"
+ 	"os/exec"
+ 	"regexp"
+ 	"runtime"
+@@ -155,6 +156,10 @@
+ 	if !ok {
+ 		if badOS[runtime.GOOS] {
+ 			t.Skipf("ignoring failure on %s; see golang.org/issue/6047", runtime.GOOS)
+ 			return
+ 		}
++		if os.GetEnv("IN_UML") == "1" {
++			t.Skip("ignore the failure in UML")
++			return
++		}
+ 		t.FailNow()
+EOF
+
   # Copy race detector we built from source
   cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/pkg/runtime/race
   chroot "$CHROOT_DIR" ash <<EOF
   cd "$PWD/src"
-  GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
+  GOROOT_FINAL="$INSTALL_DIR/go" IN_UML=1 ./all.bash
 EOF
   rm -rf "$INSTALL_DIR"/{go,gopath}
   cp -a "$PWD" "$INSTALL_DIR/go"
