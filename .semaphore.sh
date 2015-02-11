@@ -6,8 +6,7 @@ git clone "https://github.com/davedoesdev/build-aboriginal-travis.git"
 mv heddle/images/*.img images
 rm -rf build-aboriginal-travis heddle
 sudo apt-get update -qq
-sudo apt-get install -y e2tools qemu-kvm
+sudo apt-get install -y e2tools user-mode-linux slirp
 cd aboriginal-1.3.0
 ../image_scripts/make_build_and_home_images.sh
-sed -i 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
-../aboriginal_scripts/build_heddle.sh
+../aboriginal_scripts/build_heddle.sh -u
