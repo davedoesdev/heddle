@@ -15,6 +15,15 @@ ln -s e2cp e2mkdir
 ln -s e2cp e2ls
 PATH="$PATH:$PWD"
 cd ..
+curl "http://ftp.debian.org/debian/pool/main/s/slirp/slirp_1.0.17.orig.tar.gz" | tar -x
+cd slirp-1.0.17
+curl "http://ftp.debian.org/debian/pool/main/s/slirp/slirp_1.0.17-7.debian.tar.gz" | tar -x
+for p in debian/patches/*.patch; do patch -p1 < "$p"; done
+cd src
+./configure
+make
+PATH="$PATH:$PWD"
+cd ../..
 curl "http://uml.devloop.org.uk/kernels/kernel64-2.6.32.58.xz" | unxz > linux.uml
 chmod +x linux.uml
 PATH="$PATH:$PWD"
