@@ -9,4 +9,5 @@ sudo apt-get update -qq
 sudo apt-get install -y e2tools qemu-kvm
 cd aboriginal-1.3.0
 ../image_scripts/make_build_and_home_images.sh
-sudo ../aboriginal_scripts/build_heddle.sh
+sed 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
+../aboriginal_scripts/build_heddle.sh
