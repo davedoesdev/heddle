@@ -6,7 +6,7 @@ git clone "https://github.com/davedoesdev/build-aboriginal-travis.git"
 mv heddle/images/*.img images
 rm -rf build-aboriginal-travis heddle
 sudo apt-get update -qq
-sudo apt-get -y -q=2 install e2tools user-mode-linux slirp libguestfs-tools
+sudo apt-get -y install e2tools user-mode-linux slirp libguestfs-tools
 cd aboriginal-1.3.0
 ../image_scripts/make_build_and_home_images.sh
 ../aboriginal_scripts/build_heddle.sh -c
