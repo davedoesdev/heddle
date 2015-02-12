@@ -45,12 +45,7 @@ ln -s ubdc /tmp/root/dev/hdc
 exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1'
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  UML_EXTRA=
-  # run distccd with --pid-file=/tmp/distccd.pid
-  if [ -f "/tmp/distccd.pid" ]; then
-    UML_EXTRA="DISTCC_HOSTS=10.0.2.2"
-  fi
-  linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp $UML_EXTRA 3>/dev/null 4>&1
+  linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 else
   ./dev-environment.sh
 fi

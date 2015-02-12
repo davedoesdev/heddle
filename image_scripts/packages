@@ -1,39 +1,3 @@
-# Aboriginal's distcc hangs
-DIR_DISTCC="distcc-3.1"
-SRC_DISTCC="$DIR_DISTCC.tar.bz2"
-URL_DISTCC="https://distcc.googlecode.com/files/$SRC_DISTCC"
-CHK_DISTCC="30663e8ff94f13c0553fbfb928adba91814e1b3a"
-SUM_DISTCC="sha1"
-BLD_DISTCC() {
-  patch -p0 <<EOF
---- lzo/minilzo.c.orig
-+++ lzo/minilzo.c
-@@ -1298,9 +1298,9 @@
- #if defined(__LZO_CHECKER)
-     return 0;
- #else
--    const int clone[] = {1, 2, 0};
-+    const int xclone[] = {1, 2, 0};
-     const int *q;
--    q = clone;
-+    q = xclone;
-     return (*q) ? 0 : 1;
- #endif
- }
-EOF
-  ./configure "--prefix=$INSTALL_DIR/distcc"
-  make install-programs
-  for x in c c++ gcc g++; do
-    ln -sf distcc "$INSTALL_DIR/distcc/bin/$x"
-  done
-}
-PST_DISTCC() {
-  if [ -b /dev/ubdb -a -n "$DISTCC_HOSTS" ]; then
-    PATH="$INSTALL_DIR/distcc/bin:$PATH"
-    echo using distcc
-  fi
-}
-
 DIR_LIBICONV="libiconv-1.14"
 SRC_LIBICONV="$DIR_LIBICONV.tar.gz"
 URL_LIBICONV="http://ftp.gnu.org/pub/gnu/libiconv/$SRC_LIBICONV"
@@ -1190,8 +1154,7 @@ BLD_KEXEC_TOOLS() {
   cp build/sbin/kexec "$INSTALL_DIR/sbin"
 }
 
-PACKAGES=(DISTCC
-          LIBICONV
+PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
           BDB
