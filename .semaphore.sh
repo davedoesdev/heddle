@@ -6,7 +6,8 @@ git clone "https://github.com/davedoesdev/build-aboriginal-travis.git"
 mv heddle/images/*.img images
 rm -rf build-aboriginal-travis heddle
 sudo apt-get update -qq
-sudo apt-get install -y e2tools user-mode-linux slirp
+sudo apt-get install -y e2tools user-mode-linux slirp distcc
 cd aboriginal-1.3.0
 ../image_scripts/make_build_and_home_images.sh
+distccd --pid-file=/tmp/distccd.pid --allow 127.0.0.1 --daemon
 ../aboriginal_scripts/build_heddle.sh -u
