@@ -3,9 +3,6 @@ install:
 - sudo /etc/init.d/mysql stop
 - sudo /etc/init.d/postgresql stop
 - sudo killall console-kit-daemon
-- sudo fallocate -l 2G swapfile
-- sudo mkswap swapfile
-- sudo swapon swapfile
 - sleep 5
 - free
 - ps auxw
