@@ -73,9 +73,11 @@ elif [ -n "$chroot" ]; then
   mkdir /tmp/chroot home mnt
   e2extract "$HDB" home
   e2extract "$HDC" mnt
-  sudo mount -o bind,ro "$ROOT_DIR" /tmp/chroot
+  sudo mount -o bind "$ROOT_DIR" /tmp/chroot
+  sudo mount -o remount,ro /tmp/chroot
   sudo mount -o bind home /tmp/chroot/home
-  sudo mount -o bind,ro mnt /tmp/chroot/mnt
+  sudo mount -o bind mnt /tmp/chroot/mnt
+  sudo mount -o remount,ro /tmp/chroot/mnt
   sudo mount -t tmpfs tmp /tmp/chroot/tmp
   sudo chroot /tmp/chroot /sbin/init.sh <<EOF
 /mnt/init
