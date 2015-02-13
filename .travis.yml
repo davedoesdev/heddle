@@ -10,6 +10,9 @@ install:
 - sudo service mysqld stop
 - sudo service postgres stop
 - sudo killall console-kit-daemon
+- sudo fallocate -l 2G swapfile
+- sudo mkswap swapfile
+- sudo swapon swapfile
 script:
 - sleep 5
 - free
