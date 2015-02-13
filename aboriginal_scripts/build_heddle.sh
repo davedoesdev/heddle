@@ -79,6 +79,7 @@ elif [ -n "$chroot" ]; then
   sudo mount -o bind mnt /tmp/chroot/mnt
   sudo mount -o remount,ro /tmp/chroot/mnt
   sudo chroot /tmp/chroot /bin/ash << 'EOF'
+set -e
 export HOME=/home
 mount -t proc proc proc
 mount -t sysfs sys sys
