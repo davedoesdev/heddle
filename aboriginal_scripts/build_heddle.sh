@@ -73,6 +73,7 @@ elif [ -n "$chroot" ]; then
   mkdir /tmp/chroot home mnt
   e2extract "$HDB" home
   e2extract "$HDC" mnt
+  ls -l  ..
   sudo mount -o bind "$ROOT_DIR" /tmp/chroot
   sudo mount -o remount,ro /tmp/chroot
   sudo mount -o bind home /tmp/chroot/home
