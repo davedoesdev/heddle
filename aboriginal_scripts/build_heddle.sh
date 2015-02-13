@@ -70,20 +70,24 @@ EOF
   chmod +x "$ROOT_DIR/init.uml"
   linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 elif [ -n "$chroot" ]; then
-  e2extract "$HDC" "$ROOT_DIR/mnt"
-  chmod -R a-w "$ROOT_DIR"
-  chmod +w "$ROOT_DIR/home"
-  e2extract "$HDB" "$ROOT_DIR/home"
-  sudo mount -t proc proc "$ROOT_DIR/proc"
-  sudo mount -t sysfs sys "$ROOT_DIR/sys"
-  sudo mount -t devtmpfs dev "$ROOT_DIR/dev"
-  sudo mkdir -p "$ROOT_DIR/dev/pts"
-  sudo mount -t devpts dev/pts "$ROOT_DIR/dev/pts"
-  sudo mount -t tmpfs tmp "$ROOT_DIR/tmp"
-  sudo chroot "$ROOT_DIR" /bin/ash << 'EOF'
+  mkdir /tmp/chroot home mnt
+  e2extract "$HDB" home
+  e2extract "$HDC" mnt
+  sudo mount -o bind "$ROOT_DIR" /tmp/chroot
+  sudo mount -o remount,ro /tmp/chroot
+  sudo mount -o bind home /tmp/chroot/home
+  sudo mount -o bind mnt /tmp/chroot/mnt
+  sudo mount -o remount,ro /tmp/chroot/mnt
+  sudo chroot /tmp/chroot /bin/ash << 'EOF'
 set -e
 export HOME=/home
+mount -t proc proc proc
+mount -t sysfs sys sys
+mount -t devtmpfs dev dev
+mkdir -p dev/pts
+mount -t devpts dev/pts dev/pts
 export PATH
+mount -t tmpfs /tmp /tmp
 cd "$HOME"
 /mnt/init
 EOF
