@@ -7,8 +7,8 @@ install:
 - ( cd build-aboriginal-travis; curl -L "https://github.com/davedoesdev/build-aboriginal-travis/releases/download/$(git tag | tail -n 1)/build-aboriginal-1.3.0-heddle.tar.xz" | tar -C .. -Jx )
 - mv heddle/images/*.img images
 - rm -rf build-aboriginal-travis heddle
-- sudo service mysqld stop
-- sudo service postgres stop
+- sudo /etc/init.d/mysqld stop
+- sudo /etc/init.d/postgres stop
 - sudo killall console-kit-daemon
 - sudo fallocate -l 2G swapfile
 - sudo mkswap swapfile
