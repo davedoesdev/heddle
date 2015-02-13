@@ -24,6 +24,25 @@ export QEMU_MEMORY=2048
 ROOT_DIR="$PWD/build/root-filesystem-${1:-x86_64}"
 cd "build/system-image-${1:-x86_64}"
 
+e2extract() {
+  e2ls -l "$1:$3" | while read -r l; do
+    if [ -n "$l" ]; then
+      f="$(echo "$l" | awk '{print $NF}')"
+      if [ "$f" != lost+found ]; then
+        m="$(echo "$l" | awk '{print substr($2, length($2)-4, 1)}')"
+        if [ "$m" = 4 ]; then
+          mkdir "$2$3/$f"
+          e2extract "$1" "$2" "$3/$f"
+        else
+          e2cp "$1:$3/$f" "$2$3/$f"
+        fi
+        p="$(echo "$l" | awk '{print substr($2, length($2)-2)}')"
+        chmod "$p" "$2$3/$f"
+      fi
+    fi
+  done
+}
+
 if [ -n "$uml" ]; then
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
@@ -51,11 +70,13 @@ EOF
   chmod +x "$ROOT_DIR/init.uml"
   linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 elif [ -n "$chroot" ]; then
-  mkdir /tmp/chroot
-  sudo mount -o loop,ro hda.sqf /tmp/chroot
+  mkdir /tmp/chroot home mnt
+  e2extract "$HDB" home
+  e2extract "$HDC" mnt
+  sudo mount -o bind,ro "$ROOT_DIR" /tmp/chroot
+  sudo mount -o bind home /tmp/chroot/home
+  sudo mount -o bind,ro mnt /tmp/chroot/mnt
   sudo mount -t tmpfs tmp /tmp/chroot/tmp
-  sudo mount -o loop "$HDB" /tmp/chroot/home
-  sudo mount -o loop,ro "$HDC" /tmp/chroot/mnt
   sudo chroot /tmp/chroot /sbin/init.sh <<EOF
 /mnt/init
 EOF
