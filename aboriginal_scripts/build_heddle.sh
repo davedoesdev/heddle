@@ -78,8 +78,16 @@ elif [ -n "$chroot" ]; then
   sudo mount -o bind home /tmp/chroot/home
   sudo mount -o bind mnt /tmp/chroot/mnt
   sudo mount -o remount,ro /tmp/chroot/mnt
-  sudo mount -t tmpfs tmp /tmp/chroot/tmp
-  sudo chroot /tmp/chroot /sbin/init.sh <<EOF
+  sudo chroot /tmp/chroot /sbin/init.sh << 'EOF'
+export HOME=/home
+mount -t proc proc proc
+mount -t sysfs sys sys
+mount -t devtmpfs dev dev
+mkdir -p dev/pts
+mount -t devpts dev/pts dev/pts
+export PATH
+mount -t tmpfs /tmp /tmp
+cd "$HOME"
 /mnt/init
 EOF
 else
