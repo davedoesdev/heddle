@@ -74,6 +74,12 @@ elif [ -n "$chroot" ]; then
   chmod -R a-w "$ROOT_DIR"
   chmod +w "$ROOT_DIR/home"
   e2extract "$HDB" "$ROOT_DIR/home"
+  sudo mount -t proc proc "$ROOT_DIR/proc"
+  sudo mount -t sysfs sys "$ROOT_DIR/sys"
+  sudo mount -t devtmpfs dev "$ROOT_DIR/dev"
+  sudo mkdir -p "$ROOT_DIR/dev/pts"
+  sudo mount -t devpts dev/pts "$ROOT_DIR/dev/pts"
+  sudo mount -t tmpfs tmp "$ROOT_DIR/tmp"
   sudo chroot "$ROOT_DIR" /bin/ash << 'EOF'
 set -e
 export HOME=/home
