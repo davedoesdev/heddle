@@ -8,7 +8,7 @@ install:
 - mv heddle/images/*.img images
 - rm -rf build-aboriginal-travis heddle
 - sudo /etc/init.d/mysql stop
-- sudo /etc/init.d/postgres stop
+- sudo service postgres stop
 - sudo killall console-kit-daemon
 - sudo fallocate -l 2G swapfile
 - sudo mkswap swapfile
