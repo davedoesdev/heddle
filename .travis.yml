@@ -3,16 +3,27 @@ install:
 - sudo /etc/init.d/mysql stop
 - sudo /etc/init.d/postgresql stop
 - sudo killall console-kit-daemon
+- echo ONE
 - free -m
 - ls -al /tmp
 - sudo apt-get update -qq
 - sudo apt-get install -y e2tools
+- echo TWO
+- free -m
 - rm -rf build-aboriginal-travis heddle
 - git clone "https://github.com/davedoesdev/build-aboriginal-travis.git"
+- echo THREE
+- free -m
 - ( cd build-aboriginal-travis; curl -L "https://github.com/davedoesdev/build-aboriginal-travis/releases/download/$(git tag | tail -n 1)/build-aboriginal-1.3.0-heddle.tar.xz" | tar -C .. -Jx )
+- echo FOUR
+- free -m
 - mv heddle/images/*.img images
 - rm -rf build-aboriginal-travis heddle
 script:
 - cd aboriginal-1.3.0
+- echo ONE
+- free -m
 - ../image_scripts/make_build_and_home_images.sh
+- echo TWO
+- free -m
 - ../aboriginal_scripts/build_heddle.sh -c
