@@ -342,6 +342,7 @@ EOF
   fi
   free -m
   ps -o vsz,rss,pid,ppid,args
+  ls /tmp
   GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
 EOF
   rm -rf "$INSTALL_DIR"/{go,gopath}
