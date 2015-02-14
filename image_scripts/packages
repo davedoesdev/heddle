@@ -348,6 +348,7 @@ EOF
   if [ -b /dev/ubdb ]; then
     export IN_UML=1
   fi
+  free -m
   GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
 EOF
   rm -rf "$INSTALL_DIR"/{go,gopath}
