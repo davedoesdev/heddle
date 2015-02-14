@@ -227,13 +227,13 @@ BLD_LLVM_COMPILER_RT() {
 }
 
 DIR_GO="go"
-SRC_GO="${DIR_GO}1.3.3.src.tar.gz"
+SRC_GO="${DIR_GO}1.4.1.src.tar.gz"
 URL_GO="https://storage.googleapis.com/golang/$SRC_GO"
-CHK_GO="b54b7deb7b7afe9f5d9a3f5dd830c7dede35393a"
+CHK_GO="c7a683e8d39b835e333199d68d0c0baefcd24a68"
 SUM_GO="sha1"
 BLD_GO() {
   # uClibC doesn't have futimes
-  patch -p0 <<EOF
+  patch -p0 << 'EOF'
 --- src/lib9/dirfwstat.c.orig
 +++ src/lib9/dirfwstat.c
 @@ -32,7 +32,26 @@
@@ -241,9 +241,9 @@ BLD_GO() {
  
  #if defined(__FreeBSD__) || defined(__APPLE__) || defined(__OpenBSD__) || defined(__linux__)
 -/* do nothing -- futimes exists and is fine */
-+#define TIMEVAL_TO_TIMESPEC(tv, ts) {                                  \\
-+        (ts)->tv_sec = (tv)->tv_sec;                                   \\
-+        (ts)->tv_nsec = (tv)->tv_usec * 1000;                          \\
++#define TIMEVAL_TO_TIMESPEC(tv, ts) {                                  \
++        (ts)->tv_sec = (tv)->tv_sec;                                   \
++        (ts)->tv_nsec = (tv)->tv_usec * 1000;                          \
 +} 
 +static int futimes(const int fd, const struct timeval tvp[2])
 +{
@@ -266,30 +266,30 @@ BLD_GO() {
  /* use futimesat */
 EOF
 
-  # Race detector crashes under uClibC so disable testing it for now :(
-  # Note that it will also fail on User-mode Linux due to lack of 4 level page
-  # table support (see comment in BLD_LLVM_COMPILER_RT above). So if it starts
-  # working under uClibC then we should still patch here if we're running under
-  # User-mode Linux (until UML gets 4 page table levels of course).
-  patch -p0 <<EOF
+  # Race detector fails under User-mode Linux due to lack of 4 level page
+  # table support (see comment in BLD_LLVM_COMPILER_RT above).
+  patch -p0 << 'EOF'
 --- src/run.bash.orig
 +++ src/run.bash
-@@ -67,7 +67,7 @@
- # Race detector only supported on Linux and OS X,
+@@ -162,8 +162,8 @@
+ # Race detector only supported on Linux, FreeBSD and OS X,
  # and only on amd64, and only when cgo is enabled.
- case "\$GOHOSTOS-\$GOOS-\$GOARCH-\$CGO_ENABLED" in
--linux-linux-amd64-1 | darwin-darwin-amd64-1)
-+xlinux-linux-amd64-1 | darwin-darwin-amd64-1)
+ # Delayed until here so we know whether to try external linking.
+-case "$GOHOSTOS-$GOOS-$GOARCH-$CGO_ENABLED" in
+-linux-linux-amd64-1 | freebsd-freebsd-amd64-1 | darwin-darwin-amd64-1)
++case "$GOHOSTOS-$GOOS-$GOARCH-$CGO_ENABLED-$IN_UML" in
++linux-linux-amd64-1- | freebsd-freebsd-amd64-1- | darwin-darwin-amd64-1-)
  	echo
  	echo '# Testing race detector.'
- 	go test -race -i runtime/race flag
+ 	go test -race -i runtime/race flag os/exec
 EOF
 
-  # We have gcc v4.2 which doesn't add -lpthread for -pthread:
-  patch -p0 <<EOF
+  # We have gcc v4.2 which doesn't add -lpthread for -pthread
+  # and doesn't support --build-id
+  patch -p0 << 'EOF'
 --- src/cmd/go/build.go.orig
 +++ src/cmd/go/build.go
-@@ -1983,6 +1983,7 @@
+@@ -2059,6 +2059,7 @@
  	} else {
  		cmd = b.gccCmd(p.Dir)
  	}
@@ -297,22 +297,30 @@ EOF
  	return b.run(p.Dir, p.ImportPath, nil, cmd, "-o", out, obj, flags)
  }
  
+@@ -2380,7 +2381,6 @@
+ 	// normally use gold or the GNU linker.
+ 	switch goos {
+ 	case "android", "dragonfly", "linux", "netbsd":
+-		ldflags = append(ldflags, "-Wl,--build-id=none")
+ 	}
+ 
+ 	if err := b.gccld(p, ofile, ldflags, gccObjs); err != nil {
 EOF
 
   # pprof test fails in UML - expected, it fails in QEMU too:
   # https://go.googlesource.com/go/+/dc72db90ea880267ef4b8e3db71da410030fc1b5%5E!/
-  patch -p0 <<EOF
---- src/pkg/runtime/pprof/pprof_test.go.orig
-+++ src/pkg/runtime/pprof/pprof_test.go
-@@ -11,6 +11,7 @@
+  patch -p0 << 'EOF'
+--- src/runtime/pprof/pprof_test.go.orig
++++ src/runtime/pprof/pprof_test.go
+@@ -10,6 +10,7 @@
+ 	"bytes"
  	"fmt"
- 	"hash/crc32"
  	"math/big"
 +	"os"
  	"os/exec"
  	"regexp"
  	"runtime"
-@@ -155,6 +156,10 @@
+@@ -183,6 +184,10 @@
  	if !ok {
  		if badOS[runtime.GOOS] {
  			t.Skipf("ignoring failure on %s; see golang.org/issue/6047", runtime.GOOS)
@@ -325,30 +333,15 @@ EOF
  		t.FailNow()
 EOF
 
-  # Heavily-loaded servers (like CI) can fail this test, see:
-  # https://code.google.com/p/go/source/detail?r=53ebc70d4e9f
-  patch -p0 <<EOF
---- misc/cgo/test/issue6997_linux.go.orig
-+++ misc/cgo/test/issue6997_linux.go
-@@ -34,7 +34,7 @@
- 		if r == 0 {
- 			t.Error("pthread finished but wasn't cancelled??")
- 		}
--	case <-time.After(5 * time.Second):
-+	case <-time.After(30 * time.Second):
- 		t.Error("hung in pthread_cancel/pthread_join")
- 	}
- }
-EOF
-
   # Copy race detector we built from source
-  cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/pkg/runtime/race
+  cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
   chroot "$CHROOT_DIR" ash <<EOF
   cd "$PWD/src"
   if [ -b /dev/ubdb ]; then
     export IN_UML=1
   fi
   free -m
+  ps auxw
   GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
 EOF
   rm -rf "$INSTALL_DIR"/{go,gopath}
