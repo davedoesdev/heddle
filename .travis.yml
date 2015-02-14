@@ -6,6 +6,7 @@ install:
 - echo ONE
 - free -m
 - ls -al /tmp
+- mount
 - sudo apt-get update -qq
 - sudo apt-get install -y e2tools
 - echo TWO
