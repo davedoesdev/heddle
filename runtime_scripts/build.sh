@@ -38,8 +38,6 @@ for pkg in "${pkgs[@]}"; do
   declare "BLD_$pkg"=1
 done
 for pkg in "${PACKAGES[@]}"; do
-  echo "$pkg 1"
-  free -m
   vdir="DIR_$pkg"
   vsrc="SRC_$pkg"
   vbld="BLD_$pkg"
@@ -54,13 +52,9 @@ for pkg in "${PACKAGES[@]}"; do
     touch "${!vdir}.built"
     updated=1
   fi
-  echo "$pkg 2"
-  free -m
   if type PST_$pkg 2> /dev/null | grep -q function; then
     PST_$pkg
   fi
-  echo "$pkg 3"
-  free -m
 done
 
 if [ -n "$interactive" -o -n "$Interactive" ]; then
