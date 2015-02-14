@@ -341,7 +341,7 @@ EOF
     export IN_UML=1
   fi
   free -m
-  ps auxw
+  ps -o vsz,rss,args
   GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
 EOF
   rm -rf "$INSTALL_DIR"/{go,gopath}
