@@ -333,6 +333,22 @@ EOF
  		t.FailNow()
 EOF
 
+  # Under heavy load (CI), increase timeout for this test even more than it
+  # already has been: https://code.google.com/p/go/source/detail?r=53ebc70d4e9f
+  patch -p0 << 'EOF'
+--- misc/cgo/test/issue6997_linux.go.orig
++++ misc/cgo/test/issue6997_linux.go
+@@ -34,7 +34,7 @@
+ 		if r == 0 {
+ 			t.Error("pthread finished but wasn't cancelled??")
+ 		}
+-	case <-time.After(30 * time.Second):
++	case <-time.After(180 * time.Second):
+ 		t.Error("hung in pthread_cancel/pthread_join")
+ 	}
+ }
+EOF
+
   # Copy race detector we built from source
   cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
   chroot "$CHROOT_DIR" ash <<EOF
