@@ -23,6 +23,8 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 #TODO
 CI build
+try proot - should mean we need nothing from the host
+get it working on travis first then move to a CI service with more RAM
 we should tar home directory up and then e2cp it onto home.img
 then if we see home.tar.xz when we run, we should untar it
 
