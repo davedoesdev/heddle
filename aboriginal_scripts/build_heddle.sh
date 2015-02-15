@@ -74,9 +74,9 @@ elif [ -n "$chroot" ]; then
   e2extract "$HDB" home
   e2extract "$HDC" mnt
   chmod -R a-w "$ROOT_DIR" mnt
-  proot -R -0 -r "$ROOT_DIR" \
+  proot -R -r "$ROOT_DIR" \
         -b home:/home \
-        -b mnt:/mnt /bin/ash << 'EOF'  
+        -b mnt:/mnt -0 /bin/ash << 'EOF'  
 set -e
 export PATH
 export HOME=/home
