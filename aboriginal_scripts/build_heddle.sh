@@ -44,7 +44,7 @@ if [ -n "$uml" ]; then
 #!/bin/ash
 if [ ! -b /dev/ubda ]; then
   ls -al /dev
-  mknod /dev/ubda b 98 0
+  (cd /dev; mknod ubda b 98 0)
   mknod /dev/ubdb b 98 16
   mknod /dev/ttyS0 c 4 64
   mknod /dev/urandom c 1 9
