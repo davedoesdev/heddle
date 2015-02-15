@@ -40,6 +40,8 @@ e2extract() {
 }
 
 if [ -n "$uml" ]; then
+  chmod +w "$ROOT_DIR"
+  rm -f "$ROOT_DIR/init.uml"
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 mount -t tmpfs tmp /tmp

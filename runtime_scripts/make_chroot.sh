@@ -23,7 +23,7 @@ fi
 
 for x in /*; do
   d="$1$x"
-  if [ -f "$d" ]; then
+  if [ -f "$x" ]; then
     continue
   fi
   if [ ! -e "$d" ]; then
