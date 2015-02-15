@@ -72,7 +72,7 @@ EOF
 elif [ -n "$chroot" ]; then
   e2extract "$HDC" "$ROOT_DIR/mnt"
   chmod -R a-w "$ROOT_DIR"
-  chmod -R a+w "$ROOT_DIR"/{home,/proc}"
+  chmod -R a+w "$ROOT_DIR"/{home,proc}
   e2extract "$HDB" "$ROOT_DIR/home"
   mkdir "$ROOT_DIR/proc/self"
   ln /proc/mounts "$ROOT_DIR/proc"
