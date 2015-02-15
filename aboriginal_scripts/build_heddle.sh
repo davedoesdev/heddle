@@ -2,15 +2,11 @@
 set -e
 
 uml=
-chroot=
 while getopts uc opt
 do
   case $opt in
     u)
       uml=1
-      ;;
-    c)
-      chroot=1
       ;;
   esac
 done
@@ -69,21 +65,6 @@ exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/t
 EOF
   chmod +x "$ROOT_DIR/init.uml"
   exec linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
-elif [ -n "$chroot" ]; then
-  e2extract "$HDC" "$ROOT_DIR/mnt"
-  chmod -R a-w "$ROOT_DIR"
-  chmod -R a+w "$ROOT_DIR"/{home,proc}
-  e2extract "$HDB" "$ROOT_DIR/home"
-  mkdir "$ROOT_DIR/proc/self"
-  ln /proc/mounts "$ROOT_DIR/proc"
-  ln /proc/self/mounts "$ROOT_DIR/proc/self"
-  sudo chroot "$ROOT_DIR" /bin/ash << 'EOF'  
-set -e
-export PATH
-export HOME=/home
-cd "$HOME"
-exec /mnt/init
-EOF
 else
   exec ./dev-environment.sh
 fi
