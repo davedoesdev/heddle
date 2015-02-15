@@ -214,7 +214,7 @@ BLD_LLVM_COMPILER_RT() {
   # Ignore test failure for thread sanitizer (TSAN) on User-mode Linux because
   # TSAN uses very high virtual memory addresses (0x600000000000) with
   # mmap(MAP_FIXED). UML only has 3 page table levels (up to 39-bit adddresses)
-  # so it fails mmap for these very high addresses. Consider testing again if
+  # so it fails mmap for these very high addresses. Remove this patch if
   # UML gets 4 levels (you'll notice the absence of a test failure if it does).
   # A related issue is: https://github.com/golang/go/issues/6787 - same failure
   # but for a different reason (reduced virtual memory size due to a security

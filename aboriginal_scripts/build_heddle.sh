@@ -46,11 +46,11 @@ mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
 mkdir /tmp/root
 if [ -b /dev/ubda ]; then
-  mount /dev/ubda /tmp/root
+  mount -o noatime /dev/ubda /tmp/root
   mount -t devtmpfs dev /tmp/root/dev
 else
   mknod /tmp/ubda b 98 0
-  mount /tmp/ubda /tmp/root
+  mount -o noatime /tmp/ubda /tmp/root
   mkdir /tmp/dev
   mknod /tmp/dev/ubdb b 98 16
   mknod /tmp/dev/ubdc b 98 32
