@@ -72,8 +72,11 @@ EOF
 elif [ -n "$chroot" ]; then
   e2extract "$HDC" "$ROOT_DIR/mnt"
   chmod -R a-w "$ROOT_DIR"
-  chmod a+w "$ROOT_DIR/home"
+  chmod -R a+w "$ROOT_DIR"/{home,/proc}"
   e2extract "$HDB" "$ROOT_DIR/home"
+  mkdir "$ROOT_DIR/proc/self"
+  ln /proc/mounts "$ROOT_DIR/proc"
+  ln /proc/self/mounts "$ROOT_DIR/proc/self"
   sudo chroot "$ROOT_DIR" /bin/ash << 'EOF'  
 set -e
 export PATH
