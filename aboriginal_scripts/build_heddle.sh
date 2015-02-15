@@ -70,13 +70,11 @@ EOF
   chmod +x "$ROOT_DIR/init.uml"
   exec linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 elif [ -n "$chroot" ]; then
-  mkdir home mnt
-  e2extract "$HDB" home
-  e2extract "$HDC" mnt
-  chmod -R a-w "$ROOT_DIR" mnt
-  sudo "$(which proot)" -0 -R "$ROOT_DIR" \
-                        -b home:/home \
-                        -b mnt:/mnt -0 /bin/ash << 'EOF'  
+  e2extract "$HDC" "$ROOT_DIR/mnt"
+  chmod -R a-w "$ROOT_DIR"
+  chmod a+w "$ROOT_DIR/home"
+  e2extract "$HDB" "$ROOT_DIR/home"
+  sudo chroot "$ROOT_DIR" /bin/ash << 'EOF'  
 set -e
 export PATH
 export HOME=/home
