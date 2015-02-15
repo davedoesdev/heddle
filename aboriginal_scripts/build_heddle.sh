@@ -40,8 +40,6 @@ e2extract() {
 }
 
 if [ -n "$uml" ]; then
-  chmod +w "$ROOT_DIR"
-  rm -f "$ROOT_DIR/init.uml"
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 mount -t tmpfs tmp /tmp
@@ -59,8 +57,7 @@ ln -s ubdb /dev/hdc
 exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  chmod -R a-w "$ROOT_DIR"
-  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs rw init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
+  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 else
   exec ./dev-environment.sh
 fi
