@@ -44,27 +44,19 @@ if [ -n "$uml" ]; then
 #!/bin/ash
 mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
-mkdir /tmp/root
-if [ -b /dev/ubda ]; then
-  mount -o noatime /dev/ubda /tmp/root
-  mount -t devtmpfs dev /tmp/root/dev
-else
-  mknod /tmp/ubda b 98 0
-  mount -o noatime /tmp/ubda /tmp/root
-  mkdir /tmp/dev
-  mknod /tmp/dev/ubdb b 98 16
-  mknod /tmp/dev/ubdc b 98 32
-  mknod /tmp/dev/ttyS0 c 4 64
-  mknod /tmp/dev/urandom c 1 9
-  mknod /tmp/dev/null c 1 3
-  mount -o bind /tmp/dev /tmp/root/dev
+if [ ! -b /dev/ubda ]; then
+  mknod /dev/ubda b 98 0
+  mknod /dev/ubdb b 98 16
+  mknod /dev/ttyS0 c 4 64
+  mknod /dev/urandom c 1 9
+  mknod /dev/null c 1 3
 fi
-ln -s ubdb /tmp/root/dev/hdb
-ln -s ubdc /tmp/root/dev/hdc
+ln -s ubda /dev/hdb
+ln -s ubdb /dev/hdc
 exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1'
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  exec linux.uml ubd0=hda.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
+  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs rw init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 else
   exec ./dev-environment.sh
 fi
