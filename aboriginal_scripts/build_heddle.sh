@@ -43,7 +43,7 @@ if [ -n "$uml" ]; then
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 if [ ! -b /dev/ubda ]; then
-  ls /
+  ls -al /dev
   mknod /dev/ubda b 98 0
   mknod /dev/ubdb b 98 16
   mknod /dev/ttyS0 c 4 64
@@ -52,6 +52,7 @@ if [ ! -b /dev/ubda ]; then
 fi
 ln -s ubda /dev/hdb
 ln -s ubdb /dev/hdc
+ls -al /dev
 exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
