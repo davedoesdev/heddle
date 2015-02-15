@@ -43,8 +43,7 @@ if [ -n "$uml" ]; then
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 if [ ! -b /dev/ubda ]; then
-  ls -al /dev
-  (cd /dev; mknod ubda b 98 0)
+  mknod /dev/ubda b 98 0
   mknod /dev/ubdb b 98 16
   mknod /dev/ttyS0 c 4 64
   mknod /dev/urandom c 1 9
@@ -52,10 +51,10 @@ if [ ! -b /dev/ubda ]; then
 fi
 ln -s ubda /dev/hdb
 ln -s ubdb /dev/hdc
-ls -al /dev
 exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
+  chmod a+w "$ROOT_DIR/dev"
   exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs rw init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 else
   exec ./dev-environment.sh
