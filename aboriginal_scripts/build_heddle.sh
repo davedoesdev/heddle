@@ -42,8 +42,6 @@ e2extract() {
 if [ -n "$uml" ]; then
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
-mount -t proc proc /proc
-mount -t tmpfs tmp /tmp
 if [ ! -b /dev/ubda ]; then
   ls /
   mknod /dev/ubda b 98 0
