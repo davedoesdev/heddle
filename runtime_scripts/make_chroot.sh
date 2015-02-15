@@ -23,6 +23,9 @@ fi
 
 for x in /*; do
   d="$1$x"
+  if [ -f "$d" ]; then
+    continue
+  fi
   if [ ! -e "$d" ]; then
     mkdir -p "$d"
   fi
@@ -38,9 +41,7 @@ for x in /*; do
         cp "$y" "$d"
       fi
     done
-  else
-    if ! mount | grep -q "$d "; then
-      mount -o rbind "$x" "$d"
-    fi
+  elif ! mount | grep -q "$d "; then
+    mount -o rbind "$x" "$d"
   fi
 done
