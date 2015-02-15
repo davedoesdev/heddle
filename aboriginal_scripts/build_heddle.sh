@@ -55,7 +55,7 @@ ln -s ubdb /dev/hdc
 exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  chmod a+w "$ROOT_DIR/dev"
+  chown root "$ROOT_DIR/dev"
   exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs rw init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 else
   exec ./dev-environment.sh
