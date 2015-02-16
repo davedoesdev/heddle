@@ -76,7 +76,7 @@ elif [ -n "$chroot" ]; then
   sudo mount -o bind home /tmp/chroot/home
   sudo mount -o bind mnt /tmp/chroot/mnt
   sudo mount -o remount,ro /tmp/chroot/mnt
-  sudo mount -o bind tmp /tmp/chroot/mnt # don't use memory for tmpfs
+  sudo mount -o bind tmp /tmp/chroot/tmp # don't use memory for tmpfs
   sudo mount -o bind /proc /tmp/chroot/proc
   sudo mount -o bind /sys /tmp/chroot/sys
   sudo mount -o bind /dev /tmp/chroot/dev 
