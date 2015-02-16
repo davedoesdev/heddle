@@ -52,15 +52,13 @@ else
   mknod /tmp/ubda b 98 0
   mount /tmp/ubda /tmp/root
   mkdir /tmp/dev
-  mknod /tmp/dev/ubdb b 98 16
-  mknod /tmp/dev/udbc b 98 32
   mknod /tmp/dev/ttyS0 c 4 64
   mknod /tmp/dev/urandom c 1 9
   mknod /tmp/dev/null c 1 3
   mount -o bind /tmp/dev /tmp/root/dev
 fi
-ln -s ubdb /tmp/root/dev/hdb
-ln -s ubdc /tmp/root/dev/hdc
+mknod /tmp/root/dev/hdb b 98 16
+mknod /tmp/root/dev/hdc b 98 32
 exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1'
 EOF
   chmod +x "$ROOT_DIR/init.uml"
