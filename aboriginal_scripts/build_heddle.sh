@@ -84,7 +84,7 @@ elif [ -n "$chroot" ]; then
   touch /tmp/dev/{urandom,null}
   sudo mount -o bind /dev/urandom /tmp/dev/urandom
   sudo mount -o bind /dev/null /tmp/dev/null
-  mount -o bind /tmp/dev /tmp/chroot/dev
+  sudo mount -o bind /tmp/dev /tmp/chroot/dev
   exec sudo chroot /tmp/chroot /bin/ash << 'EOF'
 set -e
 export HOME=/home
