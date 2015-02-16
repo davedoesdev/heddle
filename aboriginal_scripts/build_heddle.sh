@@ -80,6 +80,7 @@ elif [ -n "$chroot" ]; then
   sudo mount -o bind /proc /tmp/chroot/proc
   sudo mount -o bind /sys /tmp/chroot/sys
   sudo mount -o bind /dev /tmp/chroot/dev 
+  ls -al /tmp/chroot/dev
   exec sudo chroot /tmp/chroot /bin/ash << 'EOF'
 set -e
 export HOME=/home
