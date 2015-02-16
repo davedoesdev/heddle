@@ -76,16 +76,10 @@ elif [ -n "$chroot" ]; then
   sudo mount -o bind home /tmp/chroot/home
   sudo mount -o bind mnt /tmp/chroot/mnt
   sudo mount -o remount,ro /tmp/chroot/mnt
-  sudo mount -o rbind tmp /tmp/chroot/tmp # don't use memory for tmpfs
+  sudo mount -o bind tmp /tmp/chroot/tmp # don't use memory for tmpfs
   sudo mount -o rbind /proc /tmp/chroot/proc
   sudo mount -o rbind /sys /tmp/chroot/sys
   sudo mount -o rbind /dev /tmp/chroot/dev
-  # CI environments give permission denied when bind mount /dev directory
-  #mkdir /tmp/dev
-  #touch /tmp/dev/{urandom,null}
-  #sudo mount -o bind /dev/urandom /tmp/dev/urandom
-  #sudo mount -o bind /dev/null /tmp/dev/null
-  #sudo mount -o bind /tmp/dev /tmp/chroot/dev
   exec sudo chroot /tmp/chroot /bin/ash << 'EOF'
 set -e
 export HOME=/home
