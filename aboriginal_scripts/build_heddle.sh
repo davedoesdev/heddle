@@ -2,11 +2,15 @@
 set -e
 
 uml=
+chroot=
 while getopts uc opt
 do
   case $opt in
     u)
       uml=1
+      ;;
+    c)
+      chroot=1
       ;;
   esac
 done
@@ -63,6 +67,26 @@ exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/t
 EOF
   chmod +x "$ROOT_DIR/init.uml"
   exec linux.uml "ubd0=hda.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
+elif [ -n "$chroot" ]; then
+  mkdir /tmp/chroot home mnt tmp
+  e2extract "$HDB" home
+  e2extract "$HDC" mnt
+  sudo mount -o bind "$ROOT_DIR" /tmp/chroot
+  sudo mount -o remount,ro /tmp/chroot
+  sudo mount -o bind home /tmp/chroot/home
+  sudo mount -o bind mnt /tmp/chroot/mnt
+  sudo mount -o remount,ro /tmp/chroot/mnt
+  sudo mount -o bind tmp /tmp/chroot/mnt # don't use memory for tmpfs
+  sudo mount -o bind /proc /tmp/chroot/proc
+  sudo mount -o bind /sys /tmp/chroot/sys
+  sudo mount -o bind /dev /tmp/chroot/dev 
+  exec sudo chroot /tmp/chroot /bin/ash << 'EOF'
+set -e
+export HOME=/home
+export PATH
+cd "$HOME"
+exec /mnt/init
+EOF
 else
   exec ./dev-environment.sh
 fi

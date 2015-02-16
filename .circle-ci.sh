@@ -9,4 +9,4 @@ mv heddle/images/*.img images
 rm -rf build-aboriginal-travis heddle
 cd aboriginal-1.3.0
 ../image_scripts/make_build_and_home_images.sh
-../aboriginal_scripts/build_heddle.sh -u
+../aboriginal_scripts/build_heddle.sh -c
