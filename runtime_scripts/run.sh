@@ -3,6 +3,10 @@ set -e
 if [ ! -h /dev/fd ]; then
   ln -s /proc/self/fd /dev
 fi
+if [ -f /home/home.tar.xz ]; then
+  tar -Jx -C / /home/home.tar.xz
+  rm -f /home/home.tar.xz
+fi
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
 
