@@ -85,6 +85,7 @@ set -e
 export HOME=/home
 export PATH
 cd "$HOME"
+touch /tmp/in_chroot
 exec /mnt/init
 EOF
 else
