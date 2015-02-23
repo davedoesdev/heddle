@@ -335,7 +335,7 @@ EOF
 
   # pthread_cancel/join test fails in chroot - probably because it's compiled
   # against a different kernel than is running
-  patch -p0 < 'EOF'
+  patch -p0 << 'EOF'
 --- misc/cgo/test/issue6997_linux.go.orig
 +++ misc/cgo/test/issue6997_linux.go
 @@ -17,6 +17,7 @@
