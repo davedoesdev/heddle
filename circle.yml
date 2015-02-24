@@ -1,6 +1,3 @@
 test:
   override:
     - ./.circle-ci.sh
-general:
-  artifacts:
-    - build.log
