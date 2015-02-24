@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+( while true; do echo keep alive!; sleep 60; done ) &
+exec > build.log 2>&1
 sudo apt-get update -qq
 sudo apt-get install -y e2tools
 rm -rf build-aboriginal-travis heddle
