@@ -227,9 +227,9 @@ BLD_LLVM_COMPILER_RT() {
 }
 
 DIR_GO="go"
-SRC_GO="${DIR_GO}1.4.1.src.tar.gz"
+SRC_GO="${DIR_GO}1.4.2.src.tar.gz"
 URL_GO="https://storage.googleapis.com/golang/$SRC_GO"
-CHK_GO="c7a683e8d39b835e333199d68d0c0baefcd24a68"
+CHK_GO="460caac03379f746c473814a65223397e9c9a2f6"
 SUM_GO="sha1"
 BLD_GO() {
   # uClibC doesn't have futimes
