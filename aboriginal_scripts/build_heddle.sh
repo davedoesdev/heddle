@@ -80,7 +80,7 @@ elif [ -n "$chroot" ]; then
   sudo mount -o rbind /proc /tmp/chroot/proc
   sudo mount -o rbind /sys /tmp/chroot/sys
   sudo mount -o rbind /dev /tmp/chroot/dev
-  exec sudo chroot /tmp/chroot /bin/ash << 'EOF'
+  sudo chroot /tmp/chroot /bin/ash << 'EOF'
 set -e
 export HOME=/home
 export PATH
