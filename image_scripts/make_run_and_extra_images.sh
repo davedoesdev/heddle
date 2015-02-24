@@ -10,6 +10,7 @@ SWAP_GB=4
 part_type=gpt
 primary=
 fs_type=ext4
+fs_opts=-F
 while getopts mb opt
 do
   case $opt in
@@ -19,6 +20,7 @@ do
       ;;
     b)
       fs_type=btrfs
+      fs_opts=
       ;;
   esac
 done
@@ -50,7 +52,7 @@ fi
 
 if [ ! -e "$IMG_RUN" ]; then
   dd if=/dev/zero "of=$IMG_RUN" bs=1024 "seek=$((1 * 1024))" count=0
-  mkfs.ext2 "$IMG_RUN"
+  mkfs.ext2 -F "$IMG_RUN"
 fi
 
 if [ ! -e "$IMG_EXTRA" ]; then
@@ -69,7 +71,7 @@ if [ ! -e "$IMG_EXTRA" ]; then
 
   tmp="$(mktemp)"
   dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((1024 * 1024))" count=0
-  mkfs.$fs_type -L heddle_root "$tmp"
+  mkfs.$fs_type $fs_opts -L heddle_root "$tmp"
   dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 "seek=$(((513 + $SWAP_GB * 1024) * 1024))" conv=sparse,notrunc
   rm -f "$tmp"
 fi
