@@ -59,7 +59,7 @@ done
 
 if [ -n "$interactive" -o -n "$Interactive" ]; then
   exec chroot "$CHROOT_DIR" ash
-else
+elif [ ! -f /tmp/in_chroot ]; then
   exec poweroff
 fi
 
