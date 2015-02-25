@@ -4,7 +4,7 @@ set -e
 uml=
 chroot=
 lproot=
-while getopts uc opt
+while getopts ucl opt
 do
   case $opt in
     u)
@@ -19,6 +19,7 @@ do
   esac
 done
 shift $((OPTIND-1))
+echo "build options: $uml $chroot $lproot"
 
 HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 export HDB="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/home.img"
