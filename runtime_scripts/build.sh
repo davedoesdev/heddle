@@ -26,8 +26,6 @@ do
 done
 shift $((OPTIND-1))
 
-unset updated
-
 . "$HERE/packages"
 if [ $# -gt 0 ]; then
   pkgs=("$@")
@@ -42,6 +40,7 @@ for pkg in "${PACKAGES[@]}"; do
   vsrc="SRC_$pkg"
   vbld="BLD_$pkg"
   if [ -z "$Interactive" -a -n "${!vbld}" -a ! -e "${!vdir}.built" ]; then
+    echo "+$pkg" > /dev/tty
     rm -rf "${!vdir}"
     tar -xf "$HERE/download/${!vsrc}"
     chown -R root:root "${!vdir}"
@@ -50,7 +49,7 @@ for pkg in "${PACKAGES[@]}"; do
     BLD_$pkg
     popd
     touch "${!vdir}.built"
-    updated=1
+    echo "-$pkg" > /dev/tty
   fi
   if type PST_$pkg 2> /dev/null | grep -q function; then
     PST_$pkg

@@ -9,7 +9,15 @@ mv heddle/images/*.img images
 rm -rf build-aboriginal-travis heddle
 cd aboriginal-1.3.0
 #sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
-../image_scripts/make_build_and_home_images.sh
-../aboriginal_scripts/build_heddle.sh -c
-../image_scripts/make_run_and_extra_images.sh
-../aboriginal_scripts/run_heddle.sh -p
+( while true; do echo keep alive!; sleep 60; done ) &
+build() {
+  ../image_scripts/make_build_and_home_images.sh
+  ../aboriginal_scripts/build_heddle.sh -c
+  ../image_scripts/make_run_and_extra_images.sh
+  ../aboriginal_scripts/run_heddle.sh -p
+}
+if ! build >& build.log; then
+  tail -n 200 build.log
+  exit 1
+fi
+tail -n 100 build.log
