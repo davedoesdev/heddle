@@ -5,7 +5,7 @@ IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/images"
 
 prepare=0
 qemu_mode=0
-while getopts p opt
+while getopts pq opt
 do
   case $opt in
     p)
