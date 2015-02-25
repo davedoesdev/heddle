@@ -57,11 +57,11 @@ fi
 
 if [ ! -e "$IMG_EXTRA" ]; then
   dd if=/dev/zero "of=$IMG_EXTRA" bs=1024 "seek=$((32 * 1024 * 1024))" count=0
-  parted "$IMG_EXTRA" mklabel $part_type \
-                      mkpart "$(part_name esp)" fat32 0% 513MiB \
-                      mkpart "$(part_name swap)" linux-swap 513MiB "$((513 + $SWAP_GB * 1024))MiB" \
-                      mkpart "$(part_name heddle_root)" $fs_type "$((513 + $SWAP_GB * 1024))MiB" 100% \
-                      set 1 boot on
+  parted -s "$IMG_EXTRA" mklabel $part_type \
+                         mkpart "$(part_name esp)" fat32 0% 513MiB \
+                         mkpart "$(part_name swap)" linux-swap 513MiB "$((513 + $SWAP_GB * 1024))MiB" \
+                         mkpart "$(part_name heddle_root)" $fs_type "$((513 + $SWAP_GB * 1024))MiB" 100% \
+                         set 1 boot on
 
   tmp="$(mktemp)"
   dd if=/dev/zero "of=$tmp" bs=1024 "seek=$(($SWAP_GB * 1024 * 1024))" count=0

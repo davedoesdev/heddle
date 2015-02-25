@@ -11,6 +11,7 @@ cd aboriginal-1.3.0
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
 build() {
+  sudo ln -sf /bin/true /sbin/udevadm
   ../image_scripts/make_build_and_home_images.sh
   ../aboriginal_scripts/build_heddle.sh -c
   ../image_scripts/make_run_and_extra_images.sh
