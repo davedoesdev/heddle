@@ -27,4 +27,5 @@ fi
 export QEMU_MEMORY=2048 
 export KERNEL_EXTRA="heddle_prepare=$prepare"
 cd "build/system-image-${1:-x86_64}"
+free -m
 ./dev-environment.sh
