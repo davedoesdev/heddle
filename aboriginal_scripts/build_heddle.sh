@@ -3,6 +3,7 @@ set -e
 
 uml=
 chroot=
+lproot=
 while getopts uc opt
 do
   case $opt in
@@ -11,6 +12,9 @@ do
       ;;
     c)
       chroot=1
+      ;;
+    l)
+      lproot=1
       ;;
   esac
 done
@@ -89,6 +93,23 @@ touch /tmp/in_chroot
 exec /mnt/init
 EOF
   sudo tar --owner root --group root -Jc home/install | e2cp -P 400 -O 0 -G 0 - "$HDB:home.tar.xz"
+elif [ -n "$lproot"]; then
+  mkdir /tmp/chroot tmp
+  sudo mount -o loop,ro hda.sqf /tmp/chroot
+  sudo mount -o loop "$HDB" /tmp/chroot/home
+  sudo mount -o loop,ro "$HDC" /tmp/chroot/mnt
+  sudo mount -o bind tmp /tmp/chroot/tmp # don't use memory for tmpfs
+  sudo mount -o rbind /proc /tmp/chroot/proc
+  sudo mount -o rbind /sys /tmp/chroot/sys
+  sudo mount -o rbind /dev /tmp/chroot/dev
+  exec sudo chroot /tmp/chroot /bin/ash << 'EOF'
+set -e
+export HOME=/home
+export PATH
+cd "$HOME"
+touch /tmp/in_chroot
+exec /mnt/init
+EOF
 else
   exec ./dev-environment.sh
 fi
