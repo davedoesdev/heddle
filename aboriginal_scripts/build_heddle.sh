@@ -19,7 +19,6 @@ do
   esac
 done
 shift $((OPTIND-1))
-echo "build options: uml=$uml chroot=$chroot lproot=$lproot" | tee /dev/tty
 
 HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 export HDB="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/home.img"
@@ -49,6 +48,7 @@ e2extract() {
 }
 
 if [ -n "$uml" ]; then
+  echo "uml build" | tee /dev/tty
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 mount -t proc proc /proc
@@ -73,6 +73,7 @@ EOF
   chmod +x "$ROOT_DIR/init.uml"
   exec linux.uml "ubd0=hda.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
 elif [ -n "$chroot" ]; then
+  echo "chroot build" | tee /dev/tty
   mkdir /tmp/chroot home mnt tmp
   e2extract "$HDB" home
   e2extract "$HDC" mnt
@@ -94,7 +95,8 @@ touch /tmp/in_chroot
 exec /mnt/init
 EOF
   sudo tar --owner root --group root -Jc home/install | e2cp -P 400 -O 0 -G 0 - "$HDB:home.tar.xz"
-elif [ -n "$lproot"]; then
+elif [ -n "$lproot" ]; then
+  echo "loop chroot build" | tee /dev/tty
   mkdir /tmp/chroot tmp
   sudo mount -o loop,ro hda.sqf /tmp/chroot
   sudo mount -o loop "$HDB" /tmp/chroot/home
@@ -112,5 +114,6 @@ touch /tmp/in_chroot
 exec /mnt/init
 EOF
 else
+  echo "qemu-kvm build" | tee /dev/tty
   exec ./dev-environment.sh
 fi
