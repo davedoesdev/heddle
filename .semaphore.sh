@@ -14,7 +14,7 @@ build() {
   ../image_scripts/make_build_and_home_images.sh
   ../aboriginal_scripts/build_heddle.sh -c
   ../image_scripts/make_run_and_extra_images.sh
-  ../aboriginal_scripts/run_heddle.sh -p
+  ../aboriginal_scripts/run_heddle.sh -p -q
 }
 if ! build >& build.log; then
   tail -n 200 build.log
