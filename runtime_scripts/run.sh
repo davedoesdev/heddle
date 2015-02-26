@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 if [ ! -h /dev/fd ]; then
   ln -s /proc/self/fd /dev
 fi

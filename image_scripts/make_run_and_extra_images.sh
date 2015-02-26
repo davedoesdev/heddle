@@ -78,7 +78,7 @@ fi
 
 tmp="$(mktemp)"
 dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
-mkfs.fat -F 32 "$tmp"
+mkfs.vfat -F 32 "$tmp"
 if [ $part_type = gpt ]; then
   mcopy -i "$tmp" -s "$HERE/../boot/$DIR_REFIND/refind" ::
   mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample}
