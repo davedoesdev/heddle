@@ -19,10 +19,10 @@ build() {
   sudo service postgresql stop
   sudo service rabbitmq-server stop
   sudo service mysql stop
-  ../image_scripts/make_build_and_home_images.sh
-  ../aboriginal_scripts/build_heddle.sh -l
-  ../image_scripts/make_run_and_extra_images.sh
-  ../aboriginal_scripts/run_heddle.sh -p -q
+  ../image_scripts/make_build_and_home_images.sh || return 1
+  ../aboriginal_scripts/build_heddle.sh -l || return 1
+  ../image_scripts/make_run_and_extra_images.sh || return 1
+  ../aboriginal_scripts/run_heddle.sh -p -q || return 1
 }
 if ! build >& build.log; then
   tail -n 200 build.log
