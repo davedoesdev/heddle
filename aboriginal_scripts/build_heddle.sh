@@ -94,7 +94,7 @@ cd "$HOME"
 touch /tmp/in_chroot
 exec /mnt/init
 EOF
-  sudo tar --owner root --group root -Jc home/install | e2cp -P 400 -O 0 -G 0 - "$HDB:home.tar.xz"
+  sudo tar --owner root --group root -Jc home/{install,chroot} | e2cp -P 400 -O 0 -G 0 - "$HDB:home.tar.xz"
 elif [ -n "$lproot" ]; then
   echo "loop chroot build" | tee /dev/tty
   mkdir /tmp/chroot tmp
