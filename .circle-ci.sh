@@ -26,8 +26,9 @@ build() {
   ../image_scripts/make_dist_and_heddle_images.sh || return 1
   ../aboriginal_scripts/dist_heddle.sh -q || return 1
 }
-if ! build >& build.log; then
-  tail -n 200 build.log
+if ! build >& ../build.log; then
+  tail -n 200 ../build.log
   exit 1
 fi
-tail -n 100 build.log
+tail -n 100 ../build.log
+bsdtar -C .. -JLcf "$CIRCLE_ARTIFACTS/heddle.tar.xz" dist build.log
