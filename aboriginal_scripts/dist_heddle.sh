@@ -3,9 +3,24 @@ set -e
 HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/images"
 UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/dist/update"
+
+qemu_mode=0
+while getopts q opt
+do
+  case $opt in
+    q)
+      qemu_mode=1
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/dist.img"
-export QEMU_EXTRA="-hdd $IMG_DIR/heddle.img -cpu host -smp 2"
+export QEMU_EXTRA="-hdd $IMG_DIR/heddle.img -net user,hostname=heddle -net nic"
+if [ "$qemu_mode" -eq 0 ]; then
+  QEMU_EXTRA+=" -cpu host -smp 2"
+fi
 export QEMU_MEMORY=2048
 cd "build/system-image-${1:-x86_64}"
 ./dev-environment.sh 

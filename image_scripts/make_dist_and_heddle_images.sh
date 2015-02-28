@@ -18,7 +18,7 @@ fi
 
 if [ ! -e "$IMG_DIST" ]; then
   dd if=/dev/zero "of=$IMG_DIST" bs=1024 "seek=$((2 * 1024 * 1024))" count=0
-  mkfs.ext2 "$IMG_DIST"
+  mkfs.ext2 -F "$IMG_DIST"
   e2mkdir "$IMG_DIST:gen"
 fi
 

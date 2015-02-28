@@ -23,6 +23,8 @@ build() {
   ../aboriginal_scripts/build_heddle.sh -l || return 1
   ../image_scripts/make_run_and_extra_images.sh || return 1
   ../aboriginal_scripts/run_heddle.sh -p -q || return 1
+  ../image_scripts/make_dist_and_heddle_images.sh || return 1
+  ../aboriginal_scripts/dist_heddle.sh -q || return 1
 }
 if ! build >& build.log; then
   tail -n 200 build.log
