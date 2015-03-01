@@ -27,7 +27,7 @@ build() {
   ../aboriginal_scripts/dist_heddle.sh -q || return 1
 }
 if ! build >& ../build.log; then
-  tail -n 200 ../build.log
+  tail -n 1000 ../build.log
   exit 1
 fi
 tail -n 100 ../build.log
