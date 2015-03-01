@@ -2,7 +2,7 @@
 set -e
 sudo apt-get update -qq
 sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux coreutils squashfs-tools
-rm -rf aboriginal-1.3.0 build-aboriginal-travis heddle artifacts
+rm -rf aboriginal-1.3.0 build-aboriginal-travis heddle
 git clone "https://github.com/davedoesdev/build-aboriginal-travis.git"
 ( cd build-aboriginal-travis; curl -L "https://github.com/davedoesdev/build-aboriginal-travis/releases/download/$(git tag | tail -n 1)/build-aboriginal-1.3.0-heddle.tar.xz" | tar -C .. -Jx )
 mv heddle/images/*.img images
@@ -34,5 +34,7 @@ tail -n 100 ../build.log
 cd ..
 version="$(git describe --exact-match HEAD || git rev-parse HEAD)"
 echo "version: $version"
-mkdir artifacts
-bsdtar -JLcf "artifacts/heddle-$version.tar.xz" dist build.log
+cd ..
+sudo rm -rf /artifacts
+sudo mkdir /artifacts
+sudo bsdtar -JLcf "/artifacts/heddle-$version.tar.xz" heddle/{dist,build.log}

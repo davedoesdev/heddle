@@ -3,4 +3,4 @@ test:
     - ./.circle-ci.sh
 general:
   artifacts:
-    - artifacts
+    - /artifacts
