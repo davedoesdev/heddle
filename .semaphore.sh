@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 sudo apt-get update -qq
 sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux coreutils squashfs-tools
 rm -rf aboriginal-1.3.0 build-aboriginal-travis heddle

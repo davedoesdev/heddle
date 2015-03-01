@@ -23,10 +23,9 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 #TODO
 CI build
-we should tar home directory up and then e2cp it onto home.img
-then if we see home.tar.xz when we run, we should untar it; check has been removed from final image
+do dist in chroot
+where upload/how name distributable?
 move all partitions to ext4 (2038 bug)
-include build.log in heddle CI release
 
 
 *** remember when documenting to ask users to add to ntp pool, with instructions
