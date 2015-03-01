@@ -31,4 +31,4 @@ if ! build >& ../build.log; then
   exit 1
 fi
 tail -n 100 ../build.log
-bsdtar -C .. -JLcf "$CIRCLE_ARTIFACTS/heddle.tar.xz" dist build.log
+bsdtar -C .. -JLcf heddle.tar.xz dist build.log

@@ -22,8 +22,7 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-CI build
-do dist in chroot
+CI build; remove Semaphore
 where upload/how name distributable?
 move all partitions to ext4 (2038 bug)
 
