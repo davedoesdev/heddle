@@ -1,6 +1,6 @@
-test:
-  override:
-    - ./.circle-ci.sh
 general:
   artifacts:
     - "heddle.tar.xz"
+test:
+  override:
+    - ./.circle-ci.sh
