@@ -23,7 +23,11 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 #TODO
 CI build
-move all partitions to ext4 (2038 bug)
+do:
+gpt ext4
+gpt btrfs
+mbr ext4
+mbr btrfs
 
 
 *** remember when documenting to ask users to add to ntp pool, with instructions

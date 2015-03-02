@@ -12,7 +12,7 @@ fi
 
 if [ ! -e "$IMG_BUILD" ]; then
   dd if=/dev/zero "of=$IMG_BUILD" bs=1024 "seek=$((1 * 1024 * 1024))" count=0
-  mkfs.ext2 -F "$IMG_BUILD"
+  mkfs.ext4 -F "$IMG_BUILD"
 fi
 
 copy() {
