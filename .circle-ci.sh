@@ -35,4 +35,5 @@ cd ..
 version="$(git describe --exact-match HEAD || git rev-parse HEAD)"
 echo "version: $version"
 cd ..
-sudo bsdtar -JLcf "/heddle-$version.tar.xz" heddle/{dist,build.log}
+mv heddle{,"-$version"}
+sudo bsdtar -JLcf "/heddle-$version.tar.xz" "heddle-$version"/{dist,build.log}
