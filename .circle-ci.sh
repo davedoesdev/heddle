@@ -37,7 +37,7 @@ prepare_and_dist() {
   ../aboriginal_scripts/run_heddle.sh -p -q        || return 1
   ../image_scripts/make_dist_and_heddle_images.sh  || return 1
   ../aboriginal_scripts/dist_heddle.sh -q          || return 1
-  sudo bsdtar -C .. -s "/^/heddle-$version-$1/" \
+  sudo bsdtar -C .. -s "/^/heddle-$version-$1\//" \
               -JLcf "/heddle-$version-$1.tar.xz" dist build.log
 }
 prepare_and_dist gpt-ext4
