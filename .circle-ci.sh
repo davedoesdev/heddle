@@ -10,6 +10,7 @@ rm -rf build-aboriginal-travis heddle
 cd aboriginal-1.3.0
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
+
 build() {
   sudo ln -sf /bin/true /sbin/udevadm
   sudo service cassandra stop
@@ -20,20 +21,26 @@ build() {
   sudo service rabbitmq-server stop
   sudo service mysql stop
   ../image_scripts/make_build_and_home_images.sh || return 1
-  ../aboriginal_scripts/build_heddle.sh -c || return 1
-  ../image_scripts/make_run_and_extra_images.sh || return 1
-  ../aboriginal_scripts/run_heddle.sh -p -q || return 1
-  ../image_scripts/make_dist_and_heddle_images.sh || return 1
-  ../aboriginal_scripts/dist_heddle.sh -q || return 1
+  ../aboriginal_scripts/build_heddle.sh -c
 }
 if ! build >& ../build.log; then
   tail -n 1000 ../build.log
   exit 1
 fi
 tail -n 100 ../build.log
-cd ..
+
 version="$(git describe --exact-match HEAD || git rev-parse HEAD)"
 echo "version: $version"
-cd ..
-mv heddle{,"-$version"}
-sudo bsdtar -JLcf "/heddle-$version.tar.xz" "heddle-$version"/{dist,build.log}
+prepare_and_dist() {
+  rm -f ../images/{run,extra,dist,heddle}.img
+  ../image_scripts/make_run_and_extra_images.sh $2 || return 1
+  ../aboriginal_scripts/run_heddle.sh -p -q        || return 1
+  ../image_scripts/make_dist_and_heddle_images.sh  || return 1
+  ../aboriginal_scripts/dist_heddle.sh -q          || return 1
+  sudo bsdtar -C .. -s "/^/heddle-$version-$1/" \
+              -JLcf "/heddle-$version-$1.tar.xz" dist build.log
+}
+prepare_and_dist gpt-ext4
+prepare_and_dist gpt-btrfs -b
+prepare_and_dist mbr-ext4 -m
+prepare_and_dist mbr-btrfs '-m -b'
