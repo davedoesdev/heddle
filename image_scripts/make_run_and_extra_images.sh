@@ -90,7 +90,11 @@ if [ $part_type = gpt ]; then
 else
   syslinux "$tmp"
   mcopy -i "$tmp" "$HERE/../boot/syslinux.cfg" ::
-  mcopy -i "$tmp" /usr/lib/syslinux/modules/bios/{menu,libutil}.c32 ::
+  if [ -d /usr/lib/syslinux/modules ]; then
+    mcopy -i "$tmp" /usr/lib/syslinux/modules/bios/{menu,libutil}.c32 ::
+  else
+    mcopy -i "$tmp" /usr/lib/syslinux/menu.c32 ::
+  fi
   dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr/mbr.bin "of=$IMG_EXTRA"
 fi
 mdir -i "$tmp" -/ -a ::
