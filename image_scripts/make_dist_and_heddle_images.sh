@@ -9,7 +9,7 @@ while getopts l opt
 do
   case $opt in
     l)
-      img_cp=ln
+      img_cp='ln -s'
       ;;
   esac
 done
