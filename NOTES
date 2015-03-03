@@ -6,7 +6,7 @@ In aboriginal-1.3.0:
 /path/to/heddle/aboriginal_scripts/build_heddle.sh
 /path/to/heddle/image_scripts/make_run_and_extra_images.sh [-m] [-b]
 /path/to/heddle/aboriginal_scripts/run_heddle.sh -p
-/path/to/heddle/image_scripts/make_dist_and_heddle_images.sh
+/path/to/heddle/image_scripts/make_dist_and_heddle_images.sh [-l]
 /path/to/heddle/aboriginal_scripts/dist_heddle.sh
 /path/to/heddle/image_scripts/kboot_heddle.sh or
   /path/to/heddle/image_scripts/boot_heddle.sh [-m]

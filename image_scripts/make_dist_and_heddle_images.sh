@@ -3,6 +3,18 @@
 # make heddle.img (copy of extra.img)
 set -e
 HERE="$(dirname "$0")"
+
+img_cp=cp
+while getopts l opt
+do
+  case $opt in
+    l)
+      img_cp='ln -s'
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
 ARCH="${1:-x86_64}"
 IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/images"
 IMG_DIST="$IMG_DIR/dist.img"
@@ -44,6 +56,6 @@ copy "$HERE/../runtime_scripts/initrd_config.sh"
 
 if [ ! -e "$IMG_DIR/heddle.img" ]; then
   # assume cp recognises sparse files
-  cp "$IMG_DIR"/{extra,heddle}.img
+  $img_cp "$IMG_DIR"/{extra,heddle}.img
 fi
 
