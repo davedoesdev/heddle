@@ -25,10 +25,6 @@ fi
 rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR" "$UPDATES_DIR"
 
-cp -a "$here"/{root,modules,firmware}.sqf "$DIST_DIR"
-mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M #-noI -noD -noF -noX
-mksquashfs /tmp/mnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
-
 cp /bin/{bash,busybox,toybox} "$here"/{init,init2}.sh "$DIST_DIR"
 
 rm -rf "$EXTRA_DIR/home"
@@ -42,25 +38,43 @@ find "$CHROOT_DIR"/home \
 while read f; do
   tar -C "$(dirname "$f")" "$(basename "$f")" -c | tar -C "$EXTRA_DIR/home" -xp
 done
-
 # toybox seems to have a bug copying symbolic links so use tar (above)
 #-exec cp -a {} "$EXTRA_DIR/home" \;
 
 rm -rf "$EXTRA_DIR"/{root,dev}
 mkdir -p "$EXTRA_DIR"/{root,dev}
 
-mkdir /tmp/initrd
-cd /tmp/initrd
-mkdir bin lib etc proc dev sys newroot
-cp /bin/{bash,busybox,toybox} "$INSTALL_DIR/sbin"/{fsck{,.ext4},e2label,resize2fs,tune2fs,parted,sgdisk,kexec} "$INSTALL_DIR/bin"/{btrfs,fsck.btrfs,btrfs-show-super,natsort} bin
-cp /lib/{libpthread.so.0,libc.so.0,ld-uClibc.so.0,libdl.so.0,libm.so.0,libuClibc++.so.0,libgcc_s.so.1} "$INSTALL_DIR/lib"/{libiconv.so.2,libparted.so.2,libreadline.so.6,libncurses.so.5,libuuid.so.1,libdevmapper.so.1.02,libblkid.so.1,libpopt.so.0,libz.so.1} lib
-cp "$here/initrd.sh" init
-cp "$here/initrd_config.sh" init_config
-ln -s bin sbin
-ln -s bash bin/sh
+cp -a "$here"/{root,modules,firmware}.sqf "$DIST_DIR"
+
+reuse=
+if grep -q 'heddle_dist_reuse=1' /proc/cmdline; then
+  reuse=1
+fi
+echo "reuse: $reuse"
 mount -o remount,rw /dev/hdc /mnt
-echo making initrd.img
-find . | cpio -o -H newc | gzip > "$here/gen/initrd.img"
-echo copying update files
-cp "$DIST_DIR"/{install,run}.sqf "$here/gen"
+if [ -n "$reuse" -a -f "$here/gen/install.sqf" ]; then
+  cp "$here/gen/install.sqf" "$DIST_DIR"
+else
+  mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M #-noI -noD -noF -noX
+  cp "$DIST_DIR/install.sqf" "$here/gen"
+fi
+if [ -n "$reuse" -a -f "$here/gen/run.sqf" ]; then
+  cp "$here/gen/run.sqf" "$DIST_DIR"
+else
+  mksquashfs /tmp/mnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
+  cp "$DIST_DIR/run.sqf" "$here/gen"
+fi
+if [ -z "$reuse" -o ! -f "$here/gen/initrd.img" ]; then
+  echo making initrd.img
+  mkdir /tmp/initrd
+  cd /tmp/initrd
+  mkdir bin lib etc proc dev sys newroot
+  cp /bin/{bash,busybox,toybox} "$INSTALL_DIR/sbin"/{fsck{,.ext4},e2label,resize2fs,tune2fs,parted,sgdisk,kexec} "$INSTALL_DIR/bin"/{btrfs,fsck.btrfs,btrfs-show-super,natsort} bin
+  cp /lib/{libpthread.so.0,libc.so.0,ld-uClibc.so.0,libdl.so.0,libm.so.0,libuClibc++.so.0,libgcc_s.so.1} "$INSTALL_DIR/lib"/{libiconv.so.2,libparted.so.2,libreadline.so.6,libncurses.so.5,libuuid.so.1,libdevmapper.so.1.02,libblkid.so.1,libpopt.so.0,libz.so.1} lib
+  cp "$here/initrd.sh" init
+  cp "$here/initrd_config.sh" init_config
+  ln -s bin sbin
+  ln -s bash bin/sh
+  find . | cpio -o -H newc | gzip > "$here/gen/initrd.img"
+fi
 ls -l "$DIST_DIR"
