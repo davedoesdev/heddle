@@ -95,7 +95,11 @@ else
   else
     mcopy -i "$tmp" /usr/lib/syslinux/menu.c32 ::
   fi
-  dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr/mbr.bin "of=$IMG_EXTRA"
+  if [ -d /usr/lib/syslinux/mbr ]; then
+    dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr/mbr.bin "of=$IMG_EXTRA"
+  else
+    dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr.bin "of=$IMG_EXTRA"
+  fi
 fi
 mdir -i "$tmp" -/ -a ::
 dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
