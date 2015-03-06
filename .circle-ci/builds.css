@@ -1,0 +1,33 @@
+a[href] ~ .list_artifacts {
+    display: none
+}
+
+.build_receiver tbody tr {
+    border-top: 1px solid;
+}
+
+.build_receiver tbody tr:hover {
+    background-color: #ffff99;
+}
+
+.build_receiver td, .build_receiver th {
+    border-right: 1px solid;
+    padding: 10px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.build_receiver td:last-child, .build_receiver th:last-child {
+    border-right: none;
+    width: 99%;
+}
+
+.build_receiver {
+    display: none;
+    border-collapse: collapse;
+    width: 100%
+}
+
+.build_receiver.build_received {
+    display: table
+}

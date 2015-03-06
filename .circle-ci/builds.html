@@ -1,0 +1,40 @@
+<html>
+<link rel="stylesheet" type="text/css" href="builds.css">
+<script src="jquery-1.11.2.min.js"></script>
+<script src="pure.min.js"></script>
+<script src="builds.js"></script>
+<script>
+function artifact_pp(path)
+{
+    var pos = path.indexOf('-gpt');
+    if (pos < 0)
+    {
+        pos = path.indexOf('-mbr');
+    }
+    var pos2 = path.indexOf('.tar.xz', pos);
+    return path.substring(pos + 1, pos2);
+}
+$(function ()
+{
+    render_builds('#builds',
+                  'https://circleci.com/api/v1/project/davedoesdev/heddle',
+                  156,
+                  artifact_pp);
+});
+</script>
+<body>
+<table class="build_receiver CSSTableGenerator">
+<thead>
+<tr><th>Build</th><th>Branch</th><th>Commit</th><th>Artifacts</th></tr>
+</thead>
+<tbody id="builds">
+<tr class="build_info">
+<td class="build"><a></a></td>
+<td class="branch"><a></a></td>
+<td class="commit"><a></a></td>
+<td class="artifacts"><span class="artifact"><a></a> <input type="button" class="list_artifacts" value="List..."></span></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

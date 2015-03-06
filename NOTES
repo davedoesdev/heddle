@@ -22,17 +22,7 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-CI build
-do:
-gpt ext4
-gpt btrfs
-mbr ext4
-mbr btrfs
-Can we speed it up by moving mksquashfs out of VM?
-5 mins to create home.tar.xz
-3 mins to untar home.tar.xz
-14-15 each for making install.sqf! Use another format?
-what if we assumed it was the same each time (it will be) and copied it onto a common image?
+docs
 
 
 *** remember when documenting to ask users to add to ntp pool, with instructions
