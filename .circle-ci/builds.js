@@ -12,11 +12,13 @@ function render_builds(sel, url, from, artifact_pp)
                 '.branch>a@href': '#{info.vcs_url}/tree/#{info.branch}',
                 '.commit>a': function (a)
                 {
-                    return a.item.all_commit_details[0].subject;
+                    var acd = a.item.all_commit_details;
+                    return (acd && acd.length > 0) ? acd[0].subject : '';
                 },
                 '.commit>a@href': function (a)
                 {
-                    return a.item.all_commit_details[0].commit_url;
+                    var acd = a.item.all_commit_details;
+                    return (acd && acd.length > 0) ? acd[0].commit_url : '';
                 }
             },
             filter: function (a)
