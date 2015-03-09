@@ -66,18 +66,29 @@ function render_builds(sel, url, from, artifact_pp)
         }
 
         highest = Math.max(highest, data[0].build_num);
-        lowest = data[data.length - 1].build_num;
 
-        for (var i=0; i < data.length; i += 1)
+        if (lowest !== null)
         {
-            if (data[i].build_num < lowest)
+            var n = data.length;
+            for (var i=0; i < data.length; i += 1)
             {
-                data.splice(0, i);
-                break;
+                if (data[i].build_num < lowest)
+                {
+                    n = i;
+                    break;
+                }
             }
+            data.splice(0, n);
         }
 
-        $(template(data)).children().appendTo($(sel)).find('.list_artifacts').click(list_artifacts);
+        if (data.length !== 0)
+        {
+            lowest = data[data.length - 1].build_num;
+        }
+
+        $(template(data)).children()
+                         .appendTo($(sel))
+                         .find('.list_artifacts').click(list_artifacts);
 
         if (lowest <= from)
         {
