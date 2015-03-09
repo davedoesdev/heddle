@@ -67,6 +67,8 @@ function render_builds(sel, url, from, artifact_pp)
             return;
         }
 
+        // offset respects filter
+        offset += data.length;
         highest = Math.max(highest, data[0].build_num);
 
         if (lowest !== null)
@@ -97,7 +99,6 @@ function render_builds(sel, url, from, artifact_pp)
             return;
         }
 
-        offset = highest - lowest + 1;
         get_data();
     }
 
