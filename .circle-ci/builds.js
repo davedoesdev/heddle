@@ -1,6 +1,6 @@
 function render_builds(sel, url, from, artifact_pp)
 {
-    var limit = 2;
+    var limit = 100;
 
     var template = $(sel).compile(
     {
