@@ -1,118 +1,102 @@
-function render_builds(sel, circle_url, github_url, from, artifact_pp, done)
+function render_builds(sel, url, from, artifact_pp)
 {
-    var circle_data = null, tags = null;
+    var limit = 2;
 
-    function get_branch(a)
+    var template = $(sel).compile(
     {
-        var ds = a.item.all_commit_details;
-        for (var i=0; i < ds.length; i += 1)
-        {
-            var tag = tags[ds[i].commit];
-            if (tag !== undefined)
-            {
-                return tag;
-            }
-        }
-        return a.item.branch;
-    }
-
-    function got_data()
-    {
-        $(sel).render(circle_data,
-        {
-            '.build_info': {
-                'info<-': {
-                    '.build>a': 'info.build_num',
-                    '.build>a@href': 'info.build_url',
-                    '.branch>a': get_branch,
-                    '.branch>a@href': function (a)
-                    {
-                        return a.item.vcs_url + '/tree/' + get_branch(a);
-                    },
-                    '.commit>a': function (a)
-                    {
-                        return a.item.all_commit_details[0].subject;
-                    },
-                    '.commit>a@href': function (a)
-                    {
-                        return a.item.all_commit_details[0].commit_url;
-                    }
+        '.build_info': {
+            'info<-': {
+                '.build>a': 'info.build_num',
+                '.build>a@href': 'info.build_url',
+                '.branch>a': 'info.branch',
+                '.branch>a@href': '#{info.vcs_url}/tree/#{info.branch}',
+                '.commit>a': function (a)
+                {
+                    return a.item.all_commit_details[0].subject;
                 },
-                filter: function (a)
+                '.commit>a@href': function (a)
                 {
-                    return (a.item.build_num >= from) &&
-                           !!a.item.has_artifacts;
+                    return a.item.all_commit_details[0].commit_url;
                 }
+            },
+            filter: function (a)
+            {
+                return (a.item.build_num >= from) &&
+                       !!a.item.has_artifacts;
+            }
+        }
+    });
+
+    $(sel).empty();
+
+    function list_artifacts()
+    {
+        var jqthis = $(this),
+            n = jqthis.parents('.artifacts').siblings('.build').text();
+
+        $.ajax(
+        {
+            url: url + '/' + n + '/artifacts',
+            dataType: 'json',
+            success: function (data)
+            {
+                jqthis.parents('.artifacts').render(data,
+                {
+                    '.artifact': {
+                        'artifact<-': {
+                            'a': function (a)
+                            {
+                                return artifact_pp(a.item.pretty_path);
+                            },
+                            'a@href': 'artifact.url'
+                        }
+                    }
+                });
             }
         });
-
-        $(sel).find('.list_artifacts').click(function ()
-        {
-            var jqthis = $(this),
-                n = jqthis.parents('.artifacts').siblings('.build').text();
-
-            $.ajax(
-            {
-                url: circle_url + '/' + n + '/artifacts',
-                dataType: 'json',
-                success: function (data)
-                {
-                    jqthis.parents('.artifacts').render(data,
-                    {
-                        '.artifact': {
-                            'artifact<-': {
-                                'a': function (a)
-                                {
-                                    return artifact_pp(a.item.pretty_path);
-                                },
-                                'a@href': 'artifact.url'
-                            }
-                        }
-                    });
-                }
-            });
-        });
-
-        $(sel).closest('.build_receiver').addClass('build_received');
-
-        if (done)
-        {
-            done();
-        }
     }
 
-    $.ajax(
+    var offset = 0, highest = 0, lowest = null;
+
+    function got_data(data)
     {
-        url: circle_url + '?filter=successful&limit=100',
-        dataType: 'json',
-        success: function (data)
+        if (data.length === 0)
         {
-            circle_data = data;
-            if (tags !== null)
+            return;
+        }
+
+        highest = Math.max(highest, data[0].build_num);
+        lowest = data[data.length - 1].build_num;
+
+        for (var i=0; i < data.length; i += 1)
+        {
+            if (data[i].build_num < lowest)
             {
-                got_data();
+                data.splice(0, i);
+                break;
             }
         }
-    });
 
-    $.ajax(
-    {
-        url: github_url + '/tags',
-        dataType: 'json',
-        success: function (data)
+        $(template(data)).children().appendTo($(sel)).find('.list_artifacts').click(list_artifacts);
+
+        if (lowest <= from)
         {
-            tags = {};
-
-            for (var i=0; i < data.length; i += 1)
-            {
-                var d = data[i];
-                tags[d.commit.sha] = d.name;
-            }
-
-            if (circle_data !== null)
-            {
-                got_data();
-            }
+            return;
         }
-    });
+
+        offset = highest - lowest + 1;
+        get_data();
+    }
+
+    function get_data()
+    {
+        $.ajax(
+        {
+            url: url + '?filter=successful&limit=' + limit + '&offset=' + offset,
+            dataType: 'json',
+            success: got_data
+        });
+    }
+
+    get_data();
 }
