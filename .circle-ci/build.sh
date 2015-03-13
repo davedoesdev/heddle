@@ -2,11 +2,10 @@
 set -e
 sudo apt-get update -qq
 sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools
-rm -rf aboriginal-1.3.0 build-aboriginal-travis heddle
-git clone "https://github.com/davedoesdev/build-aboriginal-travis.git"
-( cd build-aboriginal-travis; curl -L "https://github.com/davedoesdev/build-aboriginal-travis/releases/download/$(git describe --abbrev=0)/build-aboriginal-1.3.0-heddle.tar.xz" | tar -C .. -Jx )
+rm -rf aboriginal-1.3.0 heddle
+curl -L "https://github.com/davedoesdev/build-aboriginal-travis/releases/download/v0.0.9/build-aboriginal-1.3.0-heddle.tar.xz" | tar -Jx )
 mv heddle/images/*.img images
-rm -rf build-aboriginal-travis heddle
+rm -rf heddle
 cd aboriginal-1.3.0
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
