@@ -1,20 +1,12 @@
 #!/bin/bash
 set -e
 
-uml=
-chroot=
-lproot=
-while getopts ucl opt
+chroot_build=
+while getopts c opt
 do
   case $opt in
-    u)
-      uml=1
-      ;;
     c)
-      chroot=1
-      ;;
-    l)
-      lproot=1
+      chroot_build=1
       ;;
   esac
 done
@@ -47,32 +39,7 @@ e2extract() {
   done
 }
 
-if [ -n "$uml" ]; then
-  echo "uml build" | tee /dev/tty
-  cat > "$ROOT_DIR/init.uml" << 'EOF'
-#!/bin/ash
-mount -t proc proc /proc
-mount -t tmpfs tmp /tmp
-mkdir /tmp/root
-if [ -b /dev/ubda ]; then
-  mount /dev/ubda /tmp/root
-  mount -t devtmpfs dev /tmp/root/dev
-else
-  mknod /tmp/ubda b 98 0
-  mount /tmp/ubda /tmp/root
-  mkdir /tmp/dev
-  mknod /tmp/dev/ttyS0 c 4 64
-  mknod /tmp/dev/urandom c 1 9
-  mknod /tmp/dev/null c 1 3
-  mount -o bind /tmp/dev /tmp/root/dev
-fi
-mknod /tmp/root/dev/hdb b 98 16
-mknod /tmp/root/dev/hdc b 98 32
-exec /usr/sbin/chroot /tmp/root ash -c 'exec /sbin/init.sh < /dev/ttyS0 > /dev/ttyS0 2>&1'
-EOF
-  chmod +x "$ROOT_DIR/init.uml"
-  exec linux.uml "ubd0=hda.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${QEMU_MEMORY}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "HOST=${1:-x86_64}" eth0=slirp 3>/dev/null 4>&1
-elif [ -n "$chroot" ]; then
+if [ -n "$chroot_build" ]; then
   echo "chroot build" | tee /dev/tty
   mkdir /tmp/chroot home mnt tmp
   e2extract "$HDB" home
@@ -95,24 +62,6 @@ touch /tmp/in_chroot
 exec /mnt/init
 EOF
   sudo tar --owner root --group root -Jc home/{install,chroot} | e2cp -P 400 -O 0 -G 0 - "$HDB:home.tar.xz"
-elif [ -n "$lproot" ]; then
-  echo "loop chroot build" | tee /dev/tty
-  mkdir /tmp/chroot tmp
-  sudo mount -o loop,ro hda.sqf /tmp/chroot
-  sudo mount -o loop "$HDB" /tmp/chroot/home
-  sudo mount -o loop,ro "$HDC" /tmp/chroot/mnt
-  sudo mount -o bind tmp /tmp/chroot/tmp # don't use memory for tmpfs
-  sudo mount -o rbind /proc /tmp/chroot/proc
-  sudo mount -o rbind /sys /tmp/chroot/sys
-  sudo mount -o rbind /dev /tmp/chroot/dev
-  sudo chroot /tmp/chroot /bin/ash << 'EOF'
-set -e
-export HOME=/home
-export PATH
-cd "$HOME"
-touch /tmp/in_chroot
-exec /mnt/init
-EOF
 else
   echo "qemu-kvm build" | tee /dev/tty
   exec ./dev-environment.sh

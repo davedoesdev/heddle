@@ -24,6 +24,7 @@ CONFIG_MOUNT=y
 CONFIG_FEATURE_MOUNT_FLAGS=y
 CONFIG_FEATURE_MOUNT_LOOP=y
 CONFIG_FEATURE_MOUNT_LOOP_CREATE=y
+CONFIG_SED=y
 
 .
 w
@@ -44,17 +45,11 @@ echo UCLIBCXX_SUPPORT_WCLOG=n >> .config &&
 w
 EOF
 
-ed -s linux-kernel.sh << 'EOF'
-/cp "$KERNEL_PATH" "$STAGE_DIR"/i
-make "INSTALL_MOD_PATH=$STAGE_DIR/modules" ARCH=$BOOT_KARCH $LINUX_FLAGS $VERBOSITY modules_install &&
-.
-w
-EOF
-
 ed -s root-filesystem.sh << 'EOF'
 /create_stage_tarball/i
 mkdir -p "$STAGE_DIR/lib"/{modules,firmware}
 ln -sf busybox "$STAGE_DIR/bin/mount"
+ln -sf busybox "$STAGE_DIR/bin/sed"
 .
 w
 EOF
@@ -66,7 +61,14 @@ rm -f sources/patches/uClibc++-unwind-cxx.patch
 
 sed -i -e 's/<= _NSIG/< _NSIG/g' sources/patches/uClibc-posix_spawn.patch
 
-sed -i -e 's/-nographic/-enable-kvm \0/g' -e 's/$(ls)/$(ls | grep -v modules)/' -e 's/ln "$KERNEL"/cp -al */' system-image.sh
+sed -i -e 's/-nographic/-enable-kvm \0/g' system-image.sh
+
+ed -s system-image.sh << 'EOF'
+/cp "$KERNEL_PATH" "$STAGE_DIR/i
+make "INSTALL_MOD_PATH=$STAGE_DIR/modules" ARCH=${BOOT_KARCH:-$KARCH} $DO_CROSS $LINUX_FLAGS $VERBOSITY modules_install &&
+.
+w
+EOF
 
 cat >> sources/baseconfig-linux << EOF
 
