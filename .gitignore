@@ -1,4 +1,4 @@
-dist/update/bzImage
+dist/update/linux
 dist/update/initrd.img
 dist/update/modules.sqf
 dist/update/firmware.sqf

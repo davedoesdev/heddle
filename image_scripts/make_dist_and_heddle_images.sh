@@ -21,7 +21,25 @@ IMG_DIST="$IMG_DIR/dist.img"
 UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/dist/update"
 SQF_MODULES="$UPDATE_DIR/modules.sqf"
 SQF_FIRMWARE="$UPDATE_DIR/firmware.sqf"
-SQF_ROOT="build/system-image-$ARCH/hda.sqf" 
+SQF_ROOT="$UPDATE_DIR/root.sqf"
+
+if [ ! -e "$SQF_ROOT" ]; then
+  tmpd="$(mktemp -d)"
+  zcat "build/system-image-$ARCH/rootfs.cpio.gz" | ( cd "$tmpd"; cpio -i -f dev/console )
+  rm "$tmpd/init"
+  unsquashfs -f -d "$tmpd" "build/system-image-$ARCH/toolchain.sqf" 
+  rm "$tmpd/init"
+  mksquashfs "$tmpd" "$SQF_ROOT" -noappend -all-root
+  rm -rf "$tmpd"
+fi
+
+if [ ! -e "$SQF_MODULES" ]; then
+  mksquashfs "build/system-image-$ARCH/modules/lib/modules" "$SQF_MODULES" -noappend -all-root -wildcards -e '*/build' '*/source'
+fi
+
+if [ ! -e "$SQF_FIRMWARE" ]; then
+  mksquashfs "build/system-image-$ARCH/modules/lib/firmware" "$SQF_FIRMWARE" -noappend -all-root
+fi
 
 if [ "$UPDATE_DIR" != "$HERE/../dist/update" ]; then
   mkdir -p "$UPDATE_DIR"
@@ -29,7 +47,7 @@ if [ "$UPDATE_DIR" != "$HERE/../dist/update" ]; then
 fi
 
 if [ ! -e "$IMG_DIST" ]; then
-  dd if=/dev/zero "of=$IMG_DIST" bs=1024 "seek=$((2 * 1024 * 1024))" count=0
+  dd if=/dev/zero "of=$IMG_DIST" bs=1024 "seek=$((4 * 1024 * 1024))" count=0
   mkfs.ext4 -F "$IMG_DIST"
   e2mkdir "$IMG_DIST:gen"
 fi
@@ -42,17 +60,16 @@ copy() {
 
 copy "$HERE/../runtime_scripts/dist.sh" init
 copy "$IMG_DIR/run.img"
-copy "$SQF_ROOT" root.sqf
-ln -sf "$PWD/$SQF_ROOT" "$UPDATE_DIR/root.sqf"
-ln -sf "$PWD/build/root-filesystem-$ARCH/usr/bin"/{bash,busybox,toybox} "$UPDATE_DIR"
-mksquashfs "build/system-image-$ARCH/modules/lib/modules" "$SQF_MODULES" -noappend -all-root -wildcards -e '*/build' '*/source'
-mksquashfs "build/system-image-$ARCH/modules/lib/firmware" "$SQF_FIRMWARE" -noappend -all-root
+copy "$SQF_ROOT"
 copy "$SQF_MODULES"
 copy "$SQF_FIRMWARE"
 copy "$HERE/../runtime_scripts/init.sh"
 copy "$HERE/../runtime_scripts/init2.sh"
 copy "$HERE/../runtime_scripts/initrd.sh"
 copy "$HERE/../runtime_scripts/initrd_config.sh"
+
+ln -sf "$PWD/build/root-filesystem-$ARCH/usr/bin"/{busybox,toybox} "$UPDATE_DIR"
+ln -sf "$PWD/build/native-compiler-$ARCH/usr/bin"/bash "$UPDATE_DIR"
 
 if [ ! -e "$IMG_DIR/heddle.img" ]; then
   # assume cp recognises sparse files

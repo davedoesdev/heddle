@@ -25,6 +25,7 @@ CONFIG_FEATURE_MOUNT_FLAGS=y
 CONFIG_FEATURE_MOUNT_LOOP=y
 CONFIG_FEATURE_MOUNT_LOOP_CREATE=y
 CONFIG_SED=y
+CONFIG_MOUNTPOINT=y
 
 .
 w
@@ -50,6 +51,7 @@ ed -s root-filesystem.sh << 'EOF'
 mkdir -p "$STAGE_DIR/lib"/{modules,firmware}
 ln -sf busybox "$STAGE_DIR/bin/mount"
 ln -sf busybox "$STAGE_DIR/bin/sed"
+ln -sf busybox "$STAGE_DIR/bin/mountpoint"
 .
 w
 EOF

@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 here="$(dirname "$0")"
-mkdir -p /tmp/mnt
-mount -o loop,ro "$here/run.img" /tmp/mnt
-HERE=/tmp/mnt . /tmp/mnt/common.sh
+mkdir -p /rmnt # in root ramdisk
+mount -o loop,ro "$here/run.img" /rmnt
+HERE=/rmnt . /rmnt/common.sh
 
 EXTRA_DIR="$CHROOT_DIR/extra"
 DIST_DIR="$EXTRA_DIR/dist"
@@ -61,7 +61,7 @@ fi
 if [ -n "$reuse" -a -f "$here/gen/run.sqf" ]; then
   cp "$here/gen/run.sqf" "$DIST_DIR"
 else
-  mksquashfs /tmp/mnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
+  mksquashfs /rmnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
   cp "$DIST_DIR/run.sqf" "$here/gen"
 fi
 if [ -z "$reuse" -o ! -f "$here/gen/initrd.img" ]; then

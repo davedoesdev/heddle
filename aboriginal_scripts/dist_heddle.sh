@@ -30,7 +30,7 @@ export QEMU_MEMORY=2048
 cd "build/system-image-${1:-x86_64}"
 ./dev-environment.sh 
 e2cp "$HDC:gen/initrd.img" "$HDC:gen/install.sqf" "$HDC:gen/run.sqf" "$UPDATE_DIR"
-ln -sf "$PWD/bzImage" "$UPDATE_DIR"
+ln -sf "$PWD/linux" "$UPDATE_DIR"
 mmd -i "$IMG_DIR/heddle.img@@1M" -D s ::dist || true
-mcopy -i "$IMG_DIR/heddle.img@@1M" -D o bzImage "$UPDATE_DIR/initrd.img" ::dist
+mcopy -i "$IMG_DIR/heddle.img@@1M" -D o linux "$UPDATE_DIR/initrd.img" ::dist
 mdir -i "$IMG_DIR/heddle.img@@1M" ::dist
