@@ -18,6 +18,7 @@ export HDC="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/build.img"
 export QEMU_MEMORY=2048
 
 ROOT_DIR="$PWD/build/root-filesystem-${1:-x86_64}"
+OVERLAY_DIR="$PWD/build/native-compiler-${1:-x86_64}"
 cd "build/system-image-${1:-x86_64}"
 
 e2extract() {
@@ -44,6 +45,7 @@ if [ -n "$chroot_build" ]; then
   mkdir /tmp/chroot home mnt tmp
   e2extract "$HDB" home
   e2extract "$HDC" mnt
+  cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
   sudo mount -o bind "$ROOT_DIR" /tmp/chroot
   sudo mount -o remount,ro /tmp/chroot
   sudo mount -o bind home /tmp/chroot/home
