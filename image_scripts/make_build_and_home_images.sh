@@ -7,12 +7,12 @@ IMG_BUILD="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/build.img"
 
 if [ ! -e "$IMG_HOME" ]; then
   dd if=/dev/zero "of=$IMG_HOME" bs=1024 "seek=$((4 * 1024 * 1024))" count=0
-  mkfs.ext4 -F "$IMG_HOME"
+  mkfs.ext4 -F -O ^has_journal "$IMG_HOME"
 fi
 
 if [ ! -e "$IMG_BUILD" ]; then
   dd if=/dev/zero "of=$IMG_BUILD" bs=1024 "seek=$((1 * 1024 * 1024))" count=0
-  mkfs.ext4 -F "$IMG_BUILD"
+  mkfs.ext4 -F -O ^has_journal "$IMG_BUILD"
 fi
 
 copy() {

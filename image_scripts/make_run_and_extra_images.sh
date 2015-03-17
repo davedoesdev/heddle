@@ -52,7 +52,7 @@ fi
 
 if [ ! -e "$IMG_RUN" ]; then
   dd if=/dev/zero "of=$IMG_RUN" bs=1024 "seek=$((1 * 1024))" count=0
-  mkfs.ext4 -F "$IMG_RUN"
+  mkfs.ext4 -F -O ^has_journal "$IMG_RUN"
 fi
 
 if [ ! -e "$IMG_EXTRA" ]; then

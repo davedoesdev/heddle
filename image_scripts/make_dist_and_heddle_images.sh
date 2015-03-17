@@ -25,10 +25,10 @@ SQF_ROOT="$UPDATE_DIR/root.sqf"
 
 if [ ! -e "$SQF_ROOT" ]; then
   tmpd="$(mktemp -d)"
-  zcat "build/system-image-$ARCH/rootfs.cpio.gz" | ( cd "$tmpd"; cpio -i -f dev/console )
-  rm "$tmpd/init"
-  unsquashfs -f -d "$tmpd" "build/system-image-$ARCH/toolchain.sqf" 
-  rm "$tmpd/init"
+  zcat "build/system-image-$ARCH/rootfs.cpio.gz" | ( cd "$tmpd"; cpio -i -H newc -f dev/console )
+  unsquashfs -d "$tmpd/usr/overlay" "build/system-image-$ARCH/toolchain.sqf" 
+  cp -r --remove-destination "$tmpd/usr/overlay/." "$tmpd"
+  rm -f "$tmpd/init"
   mksquashfs "$tmpd" "$SQF_ROOT" -noappend -all-root
   rm -rf "$tmpd"
 fi
@@ -48,7 +48,7 @@ fi
 
 if [ ! -e "$IMG_DIST" ]; then
   dd if=/dev/zero "of=$IMG_DIST" bs=1024 "seek=$((4 * 1024 * 1024))" count=0
-  mkfs.ext4 -F "$IMG_DIST"
+  mkfs.ext4 -F -O ^has_journal "$IMG_DIST"
   e2mkdir "$IMG_DIST:gen"
 fi
 

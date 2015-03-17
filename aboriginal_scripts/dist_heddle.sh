@@ -29,7 +29,7 @@ export KERNEL_EXTRA="heddle_dist_reuse=$reuse"
 export QEMU_MEMORY=2048
 cd "build/system-image-${1:-x86_64}"
 ./dev-environment.sh 
-e2cp "$HDC:gen/initrd.img" "$HDC:gen/install.sqf" "$HDC:gen/run.sqf" "$UPDATE_DIR"
+e2cp "$HDC:gen"/{initrd.img,install.sqf,run.sqf} "$UPDATE_DIR"
 ln -sf "$PWD/linux" "$UPDATE_DIR"
 mmd -i "$IMG_DIR/heddle.img@@1M" -D s ::dist || true
 mcopy -i "$IMG_DIR/heddle.img@@1M" -D o linux "$UPDATE_DIR/initrd.img" ::dist
