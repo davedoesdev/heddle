@@ -42,7 +42,6 @@ e2extract() {
 
 if [ -n "$chroot_build" ]; then
   echo "chroot build" | tee /dev/tty
-  set -x
   mkdir /tmp/chroot home mnt tmp
   e2extract "$HDB" home
   e2extract "$HDC" mnt
