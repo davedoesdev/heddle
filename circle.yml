@@ -8,4 +8,4 @@ dependencies:
   cache_directories:
     - downloads
   pre:
-    - ./circle-ci/deps.sh
+    - .circle-ci/deps.sh
