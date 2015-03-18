@@ -1,1 +1,0 @@
-../../runtime_scripts/init2.sh
