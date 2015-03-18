@@ -2,7 +2,8 @@
 # copy files from /etc in home.img to chroot
 set -e
 cd "$(dirname "$0")"
-IMG_HOME=../images/home.img
+ARCH="${1:-x86_64}"
+IMG_HOME="../gen/$ARCH/images/home.img"
 
 if [ $# -eq 0 ]; then
   files=( passwd shadow group gshadow login.defs )

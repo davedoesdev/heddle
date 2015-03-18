@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
-IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/images"
 
 prepare=0
 qemu_mode=0
@@ -18,6 +17,8 @@ do
 done
 shift $((OPTIND-1))
 
+ARCH="${1:-x86_64}"
+IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/run.img"
 export QEMU_EXTRA="-hdd $IMG_DIR/extra.img -redir tcp:5900::5900 -net user,hostname=heddle -net nic"
@@ -26,5 +27,5 @@ if [ "$qemu_mode" -eq 0 ]; then
 fi
 export QEMU_MEMORY=2048 
 export KERNEL_EXTRA="heddle_prepare=$prepare"
-cd "build/system-image-${1:-x86_64}"
+cd "build/system-image-$ARCH"
 ./dev-environment.sh

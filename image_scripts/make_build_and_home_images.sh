@@ -2,8 +2,9 @@
 # make build.img, download packages and copy build.sh into it as /init
 set -e
 HERE="$(dirname "$0")"
-IMG_HOME="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/home.img"
-IMG_BUILD="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/build.img"
+ARCH="${1:-x86_64}"
+IMG_HOME="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images/home.img"
+IMG_BUILD="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/build.img"
 
 if [ ! -e "$IMG_HOME" ]; then
   dd if=/dev/zero "of=$IMG_HOME" bs=1024 "seek=$((4 * 1024 * 1024))" count=0

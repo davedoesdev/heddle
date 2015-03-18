@@ -12,14 +12,15 @@ do
 done
 shift $((OPTIND-1))
 
+ARCH="${1:-x86_64}"
 HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
-export HDB="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/home.img"
-export HDC="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/build.img"
+export HDB="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images/home.img"
+export HDC="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/build.img"
 export QEMU_MEMORY=2048
 
-ROOT_DIR="$PWD/build/root-filesystem-${1:-x86_64}"
-OVERLAY_DIR="$PWD/build/native-compiler-${1:-x86_64}"
-cd "build/system-image-${1:-x86_64}"
+ROOT_DIR="$PWD/build/root-filesystem-$ARCH"
+OVERLAY_DIR="$PWD/build/native-compiler-$ARCH"
+cd "build/system-image-$ARCH"
 
 e2extract() {
   e2ls -l "$1:$3" | while read -r l; do

@@ -16,9 +16,9 @@ done
 shift $((OPTIND-1))
 
 ARCH="${1:-x86_64}"
-IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/images"
+IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
 IMG_DIST="$IMG_DIR/dist.img"
-UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/dist/update"
+UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/dist/update"
 SQF_MODULES="$UPDATE_DIR/modules.sqf"
 SQF_FIRMWARE="$UPDATE_DIR/firmware.sqf"
 SQF_ROOT="$UPDATE_DIR/root.sqf"
@@ -41,9 +41,9 @@ if [ ! -e "$SQF_FIRMWARE" ]; then
   mksquashfs "build/system-image-$ARCH/modules/lib/firmware" "$SQF_FIRMWARE" -noappend -all-root
 fi
 
-if [ "$UPDATE_DIR" != "$HERE/../dist/update" ]; then
+if [ "$UPDATE_DIR" != "$HERE/../gen/$ARCH/dist/update" ]; then
   mkdir -p "$UPDATE_DIR"
-  ln -sf "$HERE/../dist/update"/*.sh "$UPDATE_DIR"
+  ln -sf "$HERE/../gen/$ARCH/dist/update"/*.sh "$UPDATE_DIR"
 fi
 
 if [ ! -e "$IMG_DIST" ]; then

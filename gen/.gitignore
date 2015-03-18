@@ -1,0 +1,12 @@
+build.img
+*/dist/update/linux
+*/dist/update/initrd.img
+*/dist/update/modules.sqf
+*/dist/update/firmware.sqf
+*/dist/update/root.sqf
+*/dist/update/run.sqf
+*/dist/update/install.sqf
+*/dist/update/bash
+*/dist/update/busybox
+*/dist/update/toybox
+*/dist/updates

@@ -3,8 +3,6 @@
 # use HDC=/path/to/run when running dev-environment.sh
 set -e
 HERE="$(dirname "$0")"
-IMG_RUN="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/run.img"
-IMG_EXTRA="${HEDDLE_EXT_DIR:-"$HERE/.."}/images/extra.img"
 SWAP_GB=4
 
 part_type=gpt
@@ -24,6 +22,12 @@ do
       ;;
   esac
 done
+shift $((OPTIND-1))
+
+ARCH="${1:-x86_64}"
+IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
+IMG_RUN="$IMG_DIR/run.img"
+IMG_EXTRA="$IMG_DIR/extra.img"
 
 part_name() {
   if [ $part_type = gpt ]; then
