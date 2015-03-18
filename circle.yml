@@ -4,3 +4,6 @@ test:
 general:
   artifacts:
     - "/heddle-*.tar.xz"
+dependencies:
+  cache_directories:
+    - downloads
