@@ -2,7 +2,7 @@
 set -e
 
 sudo apt-get update -qq
-sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools
+sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar
 
 ver_bat=2.0.0
 ver_abo=1.4.0
@@ -14,7 +14,7 @@ if [ ! -f "$bat_seal" ]; then
   touch "$bat_seal"
 fi
 rm -rf aboriginal-* heddle
-tar -Jxf "$bat_file"
+bsdtar -Jxf "$bat_file"
 mv heddle/gen/build.img gen
 rm -rf heddle
 
