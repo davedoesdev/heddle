@@ -27,7 +27,7 @@ echo "version: $version"
 prepare_and_dist() {
   echo "type: $1"
   prefix="heddle-$version-$1-x86_64"
-  rm -f ../images/{extra,heddle}.img
+  rm -f ../gen/x86_64/images/{extra,heddle}.img
   ../image_scripts/make_run_and_extra_images.sh $2   || return 1
   ../aboriginal_scripts/run_heddle.sh -p -q          || return 1
   ../image_scripts/make_dist_and_heddle_images.sh -l || return 1

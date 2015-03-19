@@ -1,9 +1,10 @@
 #!/bin/bash
-# make dist.img, copy dist.sh and hda.sqf into it
+# make dist.img, copy dist.sh and root.sqf into it
 # make heddle.img (copy of extra.img)
 set -e
-HERE="$(dirname "$0")"
+HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 
+# assume cp recognises sparse files
 img_cp=cp
 while getopts l opt
 do
@@ -72,7 +73,6 @@ ln -sf "$PWD/build/root-filesystem-$ARCH/usr/bin"/{busybox,toybox} "$UPDATE_DIR"
 ln -sf "$PWD/build/native-compiler-$ARCH/usr/bin"/bash "$UPDATE_DIR"
 
 if [ ! -e "$IMG_DIR/heddle.img" ]; then
-  # assume cp recognises sparse files
   $img_cp "$IMG_DIR"/{extra,heddle}.img
 fi
 
