@@ -26,13 +26,14 @@ version="$(git describe --exact-match HEAD || git rev-parse HEAD)"
 echo "version: $version"
 prepare_and_dist() {
   echo "type: $1"
+  prefix="heddle-$version-$1-x86_64"
   rm -f ../images/{extra,heddle}.img
   ../image_scripts/make_run_and_extra_images.sh $2   || return 1
   ../aboriginal_scripts/run_heddle.sh -p -q          || return 1
   ../image_scripts/make_dist_and_heddle_images.sh -l || return 1
   ../aboriginal_scripts/dist_heddle.sh -q -r         || return 1
-  sudo bsdtar -C .. -s "/^\./heddle-$version-$1/" \
-              -JLcf "/heddle-$version-$1.tar.xz" ./dist ./build.log
+  sudo bsdtar -C .. -s "/^\./$prefix/" \
+              -JLcf "/$prefix.tar.xz" ./gen/x86_64/dist ./build.log
 }
 prepare_and_dist gpt-ext4
 prepare_and_dist gpt-btrfs -b
