@@ -9,6 +9,10 @@ EXTRA_DIR="$CHROOT_DIR/extra"
 DIST_DIR="$EXTRA_DIR/dist"
 UPDATES_DIR="$EXTRA_DIR/updates"
 
+if [ -b /dev/[hsv]dd2 -a "$(cat /proc/swaps | wc -l)" -eq 1 ]; then
+  swapon /dev/[hsv]dd2
+fi
+
 dev="$(echo /dev/[hsv]dd3)"
 if [ -b "$dev" ]; then
   cat <<EOF | parted ---pretend-input-tty "${dev%3}" resizepart 3 100%

@@ -4,11 +4,8 @@ set -e
 if [ ! -h /dev/fd ]; then
   ln -s /proc/self/fd /dev
 fi
-if [ -b /dev/hdd ]; then
-  swapon /dev/hdd
-fi
-if [ -b /dev/sdd ]; then
-  swapon /dev/sdd
+if [ -b /dev/[hsv]dd ]; then
+  swapon /dev/[hsv]dd
 fi
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
