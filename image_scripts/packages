@@ -134,6 +134,32 @@ URL_PERL="http://www.cpan.org/src/5.0/$SRC_PERL"
 CHK_PERL="fef10210f9e6f4dc2d190be0aee8e1fa2af664630f1d415868d33eebca26d4b5"
 SUM_PERL="sha256"
 BLD_PERL() {
+  if [ "$(uname -m)" = armv6l ]; then
+    # Work around SEGV on ARM
+    patch -p0 << 'EOF'
+--- Makefile.orig
++++ Makefile
+@@ -415,7 +415,7 @@
+ # But also this ensures that all extensions are built before we try to scan
+ # them, which picks up Devel::PPPort's documentation.
+ pod/perltoc.pod: $(perltoc_pod_prereqs)  $(PERL_EXE) $(ext) pod/buildtoc
+-	$(RUN_PERL) -f pod/buildtoc -q
++	$(MINIPERL) -f pod/buildtoc -q
+ 
+ pod/perlapi.pod: pod/perlintern.pod
+ 
+@@ -458,8 +458,7 @@
+ install: install-all
+ 
+ install_all install-all: $(INSTALL_DEPENDENCE) installperl all installman
+-	$(RUN_PERL) installperl --destdir=$(DESTDIR)  $(INSTALLFLAGS) $(STRIPFLAGS)
+-	$(RUN_PERL) installman --destdir=$(DESTDIR) 
++	$(MINIPERL) installperl --destdir=$(DESTDIR)  $(INSTALLFLAGS) $(STRIPFLAGS)
+ 	-@test ! -s extras.lst || PATH="`pwd`:${PATH}" PERL5LIB="`pwd`/lib" $(RUN_PERL) -Ilib -MCPAN -e '@ARGV&&install(@ARGV)' `cat extras.lst`
+ 
+ install_notify install-notify: $(INSTALL_DEPENDENCE) installperl all installman
+EOF
+  fi
   ./Configure -de "-Dprefix=$INSTALL_DIR" -Dusenm=n < /dev/null
   make
   make install

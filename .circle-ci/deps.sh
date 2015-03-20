@@ -17,4 +17,4 @@ rm -rf aboriginal-* heddle
 bsdtar -Jxf "$bat_file"
 mv heddle/gen/build.img gen
 rm -rf heddle
-
+find downloads -mindepth 1 -not -path "downloads/$bat_base.*" -exec rm -v {} \;

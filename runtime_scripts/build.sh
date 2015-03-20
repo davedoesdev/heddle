@@ -4,7 +4,7 @@ set -e
 if [ ! -h /dev/fd ]; then
   ln -s /proc/self/fd /dev
 fi
-if [ -b /dev/[hsv]dd ]; then
+if [ -b /dev/[hsv]dd -a "$(cat /proc/swaps | wc -l)" -eq 1 ]; then
   swapon /dev/[hsv]dd
 fi
 HERE="$(dirname "$0")"
