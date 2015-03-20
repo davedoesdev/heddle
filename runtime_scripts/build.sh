@@ -4,6 +4,12 @@ set -e
 if [ ! -h /dev/fd ]; then
   ln -s /proc/self/fd /dev
 fi
+if [ -b /dev/hdd ]; then
+  swapon /dev/hdd
+fi
+if [ -b /dev/sdd ]; then
+  swapon /dev/sdd
+fi
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
 
@@ -41,13 +47,18 @@ for pkg in "${PACKAGES[@]}"; do
   vbld="BLD_$pkg"
   if [ -z "$Interactive" -a -n "${!vbld}" -a ! -e "${!vdir}.built" ]; then
     echo "+$pkg" > /dev/tty
-    rm -rf "${!vdir}"
-    tar -xf "$HERE/download/${!vsrc}"
-    chown -R root:root "${!vdir}"
-    tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
-    pushd "${!vdir}"
-    BLD_$pkg
-    popd
+    binf="$HERE/host/${!vdir}-$(uname -m).tar.xz"
+    if [ -f "$binf" ]; then
+      tar -C "$INSTALL_DIR" -Jxf "$binf"
+    else
+      rm -rf "${!vdir}"
+      tar -xf "$HERE/download/${!vsrc}"
+      chown -R root:root "${!vdir}"
+      tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
+      pushd "${!vdir}"
+      BLD_$pkg
+      popd
+    fi
     touch "${!vdir}.built"
     echo "-$pkg" > /dev/tty
   fi

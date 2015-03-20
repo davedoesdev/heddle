@@ -16,7 +16,37 @@ ARCH="${1:-x86_64}"
 HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 export HDB="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images/home.img"
 export HDC="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/build.img"
-export QEMU_MEMORY=2048
+export BUILD_MEM=2048
+
+. "$HERE/../image_scripts/packages"
+
+for pkg in "${PACKAGES[@]}"; do
+  vdir="DIR_$pkg"
+  vsrc="SRC_$pkg"
+  vhst="HST_$pkg"
+  if [ -n "${!vhst}" ]; then
+    archs="${!vhst}"
+    for a in "${archs[@]}"; do
+      if [ "$a" = "$ARCH" ]; then
+        binf="$HDC:host/${!vdir}-$a.tar.xz"
+        if ! e2ls "$binf"; then
+          tmpd="$(mktemp -d)"
+          e2cp "$HDC:download/${!vsrc}" "$tmpd"
+          tar -C "$tmpd" -xf "$tmpd/${!vsrc}"
+          INSTALL_DIR="$tmpd/install"
+          mkdir "$INSTALL_DIR"
+          pushd "$tmpd/${!vdir}"
+          BLD_$pkg 
+          popd
+          tar -C "$INSTALL_DIR" -Jc . | e2cp -P 400 -O 0 -G 0 - "$binf"
+          rm -rf "$tmpd"
+        fi
+        break
+      fi
+    done
+  fi
+done
+
 
 ROOT_DIR="$PWD/build/root-filesystem-$ARCH"
 OVERLAY_DIR="$PWD/build/native-compiler-$ARCH"
@@ -66,6 +96,18 @@ exec /mnt/init
 EOF
   sudo tar --owner root --group root -Jc home/{install,chroot} | e2cp -P 400 -O 0 -G 0 - "$HDB:home.tar.xz"
 else
-  echo "qemu-kvm build" | tee /dev/tty
-  exec ./dev-environment.sh
+  echo "qemu/kvm build" | tee /dev/tty
+  if [ "$ARCH" = x86_64 ]; then
+    export QEMU_MEMORY="$BUILD_MEM"
+    tmp=
+  else
+    tmp="$(mktemp)"
+    dd if=/dev/zero "of=$tmp" bs=1024 "seek=$(($BUILD_MEM * 1024))" count=0
+    mkswap "$tmp"
+    export QEMU_EXTRA="-hdd $tmp"
+  fi
+  ./dev-environment.sh
+  if [ -n "$tmp" ]; then
+    rm -f "$tmp"
+  fi  
 fi

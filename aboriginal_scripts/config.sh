@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 HERE="$(dirname "$0")"
+ARCH="${1:-x86_64}"
 
 cat >> sources/baseconfig-uClibc << EOF
 
@@ -59,18 +60,8 @@ EOF
 sed -i -e 's/uClibc++-0\.2\.2/uClibc++-0.2.4/g' -e 's/f5582d206378d7daee6f46609c80204c1ad5c0f7/ffadcb8555a155896a364a9b954f19d09972cb83/g' download.sh
 
 cp "$HERE"/*.patch sources/patches
-rm -f sources/patches/uClibc++-unwind-cxx.patch
 
 sed -i -e 's/<= _NSIG/< _NSIG/g' sources/patches/uClibc-posix_spawn.patch
-
-sed -i -e 's/-nographic/-enable-kvm \0/g' system-image.sh
-
-ed -s system-image.sh << 'EOF'
-/cp "$KERNEL_PATH" "$STAGE_DIR/i
-make "INSTALL_MOD_PATH=$STAGE_DIR/modules" ARCH=${BOOT_KARCH:-$KARCH} $DO_CROSS $LINUX_FLAGS $VERBOSITY modules_install &&
-.
-w
-EOF
 
 cat >> sources/baseconfig-linux << EOF
 
@@ -192,4 +183,20 @@ CONFIG_INTEL_MEI_TXE=m
 CONFIG_R8169=m
 CONFIG_NET_VENDOR_BROADCOM=y
 CONFIG_TIGON3=m
+EOF
+
+if [ "$ARCH" = x86_64 ]; then
+  sed -i -e 's/-nographic/-enable-kvm \0/g' system-image.sh
+else
+  cat >> sources/baseconfig-linux << EOF
+
+CONFIG_LBDAF=y
+EOF
+fi
+
+ed -s system-image.sh << 'EOF'
+/cp "$KERNEL_PATH" "$STAGE_DIR/i
+make "INSTALL_MOD_PATH=$STAGE_DIR/modules" ARCH=${BOOT_KARCH:-$KARCH} $DO_CROSS $LINUX_FLAGS $VERBOSITY modules_install &&
+.
+w
 EOF

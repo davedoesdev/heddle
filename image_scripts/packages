@@ -895,10 +895,10 @@ BLD_CONNTRACK_TOOLS() {
   make install
 }
 
-DIR_IPROUTE2="iproute2-3.17.0"
+DIR_IPROUTE2="iproute2-3.18.0"
 SRC_IPROUTE2="$DIR_IPROUTE2.tar.xz"
 URL_IPROUTE2="https://www.kernel.org/pub/linux/utils/net/iproute2/$SRC_IPROUTE2"
-CHK_IPROUTE2="09e406636e7598e46d5d4f7b928bf5db57049d65dbeb9a496005957ee16f6000"
+CHK_IPROUTE2="d5a182154abd0749b1df7d1649115a32c65f559951477396203b1f514dbff1df"
 SUM_IPROUTE2="sha256"
 BLD_IPROUTE2() {
   sed -ri -e '/%error-verbose/d' -e '/%name-prefix "ematch_"/d' -e '/extern void yyerror/d' -e 's/(void yyerror\()/\1YYLTYPE loc, /' tc/emp_ematch.y
@@ -1171,26 +1171,20 @@ BLD_PCIUTILS() {
 
 DIR_KEXEC_TOOLS="kexec-tools-2.0.8"
 SRC_KEXEC_TOOLS="$DIR_KEXEC_TOOLS.tar.xz"
-GET_KEXEC_TOOLS() {
-  # Hack: purgatory/arch/x86_64/Makefile uses -mcmodel=large which GCC 4.2.1
-  # doesn't support. Changing this to -mcmodel=small -fPIE results in the
-  # following error when kexecing:
-  # "Unhandled rela relocation: R_X86_64_PLT32"
-  # So build a static version on the host machine (assume host is x86_64).
-  wget "https://kernel.org/pub/linux/utils/kernel/kexec/$SRC_KEXEC_TOOLS"
-  sha256sum -c --quiet <<EOF
-f3abe96fa0793e63936725a4471429f070039a1e81e605deb378747194a50c47  kexec-tools-2.0.8.tar.xz
-EOF
-  tar -xf "$SRC_KEXEC_TOOLS"
-  cd "$DIR_KEXEC_TOOLS"
-  LDFLAGS=-static ./configure >&2
-  make >&2
-  cd ..
-  tar -Jc "$DIR_KEXEC_TOOLS/build/sbin/kexec"
-}
+URL_KEXEC_TOOLS="https://kernel.org/pub/linux/utils/kernel/kexec/$SRC_KEXEC_TOOLS"
+CHK_KEXEC_TOOLS="f3abe96fa0793e63936725a4471429f070039a1e81e605deb378747194a50c47"
+SUM_KEXEC_TOOLS="sha256"
 BLD_KEXEC_TOOLS() {
+  LDFLAGS=-static ./configure
+  make
+  mkdir -p "$INSTALL_DIR/sbin"
   cp build/sbin/kexec "$INSTALL_DIR/sbin"
 }
+# Hack: purgatory/arch/x86_64/Makefile uses -mcmodel=large which GCC 4.2.1
+# doesn't support. Changing this to -mcmodel=small -fPIE results in the
+# following error when kexecing: "Unhandled rela relocation: R_X86_64_PLT32"
+# So build x86_64 version on host (assume same architecture).
+HST_KEXEC_TOOLS=(x86_64)
 
 PACKAGES=(LIBICONV
           PKGCONFIG

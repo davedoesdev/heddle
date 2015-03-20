@@ -42,7 +42,7 @@ copy "$HERE/../runtime_scripts/make_chroot.sh"
 . "$HERE/packages"
 [ -n "$ext_packages" ] && . "$ext_packages"
 
-e2mkdir "$IMG_BUILD:download"
+e2mkdir "$IMG_BUILD:"{download,host}
 
 for pkg in "${PACKAGES[@]}"; do
   vsrc="SRC_$pkg"
