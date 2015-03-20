@@ -4,6 +4,9 @@ set -e
 sudo apt-get update -qq
 sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar
 
+echo +downloads:
+ls downloads
+
 ver_bat=3.0.0
 ver_abo=1.4.0
 bat_base="downloads/build-aboriginal-$ver_abo-heddle-x86_64-$ver_bat"
@@ -17,4 +20,8 @@ rm -rf aboriginal-* heddle
 bsdtar -Jxf "$bat_file"
 mv heddle/gen/build.img gen
 rm -rf heddle
+
 find downloads -mindepth 1 -not -path "downloads/$bat_base.*" -exec rm -v {} \;
+
+echo -downloads:
+ls downloads
