@@ -249,7 +249,9 @@ BLD_LLVM_COMPILER_RT() {
   if [ -b /dev/ubdb ]; then
     sed -i 's/^GORACE=.*/\0 || true/' buildgo.sh
   fi
-  ./buildgo.sh
+  if [ "$(uname -m)" = x86_64 ]; then
+    ./buildgo.sh
+  fi
 }
 
 DIR_GO="go"
@@ -387,7 +389,9 @@ EOF
 EOF
 
   # Copy race detector we built from source
-  cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
+  if [ "$(uname -m)" = x86_64 ]; then
+    cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
+  fi
   chroot "$CHROOT_DIR" ash <<EOF
   cd "$PWD/src"
   if [ -b /dev/ubdb ]; then
