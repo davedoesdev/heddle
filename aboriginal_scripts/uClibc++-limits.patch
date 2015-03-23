@@ -1,0 +1,66 @@
+--- a/include/limits
++++ b/include/limits
+@@ -652,9 +652,52 @@
+ 	static numeric_type signaling_NaN () { return -1; } //How do I properly get this?
+ };
+ 
++template <> class numeric_limits<unsigned long long int> {
++public:
++	typedef unsigned long long int T;
++	// General -- meaningful for all specializations.
++	static const bool is_specialized = true;
++	static T min(){
++		return 0;
++	}
++	static T max(){
++		return ULLONG_MAX;
++	}
++	static const int radix = 2;
++	static const int digits = CHAR_BIT * sizeof(T);
++	static const int digits10 = __bits_to_base_10<digits>::size;
++	static const bool is_signed = false;
++	static const bool is_integer = true;
++	static const bool is_exact = true;
++	static const bool traps = false;
++	static const bool is_modulo = true;
++	static const bool is_bounded = true;
+ 
++	// Floating point specific.
+ 
++	static T epsilon(){
++		return 0;
++	}
++	static T round_error(){
++		return 0;
++	}
++	static const int min_exponent10 = 0;
++	static const int max_exponent10 = 0;
++	static const int min_exponent = 0;
+ 
++	static const int max_exponent = 0;
++	static const bool has_infinity = false;
++	static const bool has_quiet_NaN = false;
++	static const bool has_signaling_NaN = false;
++	static const bool is_iec559 = false;
++	static const bool has_denorm = false;
++	static const bool tinyness_before = false;
++	static const float_round_style round_style = round_indeterminate;
++	static T denorm_min();
++	static T infinity();
++	static T quiet_NaN();
++	static T signaling_NaN();
++};
+ 
+ }
+ 
+--- a/Rules.mak	2015-03-23 07:27:11.279172951 +0000
++++ b/Rules.mak	2015-03-23 07:27:59.663170696 +0000
+@@ -102,7 +102,7 @@
+ OPTIMIZATION+=$(call check_gcc,-Os,-O2)
+ 
+ # Add a bunch of extra pedantic annoyingly strict checks
+-XWARNINGS=$(call qstrip,$(WARNINGS)) -Wno-trigraphs -pedantic
++XWARNINGS=$(call qstrip,$(WARNINGS)) -Wno-trigraphs -pedantic -Wno-long-long
+ CPU_CFLAGS=$(call qstrip,$(CPU_CFLAGS-y))
+ 
+ # Some nice CFLAGS to work with

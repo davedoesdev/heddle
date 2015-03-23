@@ -388,6 +388,16 @@ EOF
  }
 EOF
 
+  # gcc 4.2.1 doesn't have __sync_fetch_and_add_4 builtin on ARM:
+  # http://vincesoft.blogspot.co.uk/2012/04/how-to-solve-undefined-reference-to.html
+  # If this proves to be a problem, consider taking from a later version of gcc:
+  # https://github.com/gcc-mirror/gcc/blob/master/libgcc/config/arm/linux-atomic.c
+  # although note the change from GPLv2 to GPLv3 past 4.2.1.
+  if [ "$(uname -m)" = armv6l ]; then
+    rm misc/cgo/test/issue7978.go
+    sed -i '/test7978(/d' misc/cgo/test/cgo_test.go
+  fi
+
   # Copy race detector we built from source
   if [ "$(uname -m)" = x86_64 ]; then
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
