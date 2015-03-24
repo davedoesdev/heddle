@@ -22,7 +22,9 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-ARM build?
+ARM build
+move patches to subdir
+split hardware config / modules into separate file?
 docs
 
 

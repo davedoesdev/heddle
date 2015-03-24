@@ -1,0 +1,73 @@
+diff -ru uClibc++.orig/include/istream uClibc++/include/istream
+--- uClibc++.orig/include/istream	2015-03-23 22:43:24.124406731 +0000
++++ uClibc++/include/istream	2015-03-23 22:48:37.856392107 +0000
+@@ -69,6 +69,7 @@
+ 		basic_istream<charT,traits>& operator>>(unsigned int& n);
+ 		basic_istream<charT,traits>& operator>>(long& n);
+ 		basic_istream<charT,traits>& operator>>(unsigned long& n);
++		basic_istream<charT,traits>& operator>>(unsigned long long int& n);
+ 		basic_istream<charT,traits>& operator>>(void*& p);
+ 		basic_istream<charT,traits>& operator>>(basic_streambuf<char_type,traits>* sb);
+ 
+@@ -447,6 +448,14 @@
+ 		return *this;
+ 	}
+ 
++	template <class charT, class traits> _UCXXEXPORT basic_istream<charT,traits>&
++		basic_istream<charT,traits>::operator>>(unsigned long long int& n)
++	{
++		sentry(*this);
++		__istream_readin<traits, charT, unsigned long long int>::readin(*this, n);
++		return *this;
++	}
++
+ #ifdef __UCLIBCXX_HAS_FLOATS__
+ 	template <class charT, class traits> _UCXXEXPORT basic_istream<charT,traits>&
+ 		basic_istream<charT,traits>::operator>>(float& n)
+diff -ru uClibc++.orig/include/istream_helpers uClibc++/include/istream_helpers
+--- uClibc++.orig/include/istream_helpers	2015-03-23 22:43:24.124406731 +0000
++++ uClibc++/include/istream_helpers	2015-03-23 23:00:48.748358039 +0000
+@@ -300,6 +300,32 @@
+ 		}
+ 	};
+ 
++	template <class traits> class _UCXXEXPORT __istream_readin<traits, char, unsigned long long int>{
++	public:
++		inline static void readin(basic_istream<char, traits >& stream, unsigned long long int & var)
++		{
++			basic_string<char, traits > temp;
++
++			if(stream.flags() & ios_base::dec){
++				temp = _readTokenDecimal( stream);
++				sscanf(temp.c_str(), "%llu", &var );
++			}else{
++				temp = _readToken( stream);
++				if( stream.flags() & ios_base::oct){
++					sscanf(temp.c_str(), "%llo", &var );
++				}else if(stream.flags() & ios_base::hex){
++					if(stream.flags() & ios_base::uppercase){
++						sscanf(temp.c_str(), "%llX", &var );
++					}else{
++						sscanf(temp.c_str(), "%llx", &var);
++					}
++				}else{
++					sscanf(temp.c_str(), "%lli", (long long int *)(&var) );
++				}
++			}
++		}
++	};
++
+ 
+ #ifdef __UCLIBCXX_HAS_FLOATS__
+ 
+diff -ru uClibc++.orig/src/istream.cpp uClibc++/src/istream.cpp
+--- uClibc++.orig/src/istream.cpp	2015-03-23 22:43:24.124406731 +0000
++++ uClibc++/src/istream.cpp	2015-03-23 22:50:55.956385670 +0000
+@@ -56,6 +56,7 @@
+ 	template _UCXXEXPORT istream & istream::operator>>(unsigned int &n);
+ 	template _UCXXEXPORT istream & istream::operator>>(long unsigned &n);
+ 	template _UCXXEXPORT istream & istream::operator>>(long int &n);
++	template _UCXXEXPORT istream & istream::operator>>(unsigned long long int &n);
+ 	template _UCXXEXPORT istream & istream::operator>>(void *& p);
+ 	template _UCXXEXPORT istream & operator>>(istream & is, char & c);
+ 

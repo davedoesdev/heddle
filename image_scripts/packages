@@ -576,6 +576,19 @@ EOF
  		const_iterator begin() const {
  			return runs_.begin();
 EOF
+  patch -p0 <<EOF
+--- persistent-data/data-structures/bloom_filter.cc.orig
++++ persistent-data/data-structures/bloom_filter.cc
+@@ -7,7 +7,7 @@
+ //----------------------------------------------------------------
+ 
+ namespace {
+-	static const uint64_t m1 = 0x9e37fffffffc0001UL;
++	static const uint64_t m1 = 0x9e37fffffffc0001ULL;
+ 	static const unsigned bits = 18;
+ 
+ 	static uint32_t hash1(block_address const &b) {
+EOF
   ./configure "--prefix=$INSTALL_DIR"
   CXXFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -lm" make
   make install
