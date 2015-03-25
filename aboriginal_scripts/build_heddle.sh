@@ -24,8 +24,9 @@ for pkg in "${PACKAGES[@]}"; do
   vdir="DIR_$pkg"
   vsrc="SRC_$pkg"
   vhst="HST_$pkg"
+  vxtr="XTR_$pkg"
   if [ -n "${!vhst}" ]; then
-    archs="${!vhst}"
+    eval archs="(\"\${$vhst[@]}\")"
     for a in "${archs[@]}"; do
       if [ "$a" = "$ARCH" ]; then
         binf="$HDC:host/${!vdir}-$a.tar.xz"
@@ -45,8 +46,40 @@ for pkg in "${PACKAGES[@]}"; do
       fi
     done
   fi
+  if [ -n "${!vxtr}" ]; then
+    eval xtr="(\"\${$vxtr[@]}\")"
+    xtr2=()
+    for ((i=0; i < ${#xtr[@]}; i+=5)); do
+      if [ "${xtr[$i]}" = "$ARCH" ]; then
+        xtr2+=("${xtr[$((i+1))]}"
+               "${xtr[$((i+2))]}"
+               "${xtr[$((i+3))]}"
+               "${xtr[$((i+4))]}")
+      fi
+    done
+    if [ ${#xtr2[@]} -gt 0 ]; then
+      extraf="$HDC:host/${!vdir}-$ARCH-extra.tar.xz"
+      if ! e2ls "$extraf"; then
+        tmpd="$(mktemp -d)"
+        for ((i=0; i < ${#xtr2[@]}; i+=4)); do
+          url="${xtr2[$((i))]}"
+          chk="${xtr2[$((i+1))]}"
+          sum="${xtr2[$((i+2))]}"
+          file="${xtr2[$((i+3))]}"
+          curl -o "$tmpd/$file" --create-dirs "$url"
+          csum="$("${sum}sum" "$tmpd/$file" | awk '{print $1}')"
+          if [ "$csum" != "$chk" ]; then
+            rm -rf "$tmpd"
+            echo "$0: checksum mismatch for $url: $csum != $chk"
+            exit 1
+          fi
+        done
+        tar -C "$tmpd" -Jc . | e2cp -P 400 -O 0 -G 0 - "$extraf"
+        rm -rf "$tmpd"
+      fi
+    fi
+  fi
 done
-
 
 ROOT_DIR="$PWD/build/root-filesystem-$ARCH"
 OVERLAY_DIR="$PWD/build/native-compiler-$ARCH"

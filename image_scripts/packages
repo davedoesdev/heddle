@@ -1,3 +1,19 @@
+
+# gcc 4.2.1 doesn't have __sync* builtins on ARM:
+# http://vincesoft.blogspot.co.uk/2012/04/how-to-solve-undefined-reference-to.html
+# A Go test (misc/cgo/test/issue7978.go) and QEMU (util/qemu-thread-posix.c)
+# use these builtins so when we build on ARM, go fetch a recent implementation.
+# - The file we fetch is GPLv3. However, see http://programmers.stackexchange.com/questions/152987/does-using-gcc-specific-builtins-qualify-as-incorporation-within-a-project
+# - We do this at build-time (on the host machine, in build_heddle.sh).
+# - These routines aren't linked with the main Go code.
+# - They are linked with the main QEMU code.
+# - We only do this for armv6l builds.
+armv6l_linux_atomic=(
+  armv6l
+  'https://gcc.gnu.org/viewcvs/gcc/branches/gcc-4_9-branch/libgcc/config/arm/linux-atomic.c?revision=209304&view=co' 
+  1d39f334f394e577a17d57ba3d270e0ae1f2b4bef26961ac787634c9ce99bd72
+  sha256)
+
 DIR_LIBICONV="libiconv-1.14"
 SRC_LIBICONV="$DIR_LIBICONV.tar.gz"
 URL_LIBICONV="http://ftp.gnu.org/pub/gnu/libiconv/$SRC_LIBICONV"
@@ -388,16 +404,6 @@ EOF
  }
 EOF
 
-  # gcc 4.2.1 doesn't have __sync_fetch_and_add_4 builtin on ARM:
-  # http://vincesoft.blogspot.co.uk/2012/04/how-to-solve-undefined-reference-to.html
-  # If this proves to be a problem, consider taking from a later version of gcc:
-  # https://github.com/gcc-mirror/gcc/blob/master/libgcc/config/arm/linux-atomic.c
-  # although note the change from GPLv2 to GPLv3 past 4.2.1.
-  if [ "$(uname -m)" = armv6l ]; then
-    rm misc/cgo/test/issue7978.go
-    sed -i '/test7978(/d' misc/cgo/test/cgo_test.go
-  fi
-
   # Copy race detector we built from source
   if [ "$(uname -m)" = x86_64 ]; then
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
@@ -420,6 +426,7 @@ PST_GO() {
   export GOPATH="$INSTALL_DIR/gopath"
   PATH="$PATH:$INSTALL_DIR/go/bin:$GOPATH/bin"
 }
+XTR_GO=("${armv6l_linux_atomic[@]}" misc/cgo/test/linux-atomic.c)
 
 DIR_LIBAIO="libaio-0.3.110-1"
 SRC_LIBAIO="$DIR_LIBAIO.tar.gz"
@@ -1141,11 +1148,19 @@ BLD_QEMU() {
 +#endif
  #endif /* _SRCPOS_H_ */
 EOF
-  ./configure "--prefix=$INSTALL_DIR" "--extra-cflags=$CPPFLAGS" "--extra-ldflags=$LDFLAGS" --target-list=x86_64-softmmu --with-system-pixman
-  make
+  qemu_target=x86_64
+  if [ "$(uname -m)" = armv6l ]; then
+    qemu_target=arm
+    cat >> util/Makefile.objs << 'EOF'
+util-obj-$(CONFIG_POSIX) += linux-atomic.o
+EOF
+  fi
+  ./configure "--prefix=$INSTALL_DIR" "--extra-cflags=$CPPFLAGS" "--extra-ldflags=$LDFLAGS" "--target-list=$qemu_target-softmmu" --with-system-pixman
+  make 'BISON=byacc -b $*'
   make 'BISON=byacc -b $*' WARNINGS= V=1 check
   make install
 }
+XTR_QEMU=("${armv6l_linux_atomic[@]}" util/linux-atomic.c)
 
 VER_CAPSTAN="0.1.7"
 

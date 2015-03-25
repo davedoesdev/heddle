@@ -52,6 +52,10 @@ for pkg in "${PACKAGES[@]}"; do
       tar -xf "$HERE/download/${!vsrc}"
       chown -R root:root "${!vdir}"
       tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
+      extraf="$HERE/host/${!vdir}-$(uname -m)-extra.tar.xz"
+      if [ -f "$extraf" ]; then
+        tar -C "${!vdir}" -xf "$extraf"
+      fi
       pushd "${!vdir}"
       BLD_$pkg
       popd
