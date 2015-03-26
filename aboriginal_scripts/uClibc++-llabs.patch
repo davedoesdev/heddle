@@ -1,0 +1,21 @@
+--- a/include/cstdlib	2015-03-25 21:21:51.557731502 +0000
++++ b/include/cstdlib	2015-03-25 21:24:39.585695674 +0000
+@@ -37,6 +37,7 @@
+ 	using ::free;
+ 	using ::getenv;
+ 	using ::labs;
++	using ::llabs;
+ 	using ::ldiv;
+ 	using ::malloc;
+ 	using ::qsort;
+@@ -59,6 +60,10 @@
+ 		return labs(i);
+ 	}
+ 
++	inline long long abs(long long i){
++		return llabs(i);
++	}
++
+ 	inline ldiv_t div(long i, long j){
+ 		return ldiv(i, j);
+ 	}

@@ -1155,7 +1155,7 @@ EOF
 util-obj-$(CONFIG_POSIX) += linux-atomic.o
 EOF
   fi
-  ./configure "--prefix=$INSTALL_DIR" "--extra-cflags=$CPPFLAGS" "--extra-ldflags=$LDFLAGS" "--target-list=$qemu_target-softmmu" --with-system-pixman
+  ./configure "--prefix=$INSTALL_DIR" "--extra-cflags=$CPPFLAGS -D__builtin___clear_cache=__clear_cache" "--extra-ldflags=$LDFLAGS" "--target-list=$qemu_target-softmmu" --with-system-pixman
   make 'BISON=byacc -b $*'
   make 'BISON=byacc -b $*' WARNINGS= V=1 check
   make install
