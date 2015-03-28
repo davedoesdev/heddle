@@ -71,6 +71,7 @@ done
 if [ -n "$interactive" -o -n "$Interactive" ]; then
   exec chroot "$CHROOT_DIR" ash
 elif [ ! -f /tmp/in_chroot ]; then
-  exec poweroff
+  # Not all QEMU machines support poweroff so assume -no-reboot was used
+  exec reboot
 fi
 

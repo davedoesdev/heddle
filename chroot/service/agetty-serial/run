@@ -1,5 +1,5 @@
 #!/bin/sh
-port="$(grep -oE 'console=tty(S|USB)[0-9]+' /proc/cmdline | head -n 1 | sed 's/console=//')"
+port="$(grep -oE 'console=tty(S|USB|AMA)[0-9]+' /proc/cmdline | head -n 1 | sed 's/console=//')"
 if [ -c "/dev/$port" ]; then
   echo "agetty serial: running agetty on port $port"
   exec setsid agetty --nohostname -o '-p -- \u' "$port"

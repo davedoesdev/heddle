@@ -22,10 +22,12 @@ IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/run.img"
 export QEMU_EXTRA="-hdd $IMG_DIR/extra.img -redir tcp:5900::5900 -net user,hostname=heddle -net nic"
-if [ "$qemu_mode" -eq 0 ]; then
-  QEMU_EXTRA+=" -cpu host -smp 2"
-fi
-export QEMU_MEMORY=2048 
 export KERNEL_EXTRA="heddle_prepare=$prepare"
+if [ "$ARCH" = x86_64 ]; then
+  if [ "$qemu_mode" -eq 0 ]; then
+    QEMU_EXTRA+=" -cpu host -smp 2"
+  fi
+  export QEMU_MEMORY=2048
+fi
 cd "build/system-image-$ARCH"
 ./dev-environment.sh
