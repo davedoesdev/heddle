@@ -1210,6 +1210,8 @@ EOF
  static inline DeviceState *sysbus_create_simple(const char *name,
                                                hwaddr addr,
                                                qemu_irq irq)
+--- hw/core/sysbus.c.orig
++++ hw/core/sysbus.c
 @@ -202,8 +202,8 @@
      return sbc->init(sd);
  }
@@ -1222,7 +1224,7 @@ EOF
      DeviceState *dev;
      SysBusDevice *s;
 @@ -217,7 +217,7 @@
-     if ((hwaddr)addr != (hwaddr)-1) {
+     if (addr != (hwaddr)-1) {
          sysbus_mmio_map(s, 0, addr);
      }
 -    va_start(va, addr);
