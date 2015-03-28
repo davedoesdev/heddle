@@ -819,6 +819,19 @@ source() {\
  static const kBufSize = 256;
  static const char *kNsEnter = "nsenter";
 EOF
+  patch -p0 << 'EOF'
+--- daemon/daemon.go.orig
++++ daemon/daemon.go
+@@ -1104,7 +1104,7 @@
+ 
+ func checkKernelAndArch() error {
+ 	// Check for unsupported architectures
+-	if runtime.GOARCH != "amd64" {
++	if runtime.GOARCH != "amd64" && runtime.GOARCH != "arm" {
+ 		return fmt.Errorf("The Docker runtime currently only supports amd64 (not %s). This will change in the future. Aborting.", runtime.GOARCH)
+ 	}
+ 	// Check for unsupported kernel versions
+EOF
   AUTO_GOPATH=1 DOCKER_GITCOMMIT=4e9bbfa CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
