@@ -1,0 +1,35 @@
+--- a/libc/stdlib/_strtod.c	2015-03-27 07:53:57.432897417 +0000
++++ b/libc/stdlib/_strtod.c	2015-03-27 07:54:35.356895650 +0000
+@@ -426,6 +426,14 @@
+ 
+ 	/* scale the result */
+ #ifdef _STRTOD_LOG_SCALING
++#ifdef __ARM_EABI__
++if (exponent_power < 0) {
++#else
++if (1) {
++#endif
++#else
++if (0) {
++#endif
+ 	exponent_temp = exponent_power;
+ 
+ 	if (exponent_temp < 0) {
+@@ -446,8 +454,7 @@
+ 		exponent_temp >>= 1;
+ 		p_base *= p_base;
+ 	}
+-
+-#else  /* _STRTOD_LOG_SCALING */
++} else
+ 	while (exponent_power) {
+ 		if (exponent_power < 0) {
+ 			number /= p_base;
+@@ -457,7 +464,6 @@
+ 			exponent_power--;
+ 		}
+ 	}
+-#endif /* _STRTOD_LOG_SCALING */
+ 
+ #ifdef _STRTOD_ERRNO
+ 	if (__FPMAX_ZERO_OR_INF_CHECK(number)) {

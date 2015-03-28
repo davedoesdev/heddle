@@ -1098,14 +1098,14 @@ BLD_PIXMAN() {
   make install
 }
 
-DIR_QEMU="qemu-2.2.0"
+DIR_QEMU="qemu-2.2.1"
 SRC_QEMU="$DIR_QEMU.tar.bz2"
 URL_QEMU="http://wiki.qemu-project.org/download/$SRC_QEMU"
-CHK_QEMU="b68c9b6c7c694f5489b5a6bffe993cd976ffbb78e7d178eb3bc016caf460039c"
+CHK_QEMU="4617154c6ef744b83e10b744e392ad111dd351d435d6563ce24d8da75b1335a0"
 SUM_QEMU="sha256"
 BLD_QEMU() {
   # Adapt for reflex/byacc
-  patch -p0 <<EOF
+  patch -p0 << 'EOF'
 --- dtc/srcpos.h.orig
 +++ dtc/srcpos.h
 @@ -83,4 +83,38 @@
@@ -1147,6 +1147,109 @@ BLD_QEMU() {
 +
 +#endif
  #endif /* _SRCPOS_H_ */
+EOF
+  # On ARM, the constant -32.12313 is -32.123130000000005 at runtime.
+  # This could be a bug in GCC, ARM floating point handling or QEMU
+  # (every floating point number seems to get rounded to .000000000000005).
+  patch -p0 << 'EOF'
+--- tests/check-qjson.c.orig
++++ tests/check-qjson.c
+@@ -936,7 +936,7 @@
+     } test_cases[] = {
+         { "32.43", 32.43 },
+         { "0.222", 0.222 },
+-        { "-32.12313", -32.12313 },
++        { "-32.123131", -32.123131 },
+         { "-32.20e-10", -32.20e-10, .skip = 1 },
+         { },
+     };
+EOF
+  # On ARM, strtod on DBL_MAX doesn't return exactly DBL_MAX (returns 8 less).
+  # Test with FLT_MAX instead.
+  patch -p0 << 'EOF'
+--- tests/test-visitor-serialization.c.orig
++++ tests/test-visitor-serialization.c
+@@ -852,7 +852,11 @@
+     {
+         .description = "number_max",
+         .type = PTYPE_NUMBER,
++#ifdef __ARM_EABI__
++        .value.number = FLT_MAX,
++#else
+         .value.number = DBL_MAX,
++#endif
+     },
+     /* integer tests (int64) */
+     {
+EOF
+  # GCC 4.2.1 has problems with 64 bit final vararg parameters:
+  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=34281
+  # GPLv3 patch is here:
+  # https://gcc.gnu.org/viewcvs/gcc/trunk/gcc/config/arm/arm.c?r1=131196&r2=131195&pathrev=131196
+  # Rather than apply that patch, work around it here. It other packages also
+  # need it then we'll have to consider taking it.
+  patch -p0 << 'EOF'
+--- include/hw/sysbus.h.orig
++++ include/hw/sysbus.h
+@@ -83,10 +83,14 @@
+ void foreach_dynamic_sysbus_device(FindSysbusDeviceFunc *func, void *opaque);
+ 
+ /* Legacy helper function for creating devices.  */
+-DeviceState *sysbus_create_varargs(const char *name,
+-                                 hwaddr addr, ...);
+-DeviceState *sysbus_try_create_varargs(const char *name,
+-                                       hwaddr addr, ...);
++DeviceState *sysbus_create_varargs2(const char *name,
++                                 hwaddr addr, void *dummy, ...);
++DeviceState *sysbus_try_create_varargs2(const char *name,
++                                       hwaddr addr, void *dummy, ...);
++#define sysbus_create_varargs(name, addr, ...) \
++    sysbus_create_varargs2(name, addr, NULL, __VA_ARGS__)
++#define sysbus_try_create_varargs(name, addr, ...) \
++    sysbus_try_create_varargs2(name, addr, NULL, __VA_ARGS__)
+ static inline DeviceState *sysbus_create_simple(const char *name,
+                                               hwaddr addr,
+                                               qemu_irq irq)
+@@ -202,8 +202,8 @@
+     return sbc->init(sd);
+ }
+ 
+-DeviceState *sysbus_create_varargs(const char *name,
+-                                   hwaddr addr, ...)
++DeviceState *sysbus_create_varargs2(const char *name,
++                                   hwaddr addr, void *dummy, ...)
+ {
+     DeviceState *dev;
+     SysBusDevice *s;
+@@ -217,7 +217,7 @@
+     if ((hwaddr)addr != (hwaddr)-1) {
+         sysbus_mmio_map(s, 0, addr);
+     }
+-    va_start(va, addr);
++    va_start(va, dummy);
+     n = 0;
+     while (1) {
+         irq = va_arg(va, qemu_irq);
+@@ -231,8 +231,8 @@
+     return dev;
+ }
+ 
+-DeviceState *sysbus_try_create_varargs(const char *name,
+-                                       hwaddr addr, ...)
++DeviceState *sysbus_try_create_varargs2(const char *name,
++                                       hwaddr addr, void *dummy, ...)
+ {
+     DeviceState *dev;
+     SysBusDevice *s;
+@@ -249,7 +249,7 @@
+     if (addr != (hwaddr)-1) {
+         sysbus_mmio_map(s, 0, addr);
+     }
+-    va_start(va, addr);
++    va_start(va, dummy);
+     n = 0;
+     while (1) {
+         irq = va_arg(va, qemu_irq);
 EOF
   qemu_target=x86_64
   if [ "$(uname -m)" = armv6l ]; then
