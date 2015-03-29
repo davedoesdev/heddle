@@ -1,6 +1,10 @@
 #!/bin/sh
 if grep -q 'heddle_prepare=1' /proc/cmdline; then
-  exec > /dev/ttyS0 2>&1
+  if [ -c /dev/ttyAMA0 ]; then
+    exec > /dev/ttyAMA0 2>&1
+  else
+    exec > /dev/ttyS0 2>&1
+  fi
   update-pciids
 else
   exec 2>&1

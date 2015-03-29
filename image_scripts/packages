@@ -4,10 +4,10 @@
 # A Go test (misc/cgo/test/issue7978.go) and QEMU (util/qemu-thread-posix.c)
 # use these builtins so when we build on ARM, go fetch a recent implementation.
 # - The file we fetch is GPLv3. However, see http://programmers.stackexchange.com/questions/152987/does-using-gcc-specific-builtins-qualify-as-incorporation-within-a-project
-# - We do this at build-time (on the host machine, in build_heddle.sh).
+# - We fetch the file at build-time (on the host machine, in build_heddle.sh).
 # - These routines aren't linked with the main Go code.
 # - They are linked with the main QEMU code.
-# - We only do this for armv6l builds.
+# - We only fetch the file and use it for armv6l builds.
 armv6l_linux_atomic=(
   armv6l
   'https://gcc.gnu.org/viewcvs/gcc/branches/gcc-4_9-branch/libgcc/config/arm/linux-atomic.c?revision=209304&view=co' 

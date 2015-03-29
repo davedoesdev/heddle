@@ -1,4 +1,5 @@
 build.img
+build.qcow2
 */dist/update/linux
 */dist/update/initrd.img
 */dist/update/modules.sqf
