@@ -1195,12 +1195,12 @@ EOF
      /* integer tests (int64) */
      {
 EOF
-  # GCC 4.2.1 has problems with 64 bit final vararg parameters:
+  # GCC 4.2.1 on ARM has problems with 64 bit final vararg parameters:
   # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=34281
   # GPLv3 patch is here:
   # https://gcc.gnu.org/viewcvs/gcc/trunk/gcc/config/arm/arm.c?r1=131196&r2=131195&pathrev=131196
-  # Rather than apply that patch, work around it here. It other packages also
-  # need it then we'll have to consider taking it.
+  # Rather than apply that patch, work around it here. If other packages also
+  # need it then we'll have to consider taking it. In future, use clang/llvm.
   patch -p0 << 'EOF'
 --- include/hw/sysbus.h.orig
 +++ include/hw/sysbus.h
