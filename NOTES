@@ -22,10 +22,9 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-ARM build
-  - versatilepb framebuffer, virtual console
-  - boot_heddle - boot loader
 Use android __sync routines instead of gcc's
+ARM build
+  - boot_heddle - boot loader
 upgrade Docker
 docs
 
