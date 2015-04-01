@@ -29,7 +29,7 @@ for pkg in "${PACKAGES[@]}"; do
     eval archs="(\"\${$vhst[@]}\")"
     for a in "${archs[@]}"; do
       if [ "$a" = "$ARCH" ]; then
-        binf="$HDC:host/${!vdir}-$a.tar.xz"
+        binf="$HDC:host/${!vsrc}-$a.tar.xz"
         if ! e2ls "$binf"; then
           tmpd="$(mktemp -d)"
           e2cp "$HDC:download/${!vsrc}" "$tmpd"
@@ -58,7 +58,7 @@ for pkg in "${PACKAGES[@]}"; do
       fi
     done
     if [ ${#xtr2[@]} -gt 0 ]; then
-      extraf="$HDC:host/${!vdir}-$ARCH-extra.tar.xz"
+      extraf="$HDC:host/${!vsrc}-$ARCH-extra.tar.xz"
       if ! e2ls "$extraf"; then
         tmpd="$(mktemp -d)"
         for ((i=0; i < ${#xtr2[@]}; i+=4)); do

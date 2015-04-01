@@ -44,7 +44,7 @@ for pkg in "${PACKAGES[@]}"; do
   vbld="BLD_$pkg"
   if [ -z "$Interactive" -a -n "${!vbld}" -a ! -e "${!vdir}.built" ]; then
     echo "+$pkg" > /dev/tty
-    binf="$HERE/host/${!vdir}-$(uname -m).tar.xz"
+    binf="$HERE/host/${!vsrc}-$(uname -m).tar.xz"
     if [ -f "$binf" ]; then
       tar -C "$INSTALL_DIR" -Jxf "$binf"
     else
@@ -52,7 +52,7 @@ for pkg in "${PACKAGES[@]}"; do
       tar -xf "$HERE/download/${!vsrc}"
       chown -R root:root "${!vdir}"
       tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
-      extraf="$HERE/host/${!vdir}-$(uname -m)-extra.tar.xz"
+      extraf="$HERE/host/${!vsrc}-$(uname -m)-extra.tar.xz"
       if [ -f "$extraf" ]; then
         tar -C "${!vdir}" -xf "$extraf"
       fi

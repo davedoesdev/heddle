@@ -1,18 +1,39 @@
-
 # gcc 4.2.1 doesn't have __sync* builtins on ARM:
 # http://vincesoft.blogspot.co.uk/2012/04/how-to-solve-undefined-reference-to.html
 # A Go test (misc/cgo/test/issue7978.go) and QEMU (util/qemu-thread-posix.c)
 # use these builtins so when we build on ARM, go fetch a recent implementation.
-# - The file we fetch is GPLv3. However, see http://programmers.stackexchange.com/questions/152987/does-using-gcc-specific-builtins-qualify-as-incorporation-within-a-project
+# - Use implementation from gofrontend/libgo (BSD) rather than gcc (GPLv3).
 # - We fetch the file at build-time (on the host machine, in build_heddle.sh).
 # - These routines aren't linked with the main Go code.
 # - They are linked with the main QEMU code.
 # - We only fetch the file and use it for armv6l builds.
-armv6l_linux_atomic=(
+armv6l_sync_builtins=(
   armv6l
-  'https://gcc.gnu.org/viewcvs/gcc/branches/gcc-4_9-branch/libgcc/config/arm/linux-atomic.c?revision=209304&view=co' 
-  1d39f334f394e577a17d57ba3d270e0ae1f2b4bef26961ac787634c9ce99bd72
+  'https://raw.githubusercontent.com/golang/gofrontend/291a692449bed1b5f2d4e7fb9c1ebd494bf23c3f/libgo/runtime/thread.c'
+  1af60318f33b58608b84d0b54c4acc954fe84af0c3f179827de457ec2898b2b4
   sha256)
+patch_armv6l_sync_builtins() {
+  patch -p0 << EOF
+--- $1.orig	2015-04-01 21:30:30.293253284 +0100
++++ $1	2015-04-01 21:33:11.401245774 +0100
+@@ -7,8 +7,13 @@
+ #include <sys/time.h>
+ #include <sys/resource.h>
+ 
+-#include "runtime.h"
+-#include "go-assert.h"
++#include <pthread.h>
++#include <stdint.h>
++#include <assert.h>
++typedef uint32_t uint32;
++typedef uint64_t uint64;
++typedef uintptr_t uintptr;
++#define __go_assert assert
+ 
+ /* For targets which don't have the required sync support.  Really
+    these should be provided by gcc itself.  FIXME.  */
+EOF
+}
 
 DIR_LIBICONV="libiconv-1.14"
 SRC_LIBICONV="$DIR_LIBICONV.tar.gz"
@@ -237,11 +258,11 @@ BLD_PCRE() {
 }
 
 # Race detector for Go
-VER_LLVM_COMPILER_RT="3.5.0"
+VER_LLVM_COMPILER_RT="3.6.0"
 DIR_LLVM_COMPILER_RT="compiler-rt-$VER_LLVM_COMPILER_RT.src"
 SRC_LLVM_COMPILER_RT="$DIR_LLVM_COMPILER_RT.tar.xz"
 URL_LLVM_COMPILER_RT="http://llvm.org/releases/$VER_LLVM_COMPILER_RT/$SRC_LLVM_COMPILER_RT"
-CHK_LLVM_COMPILER_RT="a4b3e655832bf8d9a357ea2c771db347237460e131988cbb96cda40ff39a8136"
+CHK_LLVM_COMPILER_RT="7f49fb79e5adcdce7dddaf973f1db130228dfb19e37a99a7f5365a6948b26b11"
 SUM_LLVM_COMPILER_RT="sha256"
 BLD_LLVM_COMPILER_RT() {
   cd lib/tsan/go
@@ -408,6 +429,11 @@ EOF
   if [ "$(uname -m)" = x86_64 ]; then
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
   fi
+
+  if [ "$(uname -m)" = armv6l ]; then
+    patch_armv6l_sync_builtins misc/cgo/test/sync_builtins.c
+  fi
+
   chroot "$CHROOT_DIR" ash <<EOF
   cd "$PWD/src"
   if [ -b /dev/ubdb ]; then
@@ -426,7 +452,7 @@ PST_GO() {
   export GOPATH="$INSTALL_DIR/gopath"
   PATH="$PATH:$INSTALL_DIR/go/bin:$GOPATH/bin"
 }
-XTR_GO=("${armv6l_linux_atomic[@]}" misc/cgo/test/linux-atomic.c)
+XTR_GO=("${armv6l_sync_builtins[@]}" misc/cgo/test/sync_builtins.c)
 
 DIR_LIBAIO="libaio-0.3.110-1"
 SRC_LIBAIO="$DIR_LIBAIO.tar.gz"
@@ -1269,8 +1295,9 @@ EOF
   qemu_target=x86_64
   if [ "$(uname -m)" = armv6l ]; then
     qemu_target=arm
+    patch_armv6l_sync_builtins util/sync-builtins.c
     cat >> util/Makefile.objs << 'EOF'
-util-obj-$(CONFIG_POSIX) += linux-atomic.o
+util-obj-$(CONFIG_POSIX) += sync-builtins.o
 EOF
   fi
   ./configure "--prefix=$INSTALL_DIR" "--extra-cflags=$CPPFLAGS -D__builtin___clear_cache=__clear_cache" "--extra-ldflags=$LDFLAGS" "--target-list=$qemu_target-softmmu" --with-system-pixman
@@ -1278,7 +1305,7 @@ EOF
   make 'BISON=byacc -b $*' WARNINGS= V=1 check
   make install
 }
-XTR_QEMU=("${armv6l_linux_atomic[@]}" util/linux-atomic.c)
+XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c)
 
 VER_CAPSTAN="0.1.7"
 
