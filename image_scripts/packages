@@ -33,6 +33,76 @@ patch_armv6l_sync_builtins() {
  /* For targets which don't have the required sync support.  Really
     these should be provided by gcc itself.  FIXME.  */
 EOF
+  cat >> "$1" << 'EOF'
+uint32
+__sync_val_compare_and_swap_4 (uint32*, uint32, uint32)
+  __attribute__ ((visibility ("hidden")));
+
+uint32
+__sync_val_compare_and_swap_4 (uint32* ptr, uint32 old, uint32 new)
+{
+  int i;
+  uint32 ret;
+
+  i = pthread_mutex_lock (&sync_lock);
+  __go_assert (i == 0);
+
+  ret = *ptr;
+  if (*ptr == old)
+    {
+      *ptr = new;
+    }
+
+  i = pthread_mutex_unlock (&sync_lock);
+  __go_assert (i == 0);
+
+  return ret;
+}
+
+uint32
+__sync_lock_test_and_set_4 (uint32*, uint32)
+  __attribute__ ((visibility ("hidden")));
+
+uint32
+__sync_lock_test_and_set_4 (uint32* ptr, uint32 val)
+{
+  int i;
+  uint32 ret;
+
+  i = pthread_mutex_lock (&sync_lock);
+  __go_assert (i == 0);
+
+  ret = *ptr;
+  *ptr = val;
+
+  i = pthread_mutex_unlock (&sync_lock);
+  __go_assert (i == 0);
+
+  return ret;
+}
+
+uint32
+__sync_fetch_and_or_4 (uint32*, uint32)
+  __attribute__ ((visibility ("hidden")));
+
+uint32
+__sync_fetch_and_or_4 (uint32* ptr, uint32 add)
+{
+  int i;
+  uint32 ret;
+
+  i = pthread_mutex_lock (&sync_lock);
+  __go_assert (i == 0);
+
+  ret = *ptr;
+  *ptr |= add;
+
+  i = pthread_mutex_unlock (&sync_lock);
+  __go_assert (i == 0);
+
+  return ret;
+}
+EOF
 }
 
 DIR_LIBICONV="libiconv-1.14"
