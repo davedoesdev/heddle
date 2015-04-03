@@ -44,7 +44,9 @@ URL_REFIND="http://downloads.sourceforge.net/project/refind/$VER_REFIND/$SRC_REF
 CHK_REFIND="08769aa9e4f41c0c267438d639bb37a5f97b3ddc8a5d208d75e95d204c73819e"
 SUM_REFIND="sha256"
 
-if [ ! -d "$HERE/../boot/$DIR_REFIND" ]; then
+if [ "$ARCH" = x86_64 -a \
+     $part_type = gpt -a \
+     ! -d "$HERE/../boot/$DIR_REFIND" ]; then
   rm -f "/tmp/$SRC_REFIND" 
   wget -O "/tmp/$SRC_REFIND" "$URL_REFIND"
   if [ "$("${SUM_REFIND}sum" "/tmp/$SRC_REFIND" | awk '{print $1}')" != "$CHK_REFIND" ]; then
@@ -83,29 +85,31 @@ fi
 tmp="$(mktemp)"
 dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
 mkfs.vfat -F 32 "$tmp"
-if [ $part_type = gpt ]; then
-  mcopy -i "$tmp" -s "$HERE/../boot/$DIR_REFIND/refind" ::
-  mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample}
-  mdeltree -i "$tmp" ::/refind/{drivers_{ia32,x64},tools_{ia32,x64}}
-  mcopy -i "$tmp" "$HERE/../boot/refind.conf" ::/refind
-  mmd -i "$tmp" ::/EFI
-  mmove -i "$tmp" ::/refind ::/EFI/BOOT
-  mmove -i "$tmp" ::/EFI/BOOT/{refind_,boot}x64.efi 
-else
-  syslinux "$tmp"
-  mcopy -i "$tmp" "$HERE/../boot/syslinux.cfg" ::
-  if [ -d /usr/lib/syslinux/modules ]; then
-    mcopy -i "$tmp" /usr/lib/syslinux/modules/bios/{menu,libutil}.c32 ::
+if [ "$ARCH" = x86_64 ]; then
+  if [ $part_type = gpt ]; then
+    mcopy -i "$tmp" -s "$HERE/../boot/$DIR_REFIND/refind" ::
+    mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample}
+    mdeltree -i "$tmp" ::/refind/{drivers_{ia32,x64},tools_{ia32,x64}}
+    mcopy -i "$tmp" "$HERE/../boot/refind.conf" ::/refind
+    mmd -i "$tmp" ::/EFI
+    mmove -i "$tmp" ::/refind ::/EFI/BOOT
+    mmove -i "$tmp" ::/EFI/BOOT/{refind_,boot}x64.efi 
   else
-    mcopy -i "$tmp" /usr/lib/syslinux/menu.c32 ::
+    syslinux "$tmp"
+    mcopy -i "$tmp" "$HERE/../boot/syslinux.cfg" ::
+    if [ -d /usr/lib/syslinux/modules ]; then
+      mcopy -i "$tmp" /usr/lib/syslinux/modules/bios/{menu,libutil}.c32 ::
+    else
+      mcopy -i "$tmp" /usr/lib/syslinux/menu.c32 ::
+    fi
+    if [ -d /usr/lib/syslinux/mbr ]; then
+      dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr/mbr.bin "of=$IMG_EXTRA"
+    else
+      dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr.bin "of=$IMG_EXTRA"
+    fi
   fi
-  if [ -d /usr/lib/syslinux/mbr ]; then
-    dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr/mbr.bin "of=$IMG_EXTRA"
-  else
-    dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr.bin "of=$IMG_EXTRA"
-  fi
+  mdir -i "$tmp" -/ -a ::
 fi
-mdir -i "$tmp" -/ -a ::
 dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
 rm -f "$tmp"
 

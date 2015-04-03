@@ -68,6 +68,10 @@ else
   mksquashfs /rmnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
   cp "$DIST_DIR/run.sqf" "$here/gen"
 fi
+if [ "$(uname -m)" = armv6l -a \
+     \( -z "$reuse" -o ! -f "$here/gen/barebox" \) ]; then
+  cp "$CHROOT_DIR/home/source"/barebox-*/barebox "$here/gen"
+fi
 if [ -z "$reuse" -o ! -f "$here/gen/initrd.img" ]; then
   echo making initrd.img
   mkdir /tmp/initrd

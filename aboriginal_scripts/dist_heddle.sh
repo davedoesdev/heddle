@@ -33,6 +33,9 @@ fi
 cd "build/system-image-$ARCH"
 ./dev-environment.sh 
 e2cp "$HDC:gen"/{initrd.img,install.sqf,run.sqf} "$UPDATE_DIR"
+if [ "$ARCH" = armv6l ]; then
+  e2cp "$HDC:gen"/barebox "$UPDATE_DIR"
+fi
 ln -sf "$PWD/linux" "$UPDATE_DIR"
 mmd -i "$IMG_DIR/heddle.img@@1M" -D s ::dist || true
 mcopy -i "$IMG_DIR/heddle.img@@1M" -D o linux "$UPDATE_DIR/initrd.img" ::dist

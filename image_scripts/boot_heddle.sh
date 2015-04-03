@@ -2,7 +2,6 @@
 set -e
 HERE="$(dirname "$0")"
 
-extra_args=
 part_type=gpt
 img_file=heddle.img
 ARCH=x86_64
@@ -22,9 +21,16 @@ do
 done
 shift $((OPTIND-1))
 
-if [ $part_type = gpt ]; then
-  extra_args+=" -bios /usr/share/ovmf/OVMF.fd"
+IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
+UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/dist/update"
+
+if [ "$ARCH" = x86_64 ]; then
+  CMD="qemu-system-x86_64 -enable-kvm -m 2048 -cpu host -smp 2"
+  if [ $part_type = gpt ]; then
+    CMD+=" -bios /usr/share/ovmf/OVMF.fd"
+  fi
+else
+  CMD="qemu-system-arm -M versatilepb -cpu arm1136-r2 -kernel $UPDATE_DIR/barebox"
 fi
 
-IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
-kvm -m 2048 -cpu host -smp 2 -no-reboot -hda "$IMG_DIR/$img_file" -net user,hostname=heddle -net nic $extra_args "$@"
+$CMD -no-reboot -hda "$IMG_DIR/$img_file" -net user,hostname=heddle -net nic "$@"

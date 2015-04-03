@@ -215,7 +215,7 @@ URL_NCURSES="http://ftp.gnu.org/pub/gnu/ncurses/$SRC_NCURSES"
 CHK_NCURSES="3e042e5f2c7223bffdaac9646a533b8c758b65b5"
 SUM_NCURSES="sha1"
 BLD_NCURSES() {
-  ./configure "--prefix=$INSTALL_DIR" --with-shared
+  ./configure "--prefix=$INSTALL_DIR" --with-shared --enable-pc-files
   make
   make install
 }
@@ -1469,6 +1469,38 @@ BLD_KEXEC_TOOLS() {
 # So build x86_64 version on host (assume same architecture).
 HST_KEXEC_TOOLS=(x86_64)
 
+DIR_BAREBOX="barebox-2015.03.0"
+SRC_BAREBOX="$DIR_BAREBOX.tar.bz2"
+URL_BAREBOX="http://barebox.org/download/$SRC_BAREBOX"
+CHK_BAREBOX="74da34a5e8008ab436f4aa43dcf6283a"
+SUM_BAREBOX="md5"
+BLD_BAREBOX() {
+  ARCH=arm make versatilepb_defconfig
+  ARCH=arm make
+}
+BLD_UBOOT() {
+  if [ "$(uname -m)" = armv6l ]; then
+    patch -p0 << 'EOF'
+--- Makefile.orig
++++ Makefile
+@@ -806,9 +806,8 @@
+ binary_size_check: u-boot.bin FORCE
+ 	@file_size=$(shell wc -c u-boot.bin | awk '{print $$1}') ; \
+ 	map_size=$(shell cat u-boot.map | \
+-		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print "ibase=16; " toupper(end) " - " toupper(start)}' \
+-		| sed 's/0X//g' \
+-		| bc); \
++		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print "print " end " - " start}' \
++		| python); \
+ 	if [ "" != "$$map_size" ]; then \
+ 		if test $$map_size -ne $$file_size; then \
+ 			echo "u-boot.map shows a binary size of $$map_size" >&2 ; \
+EOF
+    make versatileqemu_config
+    make all
+  fi
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -1526,4 +1558,5 @@ PACKAGES=(LIBICONV
           KMOD
           NATSORT
           PCIUTILS
-          KEXEC_TOOLS)
+          KEXEC_TOOLS
+          BAREBOX)
