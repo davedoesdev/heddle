@@ -69,8 +69,8 @@ else
   cp "$DIST_DIR/run.sqf" "$here/gen"
 fi
 if [ "$(uname -m)" = armv6l -a \
-     \( -z "$reuse" -o ! -f "$here/gen/barebox" \) ]; then
-  cp "$CHROOT_DIR/home/source"/barebox-*/barebox "$here/gen"
+     \( -z "$reuse" -o ! -f "$here/gen/u-boot.bin" \) ]; then
+  cp "$CHROOT_DIR/home/source"/u-boot-*/u-boot.bin "$here/gen"
 fi
 if [ -z "$reuse" -o ! -f "$here/gen/initrd.img" ]; then
   echo making initrd.img

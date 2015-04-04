@@ -1469,15 +1469,11 @@ BLD_KEXEC_TOOLS() {
 # So build x86_64 version on host (assume same architecture).
 HST_KEXEC_TOOLS=(x86_64)
 
-DIR_BAREBOX="barebox-2015.03.0"
-SRC_BAREBOX="$DIR_BAREBOX.tar.bz2"
-URL_BAREBOX="http://barebox.org/download/$SRC_BAREBOX"
-CHK_BAREBOX="74da34a5e8008ab436f4aa43dcf6283a"
-SUM_BAREBOX="md5"
-BLD_BAREBOX() {
-  ARCH=arm make versatilepb_defconfig
-  ARCH=arm make
-}
+DIR_UBOOT="u-boot-2015.01"
+SRC_UBOOT="$DIR_UBOOT.tar.bz2"
+URL_UBOOT="ftp://ftp.denx.de/pub/u-boot/$SRC_UBOOT"
+CHK_UBOOT="383051a656ebe11757b17d38a3326387e4a1b0949ca8a9e8ee506bf71dac9fde"
+SUM_UBOOT="sha256"
 BLD_UBOOT() {
   if [ "$(uname -m)" = armv6l ]; then
     patch -p0 << 'EOF'
@@ -1559,4 +1555,4 @@ PACKAGES=(LIBICONV
           NATSORT
           PCIUTILS
           KEXEC_TOOLS
-          BAREBOX)
+          UBOOT)

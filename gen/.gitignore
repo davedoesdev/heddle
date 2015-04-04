@@ -10,4 +10,5 @@ build.qcow2
 */dist/update/bash
 */dist/update/busybox
 */dist/update/toybox
+*/dist/update/u-boot.bin
 */dist/updates
