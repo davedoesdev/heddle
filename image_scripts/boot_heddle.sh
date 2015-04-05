@@ -30,7 +30,7 @@ if [ "$ARCH" = x86_64 ]; then
     CMD+=" -bios /usr/share/ovmf/OVMF.fd"
   fi
 else
-  CMD="qemu-system-arm -M versatilepb -kernel $UPDATE_DIR/u-boot.bin -m 256"
+  CMD="qemu-system-arm -m 256 -M versatilepb -cpu arm1136-r2 -kernel $IMG_DIR/boot.bin"
 fi
 
 $CMD -no-reboot -hda "$IMG_DIR/$img_file" -net user,hostname=heddle -net nic "$@"

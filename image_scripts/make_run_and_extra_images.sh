@@ -82,10 +82,10 @@ if [ ! -e "$IMG_EXTRA" ]; then
   rm -f "$tmp"
 fi
 
-tmp="$(mktemp)"
-dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
-mkfs.vfat -F 32 "$tmp"
 if [ "$ARCH" = x86_64 ]; then
+  tmp="$(mktemp)"
+  dd if=/dev/zero "of=$tmp" bs=1024 "seek=$((512 * 1024))" count=0
+  mkfs.vfat -F 32 "$tmp"
   if [ $part_type = gpt ]; then
     mcopy -i "$tmp" -s "$HERE/../boot/$DIR_REFIND/refind" ::
     mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample}
@@ -109,9 +109,9 @@ if [ "$ARCH" = x86_64 ]; then
     fi
   fi
   mdir -i "$tmp" -/ -a ::
+  dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
+  rm -f "$tmp"
 fi
-dd "if=$tmp" "of=$IMG_EXTRA" bs=1024 seek=1024 conv=sparse,notrunc
-rm -f "$tmp"
 
 copy() {
   local p=400
