@@ -139,6 +139,7 @@ else
     mkswap "$tmp"
     export QEMU_EXTRA="-hdd $tmp"
   fi
+  export KERNEL_EXTRA="heddle_arch=$ARCH"
   ./dev-environment.sh
   if [ -n "$tmp" ]; then
     rm -f "$tmp"

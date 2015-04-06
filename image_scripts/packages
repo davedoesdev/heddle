@@ -1475,9 +1475,8 @@ URL_UBOOT="ftp://ftp.denx.de/pub/u-boot/$SRC_UBOOT"
 CHK_UBOOT="383051a656ebe11757b17d38a3326387e4a1b0949ca8a9e8ee506bf71dac9fde"
 SUM_UBOOT="sha256"
 BLD_UBOOT() {
-  if [ "$(uname -m)" = armv6l ]; then
-    # We don't have bc
-    patch -p0 << 'EOF'
+  # We don't have bc
+  patch -p0 << 'EOF'
 --- Makefile.orig
 +++ Makefile
 @@ -806,9 +806,8 @@
@@ -1493,6 +1492,9 @@ BLD_UBOOT() {
  		if test $$map_size -ne $$file_size; then \
  			echo "u-boot.map shows a binary size of $$map_size" >&2 ; \
 EOF
+
+  heddle_arch="$(grep -oE 'heddle_arch=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_arch=//')"
+  if [ "$heddle_arch" = armv6l ]; then
     # Aboriginal Linux armv6l target uses arm1136-r2
     patch -p0 << 'EOF'
 --- arch/arm/Kconfig.orig
