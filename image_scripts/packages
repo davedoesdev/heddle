@@ -1530,7 +1530,7 @@ EOF
 -				"console=ttyAMA0,38400n1"
 +#define CONFIG_BOOTDELAY	5
 +#define CONFIG_BOOTARGS		"console=ttyAMA0,9600n8 console=tty0"
-+#define CONFIG_BOOTCOMMAND	"bootm 0x210000 0x810000"
++#define CONFIG_BOOTCOMMAND	"bootm 0x210000 0x2010000"
 +#define CONFIG_INITRD_TAG	1
  
  /*
