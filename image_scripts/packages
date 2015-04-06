@@ -1514,6 +1514,26 @@ EOF
  obj-$(CONFIG_MX35) += mx35/
 +obj-$(CONFIG_ARCH_VERSATILE) += versatile/
 EOF
+    # Change boot args and add initrd support
+    patch -p0 << 'EOF'
+--- include/configs/versatile.h.orig
++++ include/configs/versatile.h
+@@ -98,10 +98,10 @@
+ #define CONFIG_BOOTP_HOSTNAME
+ #define CONFIG_BOOTP_SUBNETMASK
+ 
+-#define CONFIG_BOOTDELAY	2
+-#define CONFIG_BOOTARGS		"root=/dev/nfs mem=128M ip=dhcp "\
+-				"netdev=25,0,0xf1010000,0xf1010010,eth0 "\
+-				"console=ttyAMA0,38400n1"
++#define CONFIG_BOOTDELAY	5
++#define CONFIG_BOOTARGS		"console=ttyAMA0,9600n8 console=tty0"
++#define CONFIG_BOOTCOMMAND	"bootm 0x210000 0x810000"
++#define CONFIG_INITRD_TAG	1
+ 
+ /*
+  * Static configuration when assigning fixed address
+EOF
     cp -r arch/arm/cpu/{arm926ejs,arm1136}/versatile
     make versatileqemu_config
     make all
