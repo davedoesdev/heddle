@@ -19,6 +19,9 @@ export HDC="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/build.img"
 export BUILD_MEM=2048
 
 . "$HERE/../image_scripts/packages"
+if [ -n "$HEDDLE_EXT_DIR" -a -e "$HEDDLE_EXT_DIR/image_scripts/packages" ]; then
+  . "$HEDDLE_EXT_DIR/image_scripts/packages"
+fi
 
 for pkg in "${PACKAGES[@]}"; do
   vdir="DIR_$pkg"
