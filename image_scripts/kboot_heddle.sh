@@ -19,7 +19,7 @@ if [ "$ARCH" = x86_64 ]; then
   CMD="qemu-system-x86_64 -enable-kvm -m 2048 -cpu host -smp 2"
   CON=ttyS0
 else
-  CMD="qemu-system-arm -M versatilepb -cpu arm1136-r2"
+  CMD="qemu-system-arm -m 256 -M versatilepb -cpu arm1136-r2"
   CON=ttyAMA0
 fi
 

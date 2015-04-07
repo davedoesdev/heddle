@@ -1517,7 +1517,7 @@ BLD_UBOOT_armv6l() {
 EOF
   cp -r arch/arm/cpu/{arm926ejs,arm1136}/versatile
 
-  # Change boot args and add initrd support
+  # Change boot args, add initrd support and increase RAM to 256Mb
   patch -p0 << 'EOF'
 --- include/configs/versatile.h.orig
 +++ include/configs/versatile.h
@@ -1536,7 +1536,17 @@ EOF
  
  /*
   * Static configuration when assigning fixed address
+@@ -132,7 +132,7 @@
+  */
+ #define CONFIG_NR_DRAM_BANKS	1	/* we have 1 bank of DRAM */
+ #define PHYS_SDRAM_1		0x00000000	/* SDRAM Bank #1 */
+-#define PHYS_SDRAM_1_SIZE	0x08000000	/* 128 MB */
++#define PHYS_SDRAM_1_SIZE	0x10000000	/* 256 MB */
+ #define PHYS_FLASH_SIZE		0x04000000	/* 64MB */
+ 
+ #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 EOF
+
   make versatileqemu_config all
 }
 
