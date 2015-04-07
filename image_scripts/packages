@@ -1492,11 +1492,10 @@ BLD_UBOOT() {
  		if test $$map_size -ne $$file_size; then \
  			echo "u-boot.map shows a binary size of $$map_size" >&2 ; \
 EOF
-
-  heddle_arch="$(grep -oE 'heddle_arch=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_arch=//')"
-  if [ "$heddle_arch" = armv6l ]; then
-    # Aboriginal Linux armv6l target uses arm1136-r2
-    patch -p0 << 'EOF'
+}
+BLD_UBOOT_armv6l() {
+  # Aboriginal Linux armv6l target uses arm1136-r2
+  patch -p0 << 'EOF'
 --- arch/arm/Kconfig.orig
 +++ arch/arm/Kconfig
 @@ -352,7 +352,7 @@
@@ -1516,8 +1515,10 @@ EOF
  obj-$(CONFIG_MX35) += mx35/
 +obj-$(CONFIG_ARCH_VERSATILE) += versatile/
 EOF
-    # Change boot args and add initrd support
-    patch -p0 << 'EOF'
+  cp -r arch/arm/cpu/{arm926ejs,arm1136}/versatile
+
+  # Change boot args and add initrd support
+  patch -p0 << 'EOF'
 --- include/configs/versatile.h.orig
 +++ include/configs/versatile.h
 @@ -98,10 +98,10 @@
@@ -1536,10 +1537,7 @@ EOF
  /*
   * Static configuration when assigning fixed address
 EOF
-    cp -r arch/arm/cpu/{arm926ejs,arm1136}/versatile
-    make versatileqemu_config
-    make all
-  fi
+  make versatileqemu_config all
 }
 
 PACKAGES=(LIBICONV

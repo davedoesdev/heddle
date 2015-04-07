@@ -7,6 +7,7 @@ fi
 if [ -b /dev/[hsv]dd -a "$(cat /proc/swaps | wc -l)" -eq 1 ]; then
   swapon /dev/[hsv]dd
 fi
+arch="$(grep -oE 'heddle_arch=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_arch=//')"
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
 
@@ -58,6 +59,7 @@ for pkg in "${PACKAGES[@]}"; do
       fi
       pushd "${!vdir}"
       BLD_$pkg
+      BLD_${pkg}_$arch || true
       popd
     fi
     touch "${!vdir}.built"

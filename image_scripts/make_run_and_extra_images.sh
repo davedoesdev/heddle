@@ -37,6 +37,7 @@ part_name() {
   fi
 }
 
+# Treat rEFInd as a host tool and download it if required
 VER_REFIND="0.8.4"
 DIR_REFIND="refind-bin-$VER_REFIND"
 SRC_REFIND="$DIR_REFIND.zip"
