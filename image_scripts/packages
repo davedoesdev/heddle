@@ -884,11 +884,11 @@ BLD_IPTABLES() {
   make install
 }
 
-VER_DOCKER="1.3.1"
+VER_DOCKER="1.6.0-rc5"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
 URL_DOCKER="https://github.com/docker/docker/archive/v$VER_DOCKER.tar.gz"
-CHK_DOCKER="5eb5578945438dce485c2628a3df47a6f6ca8fff7366f1ec8335b37955f82f70"
+CHK_DOCKER="dcde9ee10ab4efe02bd21151d4f44b49baf78701ebf0c25052b0ddb3f1668bf9"
 SUM_DOCKER="sha256"
 BLD_DOCKER() {
   # We have bash v2 without '+=', pipefail, BASH_SOURCE and 'declare -A':
@@ -903,32 +903,7 @@ source() {\
   BASH_SOURCE=("${BASH_SOURCE_SAVE[@]}")\
 }/g' hack/make.sh
   sed -i -E -e 's/declare -A//g' -e 's/([a-z]+)\+=\(/\1=( "${\1[@]}" /g' contrib/check-config.sh
-  patch -p0 << EOF
---- vendor/src/github.com/docker/libcontainer/namespaces/nsenter/nsenter.c.orig
-+++ vendor/src/github.com/docker/libcontainer/namespaces/nsenter/nsenter.c
-@@ -13,6 +13,7 @@
- #include <sys/types.h>
- #include <unistd.h>
- #include <getopt.h>
-+#include <wait.h>
- 
- static const kBufSize = 256;
- static const char *kNsEnter = "nsenter";
-EOF
-  patch -p0 << 'EOF'
---- daemon/daemon.go.orig
-+++ daemon/daemon.go
-@@ -1104,7 +1104,7 @@
- 
- func checkKernelAndArch() error {
- 	// Check for unsupported architectures
--	if runtime.GOARCH != "amd64" {
-+	if runtime.GOARCH != "amd64" && runtime.GOARCH != "arm" {
- 		return fmt.Errorf("The Docker runtime currently only supports amd64 (not %s). This will change in the future. Aborting.", runtime.GOARCH)
- 	}
- 	// Check for unsupported kernel versions
-EOF
-  AUTO_GOPATH=1 DOCKER_GITCOMMIT=4e9bbfa CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
+  AUTO_GOPATH=1 DOCKER_GITCOMMIT=fc4825d CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }
