@@ -4,7 +4,7 @@ HERE="$(dirname "$0")"
 
 part_type=gpt
 img_file=heddle.img
-ARCH=x86_64
+append=
 while getopts mqa: opt
 do
   case $opt in
@@ -15,12 +15,13 @@ do
       img_file=heddle.qcow2
       ;;
     a)
-      ARCH="$OPTARG"
+      append="$OPTARG"
       ;;
   esac
 done
 shift $((OPTIND-1))
 
+ARCH="${1:-x86_64}"
 IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
 UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/dist/update"
 
@@ -33,4 +34,4 @@ else
   CMD="qemu-system-arm -m 256 -M versatilepb -cpu arm1136-r2 -kernel $IMG_DIR/boot.kbin"
 fi
 
-$CMD -no-reboot -hda "$IMG_DIR/$img_file" -net user,hostname=heddle -net nic "$@"
+$CMD -no-reboot -hda "$IMG_DIR/$img_file" -net user,hostname=heddle -net nic
