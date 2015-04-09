@@ -21,6 +21,8 @@ if ! build >& ../build.log; then
   exit 1
 fi
 tail -n 100 ../build.log
+sudo cp ../build.log /
+sudo xz /build.log
 
 version="$(git describe --exact-match HEAD || git rev-parse HEAD)"
 echo "version: $version"
