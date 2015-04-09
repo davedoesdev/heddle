@@ -1423,9 +1423,11 @@ URL_PCIUTILS="ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/$SRC_PCIUTILS"
 CHK_PCIUTILS="4b576a1c2570046fda83fa2c5488661de698874ab04fd8e06eef4b6ab806d58a"
 SUM_PCIUTILS="sha256"
 BLD_PCIUTILS() {
+  gunzip -f pci.ids.gz
   make PREFIX="$INSTALL_DIR"
   make PREFIX="$INSTALL_DIR" install
 }
+XTR_PCIUTILS=("any" "https://pci-ids.ucw.cz/v2.2/pci.ids.gz" "" "" "pci.ids.gz")
 
 DIR_KEXEC_TOOLS="kexec-tools-2.0.8"
 SRC_KEXEC_TOOLS="$DIR_KEXEC_TOOLS.tar.xz"

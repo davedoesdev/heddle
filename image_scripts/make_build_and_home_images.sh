@@ -49,6 +49,7 @@ for pkg in "${PACKAGES[@]}"; do
   vurl="URL_$pkg"
   vchk="CHK_$pkg"
   vsum="SUM_$pkg"
+  vxtr="XTR_$pkg"
   dest="$IMG_BUILD:download/${!vsrc}"
   if ! e2ls "$dest" >& /dev/null; then
     if type GET_$pkg 2> /dev/null | grep -q function; then
@@ -75,6 +76,46 @@ for pkg in "${PACKAGES[@]}"; do
     echo "$0: $pkg is empty"
     exit 2
   fi
+  if [ -n "${!vxtr}" ]; then
+    eval xtr="(\"\${$vxtr[@]}\")"
+    xtr2=()
+    volatile=0
+    for ((i=0; i < ${#xtr[@]}; i+=5)); do
+      if [ "${xtr[$i]}" = "any" ]; then
+        xtr2+=("${xtr[$((i+1))]}"
+               "${xtr[$((i+2))]}"
+               "${xtr[$((i+3))]}"
+               "${xtr[$((i+4))]}")
+        if [ -z "${xtr[$((i+2))]}" -o -z "${xtr[$((i+3))]}" ]; then
+          # if there are any checksums then assume changes regularly
+          volatile=1
+        fi
+      fi
+    done
+    if [ ${#xtr2[@]} -gt 0 ]; then
+      extraf="$IMG_BUILD:host/${!vsrc}-any-extra.tar.xz"
+      if [ "$volatile" -eq 1 ] || ! e2ls "$extraf"; then
+        tmpd="$(mktemp -d)"
+        for ((i=0; i < ${#xtr2[@]}; i+=4)); do
+          url="${xtr2[$((i))]}"
+          chk="${xtr2[$((i+1))]}"
+          sum="${xtr2[$((i+2))]}"
+          file="${xtr2[$((i+3))]}"
+          curl -o "$tmpd/$file" --create-dirs "$url"
+          if [ -n "$chk" -a -n "$sum" ]; then
+            csum="$("${sum}sum" "$tmpd/$file" | awk '{print $1}')"
+            if [ "$csum" != "$chk" ]; then
+              rm -rf "$tmpd"
+              echo "$0: checksum mismatch for $url: $csum != $chk"
+              exit 1
+            fi
+          fi
+        done
+        tar -C "$tmpd" -Jc . | e2cp -P 400 -O 0 -G 0 - "$extraf"
+        rm -rf "$tmpd"
+      fi
+    fi
+  fi
 done
 
 e2ls -l "$IMG_BUILD:download" | awk '{if (NF > 0) print $NF}' | while read f; do
@@ -93,3 +134,6 @@ done
 
 echo "Packages:"
 e2ls "$IMG_BUILD:download"
+
+echo "Extra:"
+e2ls "$IMG_BUILD:host"

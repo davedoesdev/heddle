@@ -54,9 +54,9 @@ for pkg in "${PACKAGES[@]}"; do
       chown -R root:root "${!vdir}"
       tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
       extraf="$HERE/host/${!vsrc}-$(uname -m)-extra.tar.xz"
-      if [ -f "$extraf" ]; then
-        tar -C "${!vdir}" -xf "$extraf"
-      fi
+      [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
+      extraf="$HERE/host/${!vsrc}-any-extra.tar.xz"
+      [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
       pushd "${!vdir}"
       BLD_$pkg
       BLD_${pkg}_$arch || true
