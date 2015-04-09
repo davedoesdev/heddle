@@ -3,8 +3,8 @@ test:
     - .circle-ci/build.sh
 general:
   artifacts:
-    - "/build.log"
     - "/heddle-*.tar.xz"
+    - "/build.log"
 dependencies:
   cache_directories:
     - downloads
