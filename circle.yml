@@ -4,7 +4,7 @@ test:
 general:
   artifacts:
     - "/heddle-*.tar.xz"
-    - "/build.log"
+    - "/build.log.xz"
 dependencies:
   cache_directories:
     - downloads
