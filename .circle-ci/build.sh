@@ -1,5 +1,9 @@
 #!/bin/bash
 set -e
+
+version="$(git describe --exact-match HEAD || git rev-parse HEAD)"
+echo "version: $version"
+
 cd aboriginal-*
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
@@ -16,16 +20,15 @@ build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -c
 }
-if ! build >& ../build.log; then
-  tail -n 1000 ../build.log
+logf=heddle-$version-log-x86_64
+if ! build >& ../$logf; then
+  tail -n 1000 ../$logf
   exit 1
 fi
-tail -n 100 ../build.log
-sudo cp ../build.log /
-sudo xz /build.log
+tail -n 100 ../$logf
+sudo cp ../$logf /
+sudo xz /$logf
 
-version="$(git describe --exact-match HEAD || git rev-parse HEAD)"
-echo "version: $version"
 prepare_and_dist() {
   echo "type: $1"
   prefix="heddle-$version-$1-x86_64"
