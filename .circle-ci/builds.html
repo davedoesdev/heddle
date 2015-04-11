@@ -39,6 +39,12 @@ $(function ()
 {
     $(document).ajaxStart(show_spinner);
     $(document).ajaxStop(hide_spinner);
+    $('.branches').change(function ()
+    {
+        $('#builds').removeClass('branches_all')
+                    .removeClass('branches_release')
+                    .addClass('branches_' + $(this).val());
+    });
     render_builds('#builds',
                   'https://circleci.com/api/v1/project/davedoesdev/heddle',
                   156,
@@ -48,9 +54,17 @@ $(function ()
 <body>
 <table class="build_table">
 <thead>
-<tr><th>Build</th><th>Branch</th><th>Commit</th><th>Artifacts</th></tr>
+<tr>
+<th>Build</th>
+<th>
+<input type="radio" id="branches_all" class="branches" name="branches" value="all" checked><label for="branches_all">All branches</label><br>
+<input type="radio" id="branches_release" class="branches" name="branches" value="release"><label for="branches_release">Release branches</label>
+</th>
+<th>Commit</th>
+<th>Artifacts</th>
+</tr>
 </thead>
-<tbody id="builds">
+<tbody id="builds" class="branches_all">
 <tr class="build_info">
 <td class="build"><a></a></td>
 <td class="branch"><a></a></td>

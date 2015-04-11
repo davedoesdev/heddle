@@ -92,7 +92,11 @@ function render_builds(sel, url, from, artifact_pp)
 
         $(template(data)).children()
                          .appendTo($(sel))
-                         .find('.list_artifacts').click(list_artifacts);
+                         .find('.list_artifacts').click(list_artifacts)
+                         .end().find('.branch').each(function ()
+                         {
+                             $(this).parent().addClass($(this).text());
+                         });
 
         if (lowest <= from)
         {

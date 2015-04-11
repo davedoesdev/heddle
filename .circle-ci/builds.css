@@ -1,5 +1,5 @@
 a[href] ~ .list_artifacts {
-    display: none
+    display: none;
 }
 
 .build_table tbody tr {
@@ -24,7 +24,11 @@ a[href] ~ .list_artifacts {
 
 .build_table {
     border-collapse: collapse;
-    width: 100%
+    width: 100%;
+}
+
+#builds.branches_release > .build_info.master {
+    display: none;
 }
 
 #spinner {
