@@ -1,8 +1,8 @@
-[![Build Status](https://circleci.com/gh/davedoesdev/heddle.svg?style=svg)](https://circleci.com/gh/davedoesdev/heddle) [Successful builds with links to disk images](http://githubraw.herokuapp.com/davedoesdev/heddle/master/.circle-ci/builds.html)
+[![Build Status](https://circleci.com/gh/davedoesdev/heddle.svg?style=svg)](https://circleci.com/gh/davedoesdev/heddle) [![Successful builds with links to disk images](builds.svg)](http://githubraw.herokuapp.com/davedoesdev/heddle/master/.circle-ci/builds.html)
 
 Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and [Capstan](http://osv.io/capstan/) applications.
 
-- Built from scratch using [Aboriginal Linux](http://landley.net/aboriginal/) to bootstrap things.
+- Built from scratch using [Aboriginal Linux](http://landley.net/aboriginal/) to bootstrap the build.
 
 - Completely automated build. Build Heddle images locally or on [Travis CI](https://travis-ci.org/davedoesdev/build-aboriginal-travis) and [CircleCI](https://circleci.com/gh/davedoesdev/heddle).
 
@@ -20,3 +20,4 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 - Easily customizable using configuration scripts, for example to build additional kernel drivers.
 
+More documentation soon...
