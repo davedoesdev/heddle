@@ -29,7 +29,7 @@ tail -n 100 ../$logf
 sudo mv ../$logf /
 sudo xz /$logf
 
-bldf=heddle-$version-source-x86_64
+bldf=heddle-$version-src-x86_64
 sudo mv ../gen/build.img /$bldf
 sudo xz /$bldf
 

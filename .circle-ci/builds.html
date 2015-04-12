@@ -20,6 +20,10 @@ function artifact_pp(path)
     {
         pos = path.lastIndexOf('-log');
     }
+    if (pos < 0)
+    {
+        pos = path.lastIndexOf('-src');
+    }
     var pos2 = path.indexOf('.tar.xz', pos);
     if (pos2 < 0)
     {
