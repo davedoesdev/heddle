@@ -2,6 +2,14 @@ a[href] ~ .list_artifacts {
     display: none;
 }
 
+.artifact > a ~ br {
+    display: none;
+}
+
+.artifact > a[href] ~ br {
+    display: inline;
+}
+
 .build_table tbody tr {
     border-top: 1px solid;
 }
