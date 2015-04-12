@@ -87,7 +87,7 @@ for pkg in "${PACKAGES[@]}"; do
                "${xtr[$((i+3))]}"
                "${xtr[$((i+4))]}")
         if [ -z "${xtr[$((i+2))]}" -o -z "${xtr[$((i+3))]}" ]; then
-          # if there are any checksums then assume changes regularly
+          # if there are any missing checksums then assume changes regularly
           volatile=1
         fi
       fi

@@ -26,8 +26,12 @@ if ! build >& ../$logf; then
   exit 1
 fi
 tail -n 100 ../$logf
-sudo cp ../$logf /
+sudo mv ../$logf /
 sudo xz /$logf
+
+bldf=heddle-$version-source-x86_64
+sudo mv ../gen/build.img /$bldf
+sudo xz /$bldf
 
 prepare_and_dist() {
   echo "type: $1"
