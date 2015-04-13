@@ -162,17 +162,6 @@ BLD_BDB() {
   make install
 }
 
-DIR_GDBM="gdbm-1.11"
-SRC_GDBM="$DIR_GDBM.tar.gz"
-URL_GDBM="ftp://ftp.gnu.org/gnu/gdbm/$SRC_GDBM"
-CHK_GDBM="72c832680cf0999caedbe5b265c8c1bd"
-SUM_GDBM="md5"
-BLD_GDBM() {
-  ./configure "--prefix=$INSTALL_DIR" --enable-libgdbm-compat
-  make
-  make install
-}
-
 DIR_BZIP2="bzip2-1.0.6"
 SRC_BZIP2="$DIR_BZIP2.tar.gz"
 URL_BZIP2="http://www.bzip.org/1.0.6/$SRC_BZIP2"
@@ -221,17 +210,6 @@ BLD_NCURSES() {
 }
 PST_NCURSES() {
   CPPFLAGS="$CPPFLAGS -I$INSTALL_DIR/include/ncurses"
-}
-
-DIR_READLINE="readline-6.3"
-SRC_READLINE="$DIR_READLINE.tar.gz"
-URL_READLINE="ftp://ftp.gnu.org/gnu/readline/$SRC_READLINE"
-CHK_READLINE="017b92dc7fd4e636a2b5c9265a77ccc05798c9e1"
-SUM_READLINE="sha1"
-BLD_READLINE() {
-  ./configure "--prefix=$INSTALL_DIR" --with-curses
-  make SHLIB_LIBS=-lncurses
-  make install
 }
 
 # Perl is needed by OpenSSL!
@@ -1107,7 +1085,7 @@ URL_PARTED="http://ftp.gnu.org/gnu/parted/$SRC_PARTED"
 CHK_PARTED="858b589c22297cacdf437f3baff6f04b333087521ab274f7ab677cb8c6bb78e4"
 SUM_PARTED="sha256"
 BLD_PARTED() {
-  LIBS=-liconv ./configure "--prefix=$INSTALL_DIR"
+  LIBS=-liconv ./configure "--prefix=$INSTALL_DIR" --without-readline
   make
   make install
 }
@@ -1531,12 +1509,10 @@ PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
           BDB
-          GDBM
           BZIP2
           ZLIB
           SQLITE
           NCURSES
-          READLINE
           PERL
           OPENSSL
           EXPAT
