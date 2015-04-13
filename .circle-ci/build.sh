@@ -20,7 +20,7 @@ build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -c
 }
-logf=heddle-$version-log-x86_64
+logf=heddle-$version-log-x86_64.txt
 if ! build >& ../$logf; then
   tail -n 1000 ../$logf
   exit 1
@@ -29,7 +29,7 @@ tail -n 100 ../$logf
 sudo mv ../$logf /
 sudo xz /$logf
 
-bldf=heddle-$version-src-x86_64
+bldf=heddle-$version-src-x86_64.img
 sudo mv ../gen/build.img /$bldf
 sudo xz /$bldf
 

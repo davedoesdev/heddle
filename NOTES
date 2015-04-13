@@ -22,7 +22,6 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 
 #TODO
-Source. Republish build.img on CircleCI for each build since it has the full source
 Licences. How harvest dynamic (xtr, hst) and go deps licences?
 docs
 
