@@ -11,7 +11,7 @@ fi
 set -e
 
 # check if any prepare_ services are still running
-if sv status /service/prepare_* | grep -v ^down; then
+if sv status /service/prepare_* | grep -v '^down.*normally up;'; then
   echo other prepare services are still running
   # we'll be restarted and check for prepare_ services again
   exit 1

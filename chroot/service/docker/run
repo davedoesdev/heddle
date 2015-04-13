@@ -6,4 +6,7 @@ rm -f /var/run/docker.pid
 # set cgroup options
 echo -n 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 # run docker
+if grep -q 'heddle_prepare=1' /proc/cmdline; then
+  export DOCKER_ALLOW_SCRATCH=1
+fi
 exec docker -d

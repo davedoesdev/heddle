@@ -881,6 +881,20 @@ source() {\
   BASH_SOURCE=("${BASH_SOURCE_SAVE[@]}")\
 }/g' hack/make.sh
   sed -i -E -e 's/declare -A//g' -e 's/([a-z]+)\+=\(/\1=( "${\1[@]}" /g' contrib/check-config.sh
+  # Allow scratch import from prepare_docker service
+  patch -p0 << 'EOF'
+--- graph/tags.go.orig
++++ graph/tags.go
+@@ -344,7 +344,7 @@
+ 	if name == "" {
+ 		return fmt.Errorf("Repository name can't be empty")
+ 	}
+-	if name == "scratch" {
++	if os.Getenv("DOCKER_ALLOW_SCRATCH") != "1" && name == "scratch" {
+ 		return fmt.Errorf("'scratch' is a reserved name")
+ 	}
+ 	return nil
+EOF
   AUTO_GOPATH=1 DOCKER_GITCOMMIT=fc4825d CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
