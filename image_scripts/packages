@@ -150,18 +150,6 @@ PST_LIBFFI() {
   LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$INSTALL_DIR/lib64"
 }
 
-DIR_BDB="db-4.8.30"
-SRC_BDB="$DIR_BDB.tar.gz"
-URL_BDB="http://download.oracle.com/berkeley-db/$SRC_BDB"
-CHK_BDB="ab36c170dda5b2ceaad3915ced96e41c6b7e493c"
-SUM_BDB="sha1"
-BLD_BDB() {
-  cd build_unix
-  ../dist/configure "--prefix=$INSTALL_DIR"
-  make
-  make install
-}
-
 DIR_BZIP2="bzip2-1.0.6"
 SRC_BZIP2="$DIR_BZIP2.tar.gz"
 URL_BZIP2="http://www.bzip.org/1.0.6/$SRC_BZIP2"
@@ -862,11 +850,11 @@ BLD_IPTABLES() {
   make install
 }
 
-VER_DOCKER="1.6.0-rc5"
+VER_DOCKER="1.6.0-rc6"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
 URL_DOCKER="https://github.com/docker/docker/archive/v$VER_DOCKER.tar.gz"
-CHK_DOCKER="dcde9ee10ab4efe02bd21151d4f44b49baf78701ebf0c25052b0ddb3f1668bf9"
+CHK_DOCKER="b2b28fe5fce206ff7672665a95dd14e4181e511f3721a2e459cfcc98803482f5"
 SUM_DOCKER="sha256"
 BLD_DOCKER() {
   # We have bash v2 without '+=', pipefail, BASH_SOURCE and 'declare -A':
@@ -895,7 +883,7 @@ source() {\
  	}
  	return nil
 EOF
-  AUTO_GOPATH=1 DOCKER_GITCOMMIT=fc4825d CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
+  AUTO_GOPATH=1 DOCKER_GITCOMMIT=f181f77 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }
@@ -1522,7 +1510,6 @@ EOF
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
-          BDB
           BZIP2
           ZLIB
           SQLITE
