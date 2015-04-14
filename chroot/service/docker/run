@@ -17,4 +17,4 @@ echo -n 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 if grep -q 'heddle_prepare=1' /proc/cmdline; then
   export DOCKER_ALLOW_SCRATCH=1
 fi
-exec docker -d
+exec unshare -m docker -d #--storage-opt dm.override_udev_sync_check=true
