@@ -8,7 +8,7 @@ mkdir -p downloads
 echo +downloads:
 ls downloads
 
-ver_bat=3.0.0
+ver_bat=3.1.0
 ver_abo=1.4.0
 bat_base="downloads/build-aboriginal-$ver_abo-heddle-x86_64-$ver_bat"
 bat_seal="$bat_base.seal"
