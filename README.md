@@ -28,7 +28,7 @@ Heddle is made up of the following:
 
 - Aboriginal Linux's component packages, which are redistributed under their respective licences. See the Aboriginal Linux [package download script](http://landley.net/hg/aboriginal/file/default/download.sh) for the list of packages versions and URLs.
 
-- Heddle component packages, which are redistributed under their respective licences. See the Heddle [package download script](image_scripts/packages) for the list of package versions and URLs.
+- Heddle's component packages, which are redistributed under their respective licences. See the Heddle [package download script](image_scripts/packages) for the list of package versions and URLs.
 
 - Original works developed as part of the Heddle project (including scripts, source code and documentation). These are licensed under [GPL version 2](LICENCE).
 
