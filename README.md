@@ -20,4 +20,16 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 - Easily customizable using configuration scripts, for example to build additional kernel drivers.
 
+## Licences
+
+Heddle is made up of the following:
+
+- [Aboriginal Linux](http://landley.net/aboriginal/), which is licensed under GPL version 2.
+
+- Aboriginal Linux's component packages, which are redistributed under their respective licences. See the Aboriginal Linux [package download script](http://landley.net/hg/aboriginal/file/default/download.sh) for the list of packages versions and URLs.
+
+- Heddle component packages, which are redistributed under their respective licences. See the Heddle [package download script](image_scripts/packages) for the list of package versions and URLs.
+
+- Original works developed as part of the Heddle project (including scripts, source code and documentation). These are licensed under [GPL version 2](LICENCE).
+
 More documentation soon...
