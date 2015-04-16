@@ -1,7 +1,10 @@
 #!/bin/bash
 set -e
 
-version="$(git describe --exact-match HEAD || git rev-parse HEAD)"
+version="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$version" = master ]; then
+  version="$(git rev-parse HEAD)"
+fi
 echo "version: $version"
 
 cd aboriginal-*
