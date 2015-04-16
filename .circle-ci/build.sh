@@ -65,8 +65,6 @@ sudo tar -rf "$srcf" *
 cd ../host
 sudo tar -rf "$srcf" *
 rm -rf "$tmpd"
-
-sudo xz "$srcf"
 )
 
 prepare_and_dist() {
