@@ -24,7 +24,7 @@ function artifact_pp(path)
     {
         pos = path.lastIndexOf('-src');
     }
-    var pos2 = path.indexOf('.', pos);
+    var pos2 = path.indexOf('.', pos + 1);
     return path.substring(pos + 1, pos2);
 }
 function show_spinner()

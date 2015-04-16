@@ -48,22 +48,23 @@ e2extract() {
     fi
   done
 }
-srcf="/heddle-$version-src-x86_64.tar"
+srcp="heddle-$version-src-x86_64"
+srcf="/$srcp.tar"
 
 cd ../downloads
-sudo tar -cf "$srcf" aboriginal-*.tar.gz
+sudo bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
 
 cd ..
 git archive -o heddle.tar.gz HEAD
-sudo tar -rf "$srcf" heddle.tar.gz
+sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" heddle.tar.gz
 rm -f heddle.tar.gz
 
 tmpd="$(mktemp -d)"
 e2extract gen/build.img "$tmpd"
 cd "$tmpd/download"
-sudo tar -rf "$srcf" *
+sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 cd ../host
-sudo tar -rf "$srcf" *
+sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 rm -rf "$tmpd"
 )
 
