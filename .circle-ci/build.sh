@@ -29,9 +29,45 @@ tail -n 100 ../$logf
 sudo mv ../$logf /
 sudo xz /$logf
 
-bldf=heddle-$version-src-x86_64.img
-sudo mv ../gen/build.img /$bldf
-sudo xz /$bldf
+(
+e2extract() {
+  e2ls -l "$1:$3" | while read -r l; do
+    if [ -n "$l" ]; then
+      f="$(echo "$l" | awk '{print $NF}')"
+      if [ "$f" != lost+found ]; then
+        m="$(echo "$l" | awk '{print substr($2, length($2)-4, 1)}')"
+        if [ "$m" = 4 ]; then
+          mkdir "$2$3/$f"
+          e2extract "$1" "$2" "$3/$f"
+        else
+          e2cp "$1:$3/$f" "$2$3/$f"
+        fi
+        p="$(echo "$l" | awk '{print substr($2, length($2)-2)}')"
+        chmod "$p" "$2$3/$f"
+      fi
+    fi
+  done
+}
+srcf="/heddle-$version-src-x86_64.tar"
+
+cd ../downloads
+sudo tar -cf "$srcf" aboriginal-*.tar.gz
+
+cd ..
+git archive -o heddle.tar.gz HEAD
+sudo tar -rf "$srcf" heddle.tar.gz
+rm -f heddle.tar.gz
+
+tmpd="$(mktemp -d)"
+e2extract gen/build.img "$tmpd"
+cd "$tmpd/download"
+sudo tar -rf "$srcf" *
+cd ../host
+sudo tar -rf "$srcf" *
+rm -rf "$tmpd"
+
+sudo xz "$srcf"
+)
 
 prepare_and_dist() {
   echo "type: $1"
