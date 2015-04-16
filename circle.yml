@@ -5,7 +5,6 @@ general:
   artifacts:
     - "/heddle-*.tar.xz"
     - "/heddle-*-log-*.txt.xz"
-    - "/heddle-*-src-*.img.xz"
 dependencies:
   cache_directories:
     - downloads
