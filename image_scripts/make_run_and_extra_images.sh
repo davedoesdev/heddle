@@ -7,18 +7,18 @@ SWAP_GB=4
 
 part_type=gpt
 primary=
-fs_type=ext4
-fs_opts=-F
-while getopts mb opt
+fs_type=btrfs
+fs_opts=
+while getopts me opt
 do
   case $opt in
     m)
       part_type=msdos
       primary=primary
       ;;
-    b)
-      fs_type=btrfs
-      fs_opts=
+    e)
+      fs_type=ext4
+      fs_opts=-F
       ;;
   esac
 done

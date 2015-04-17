@@ -81,7 +81,7 @@ prepare_and_dist() {
   ../aboriginal_scripts/dist_heddle.sh -q -r         || return 1
   sudo bsdtar -C .. -s "/^\./$prefix/" -JLcf "/$prefix.tar.xz" ./gen/x86_64/dist
 }
-prepare_and_dist gpt-ext4
-prepare_and_dist gpt-btrfs -b
-prepare_and_dist mbr-ext4 -m
-prepare_and_dist mbr-btrfs '-m -b'
+prepare_and_dist gpt-btrfs
+prepare_and_dist gpt-ext4 -e
+prepare_and_dist mbr-btrfs -m
+prepare_and_dist mbr-ext4 '-m -e'
