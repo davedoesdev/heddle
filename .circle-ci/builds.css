@@ -35,7 +35,15 @@ a[href] ~ .list_artifacts {
     width: 100%;
 }
 
-#builds.branches_release > .build_info.master {
+#builds.branches_release > .build_info {
+    display: none;
+}
+
+#builds.branches_release > .build_info[class*=" v"] {
+    display: table-row;
+}
+
+#builds.branches_release > .build_info[class*=":"] {
     display: none;
 }
 
