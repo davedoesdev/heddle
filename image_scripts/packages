@@ -850,11 +850,11 @@ BLD_IPTABLES() {
   make install
 }
 
-VER_DOCKER="1.6.0-rc6"
+VER_DOCKER="1.6.0"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
 URL_DOCKER="https://github.com/docker/docker/archive/v$VER_DOCKER.tar.gz"
-CHK_DOCKER="b2b28fe5fce206ff7672665a95dd14e4181e511f3721a2e459cfcc98803482f5"
+CHK_DOCKER="8ba01d3ae2c6db8532fef56dbbe16719baf4d08d66fa0f35550e98db6784df0e"
 SUM_DOCKER="sha256"
 BLD_DOCKER() {
   # We have bash v2 without '+=', pipefail, BASH_SOURCE and 'declare -A':
@@ -883,7 +883,7 @@ source() {\
  	}
  	return nil
 EOF
-  AUTO_GOPATH=1 DOCKER_GITCOMMIT=f181f77 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
+  AUTO_GOPATH=1 DOCKER_GITCOMMIT=4749651 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }
