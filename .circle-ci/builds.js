@@ -13,12 +13,12 @@ function render_builds(sel, url, from, artifact_pp)
                 '.commit>a': function (a)
                 {
                     var acd = a.item.all_commit_details;
-                    return (acd && acd.length > 0) ? acd[0].subject : '';
+                    return (acd && acd.length > 0) ? acd[acd.length - 1].subject : '';
                 },
                 '.commit>a@href': function (a)
                 {
                     var acd = a.item.all_commit_details;
-                    return (acd && acd.length > 0) ? acd[0].commit_url : '';
+                    return (acd && acd.length > 0) ? acd[acd.length - 1].commit_url : '';
                 }
             },
             filter: function (a)
