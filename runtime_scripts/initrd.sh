@@ -57,7 +57,7 @@ EOF
         fi
         # partition with highest mount count will be root
         if [ "$generation" -gt "$highest_generation" ]; then
-          root_part="${dev}3"
+          export root_part="${dev}3"
           root_type="$dev_type"
           highest_generation="$generation"
         fi
