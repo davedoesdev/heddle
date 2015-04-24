@@ -2,6 +2,11 @@
 set -e
 HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 
+version="$(cd "$HERE"; git rev-parse --abbrev-ref HEAD)"
+if [ "$version" = master ]; then
+  version="$(cd "$HERE"; git rev-parse HEAD)"
+fi
+
 qemu_mode=0
 reuse=0
 while getopts qr opt
@@ -23,7 +28,7 @@ UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/dist/update"
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/dist.img"
 export QEMU_EXTRA="-hdd $IMG_DIR/heddle.img -net user,hostname=heddle -net nic"
-export KERNEL_EXTRA="heddle_dist_reuse=$reuse"
+export KERNEL_EXTRA="heddle_dist_reuse=$reuse heddle_version=$version"
 if [ "$ARCH" = x86_64 ]; then
   if [ "$qemu_mode" -eq 0 ]; then
     QEMU_EXTRA+=" -cpu host -smp 2"

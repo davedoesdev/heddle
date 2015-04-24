@@ -45,6 +45,10 @@ done
 # toybox seems to have a bug copying symbolic links so use tar (above)
 #-exec cp -a {} "$EXTRA_DIR/home" \;
 
+version="$(grep -oE 'heddle_version=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_version=//')"
+echo "version: $version"
+echo -e "Heddle $version \\\\l\n" > "$EXTRA_DIR/home/chroot/etc/issue"
+
 rm -rf "$EXTRA_DIR"/{root,dev}
 mkdir -p "$EXTRA_DIR"/{root,dev}
 
@@ -55,6 +59,7 @@ if grep -q 'heddle_dist_reuse=1' /proc/cmdline; then
   reuse=1
 fi
 echo "reuse: $reuse"
+
 mount -o remount,rw /dev/hdc /mnt
 if [ -n "$reuse" -a -f "$here/gen/install.sqf" ]; then
   cp "$here/gen/install.sqf" "$DIST_DIR"
