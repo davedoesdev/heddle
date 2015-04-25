@@ -6,6 +6,9 @@ version="$(cd "$HERE"; git rev-parse --abbrev-ref HEAD)"
 if [ "$version" = master ]; then
   version="$(cd "$HERE"; git rev-parse HEAD)"
 fi
+if [ -n "$(cd "$HERE"; git status --porcelain)" ]; then
+  version="$version*"
+fi
 
 qemu_mode=0
 reuse=0
