@@ -44,10 +44,9 @@ while read f; do
 done
 # toybox seems to have a bug copying symbolic links so use tar (above)
 #-exec cp -a {} "$EXTRA_DIR/home" \;
-
-version="$(grep -oE 'heddle_version=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_version=//')"
-echo "version: $version"
-echo -e "Heddle $version \\\\l\n" > "$EXTRA_DIR/home/chroot/etc/issue"
+if [ ! -e "$EXTRA_DIR/home/chroot/etc/issue" ]; then
+  ln -s "$INSTALL_DIR/dist/issue" "$EXTRA_DIR/home/chroot/etc"
+fi
 
 rm -rf "$EXTRA_DIR"/{root,dev}
 mkdir -p "$EXTRA_DIR"/{root,dev}
@@ -64,7 +63,12 @@ mount -o remount,rw /dev/hdc /mnt
 if [ -n "$reuse" -a -f "$here/gen/install.sqf" ]; then
   cp "$here/gen/install.sqf" "$DIST_DIR"
 else
-  mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M #-noI -noD -noF -noX
+  mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M
+  version="$(grep -oE 'heddle_version=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_version=//')"
+  echo "version: $version"
+  mkdir -p /tmp/install/dist
+  echo -e "Heddle $version \\\\l\n" > /tmp/install/dist/issue
+  mksquashfs /tmp/install "$DIST_DIR/install.sqf" -all-root -mem 512M
   cp "$DIST_DIR/install.sqf" "$here/gen"
 fi
 if [ -n "$reuse" -a -f "$here/gen/run.sqf" ]; then
