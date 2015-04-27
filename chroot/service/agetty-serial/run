@@ -1,8 +1,18 @@
 #!/bin/sh
 port="$(grep -oE 'console=tty(S|USB|AMA)[0-9]+' /proc/cmdline | head -n 1 | sed 's/console=//')"
 if [ -c "/dev/$port" ]; then
-  echo "agetty serial: running agetty on port $port"
-  exec setsid agetty --nohostname -o '-p -- \u' "$port"
+  autologin="$(grep -oE 'heddle_serial_autologin=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_serial_autologin=//')"
+  prompt="$(grep -oE 'heddle_serial_prompt=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_serial_prompt=//')"
+  if [ -n "$prompt" ]; then
+    export PS1="$prompt"
+  fi
+  if [ -n "$autologin" ]; then
+    echo "agetty serial: running autologin agetty on port $port"
+    exec setsid agetty -a "$autologin" --nohostname -o "-p -f \u" "$port"
+  else
+    echo "agetty serial: running agetty on port $port"
+    exec setsid agetty --nohostname -o '-p -- \u' "$port"
+  fi
 fi
 if [ -z "$port" ]; then
   echo "agetty serial: no serial port specified"

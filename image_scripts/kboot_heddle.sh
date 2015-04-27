@@ -2,11 +2,15 @@
 HERE="$(dirname "$0")"
 
 append=
-while getopts a: opt
+nographic=
+while getopts a:s opt
 do
   case $opt in
     a)
       append="$OPTARG"
+      ;;
+    s)
+      nographic=-nographic
       ;;
   esac
 done
@@ -24,6 +28,6 @@ else
   CON=ttyAMA0
 fi
 
-$CMD -no-reboot -kernel "$UPDATE_DIR/linux" -initrd "$UPDATE_DIR/initrd.img" -hda "$IMG_DIR/heddle.img" -append "console=$CON,9600n8 console=tty0 $append" -net user,hostname=heddle -net nic
+$CMD -no-reboot $nographic -kernel "$UPDATE_DIR/linux" -initrd "$UPDATE_DIR/initrd.img" -hda "$IMG_DIR/heddle.img" -append "console=$CON,9600n8 console=tty0 $append" -net user,hostname=heddle -net nic
 
 # vga=0xF07" -usb -usbdevice serial::vc -usbdevice keyboard -usbdevice "disk:$IMG_DIR/heddle.img"
