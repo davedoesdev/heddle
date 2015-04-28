@@ -23,6 +23,7 @@ done
 shift $((OPTIND-1))
 
 ARCH="${1:-x86_64}"
+shift
 
 if [ $img_specified -eq 0 ]; then
   if [ -e "$HERE/$img_file" ]; then
@@ -45,4 +46,4 @@ else
 fi
 
 echo "Booting: $img_file"
-$CMD -no-reboot -hda "$img_file" -net user,hostname=heddle -net nic
+$CMD -no-reboot -hda "$img_file" -net user,hostname=heddle -net nic "$@"
