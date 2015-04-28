@@ -5,7 +5,7 @@ HERE="$(dirname "$0")"
 img_file=heddle.img
 img_specified=0
 append=
-while getopts mqa:i: opt
+while getopts qa:i: opt
 do
   case $opt in
     q)
@@ -22,8 +22,11 @@ do
 done
 shift $((OPTIND-1))
 
-ARCH="${1:-x86_64}"
-shift
+ARCH=x86_64
+if [ $# -ge 1 ]; then
+  ARCH="$1"
+  shift
+fi
 
 if [ $img_specified -eq 0 ]; then
   if [ -e "$HERE/$img_file" ]; then

@@ -5,8 +5,6 @@
 docs
 
 
-*** remember when documenting to ask users to add to ntp pool, with instructions
-
 *** Fold and Salt in dobby
 same for nfdhcpd, Fold
 # nfdhcpd
