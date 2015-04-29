@@ -7,6 +7,7 @@ if [ "$version" = master ]; then
   version="$(cd "$HERE"; git rev-parse HEAD)"
 fi
 if [ -n "$(cd "$HERE"; git status --porcelain)" ]; then
+  ( cd "$HERE"; git status )
   version="$version*"
 fi
 
