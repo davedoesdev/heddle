@@ -1,8 +1,6 @@
-
-
-
 #TODO
 docs
+  - extending Heddle (services, packages) - allow extend kernel config / busy box config etc. Get dobby working again as an extension.
 
 
 *** Fold and Salt in dobby

@@ -22,10 +22,6 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 ## Installing Heddle
 
-[Pre-built images](#prebuiltimages)
-[Release builds](#releasebuilds)
-[Building Heddle](#buildingheddle)
-
 ### Pre-built images
 
 First you need a Heddle image. Every time a commit is made to this repository, Heddle is built on CircleCI. Successful builds are listed [here](http://githubraw.herokuapp.com/davedoesdev/heddle/master/.circle-ci/builds.html). For each build, you can download the following artifacts:
@@ -44,6 +40,7 @@ Each build output archive contains the following files:
 
 - `gen/x86_64/dist/heddle.img` - Raw bootable disk image, partitioned with GPT or MBR and using a Btrfs or Ext4 filesystem.
 - `gen/x86_64/dist/boot_heddle.sh` - Shell script to boot the disk image in KVM.
+- `gen/x86_64/dist/in_heddle.sh` - Shell script for automating customisation of the disk image.
 - `gen/x86_64/dist/update` - Directory containing files necessary to [update an existing Heddle installation](#updatingheddle) to this build.
 
 `heddle.img` is a sparse file so you should extract the archive using a version of tar which supports sparse files, for example `bsdtar` or recent versions of GNU tar.
@@ -60,6 +57,10 @@ Once you've written `heddle.img` onto a disk, put the disk into a computer and b
 
 There are no shutdown scripts - use `poweroff` or `reboot`. Software should be resilient to sudden failure so I've made that the normal operation. `fsck` is run on every boot.
 
+Alternatively, run `boot_heddle.sh` to run the image in KVM first. You'll get a login prompt and two virtual terminals like when booting on real hardware.
+
+If you want to use a script to customise the image, see [Run-time customisation](#runtimecustomisation).
+
 ## Release builds
 
 From time-to-time release branches will be forked from `master` and named `v0.0.1`, `v0.0.2` etc.
@@ -67,14 +68,6 @@ From time-to-time release branches will be forked from `master` and named `v0.0.
 The [build list](http://githubraw.herokuapp.com/davedoesdev/heddle/master/.circle-ci/builds.html) shows the branch name for each build and can also show only release builds (click the __Release branches__ radio button).
 
 ## Building Heddle
-
-[Install build dependencies](#installbuilddependencies)
-[Get the source](#getthesource)
-[Build Aboriginal Linux](#buildaboriginallinux)
-[Build Heddle packages](#buildheddlepackages)
-[Running Heddle](#runningheddle)
-[Creating a bootable image](#creatingabootableimage)
-[Booting the image](#bootingtheimage)
 
 ### Install build dependencies
 
@@ -165,7 +158,7 @@ Finally, if you want to run Heddle and play around before creating a bootable im
 ../heddle/aboriginal_scripts/run_heddle.sh
 ```
 
-You'll be able to login (user `root`, password `root`) and use any of the Heddle packages. If you want to customise Heddle, it's probably best to [write an extension](#extendingheddle) rather than do it by hand.
+You'll be able to login (user `root`, password `root`) and use any of the Heddle packages. If you want to customise Heddle, see [here](#customisingheddle).
 
 ### Creating a bootable image
 
@@ -297,28 +290,75 @@ Heddle runs an NTP client (BusyBox `ntpd`) which gets its time from the `heddle`
 
 If you're running a Heddle server on the public Internet, please consider [adding it to the NTP pool](http://www.pool.ntp.org/join.html). `pool.ntp.org` does a great job and always needs more servers.
 
+## Customising Heddle
 
+### Run-time customisation
 
+You can of course use `boot_heddle.sh` to run `heddle.img` in KVM, login and make changes by hand. However, doing this more than a couple of times will become tiresome and should be scripted.
 
-## foobar
+To automate customisation of a Heddle image, use `in_heddle.sh` (in the same directory as `boot_heddle.sh`).
 
-How to upgrade
-  TEST again
+It boots the image in KVM, forwards its standard input onto Heddle and then powers down the virtual machine. The first two lines must be a user name and password for logging in. The remaining lines are piped to `bash` running in the virtual machine.
 
+For example, to login as `root`, change `root`'s password and list all Docker images on the system:
 
+```shell
+in_heddle.sh <<EOF
+root
+root
+chpasswd <<EOP
+root:Password1
+EOP
+docker images
+EOF
+```
 
-customisation of image
-- when building can change scripts - aboriginal_scripts/config/, image_scripts/packages, chroot (/service, /etc) or see how to extend heddle
-- for pre-built image, image_scripts/in_heddle.sh - stdin commands are run in image in kvm as root. Need to distribute this script.
+### Build-time customisation
 
+If you're building Heddle yourself, you can also customise Heddle in these places:
 
-getetc script (user accounts - change password, create new ones, can snapshot for use in new images)
+- `aboriginal_scripts/config/` - Configuration files for the kernel, busybox and uClibc.
+- `image_scripts/packages` - Details of packages to build. To add a package `FOO`, you should define the following variables:
+  - `URL_FOO`: Location of the source archive for `FOO`.
+  - `SRC_FOO`: What to save the source archive as locally when it's downloaded.
+  - `CHK_FOO`: Digest of the source archive for verifying the download.
+  - `SUM_FOO`: Digest method (e.g. `sha256`).
+  - `BLD_FOO()`: Bash function which when executed should build and install foo. The install directory root will be in `$INSTALL_DIR`.
+  - `PST_FOO()`: Optional bash function which sets any runtime configuration (e.g. environment variables) necessary to run `FOO`. This will be run every time your Heddle image boots.
+- `chroot/` - When Heddle boots, it sets up a chroot to this directory and then merges in the (read-only) Aboriginal Linux root filesystem. If you add directories or files to `chroot`, you'll see them in the final image. You can add extra services to run when Heddle starts in `chroot/service/`. See the existing services for examples or read the [runit documentation](http://smarden.org/runit/).
+- You can [write a Heddle extension](#extendingheddle).
 
-no CAs on box - up to you to put on - ref to commonly used set and/or could put for your servers
-what sockets are listening on the machine? Need to ensure none - some app which checks?
+Of course, feel free to fork the Heddle repository and make changes.
 
-extending heddle (services, packages) - allow extend kernel config / busy box config etc. Test still works with dobby
+## Security
 
+Out of the box, Heddle has two user accounts:
+
+- `root`, password `root`
+- `heddle`, password `heddle`
+
+You should of course change the password on these accounts!
+
+There is no `su`. The following services run as `root` on boot:
+
+- `agetty-serial` - login prompt on the serial port
+- `agetty-tty1` - login prompt on first virtual terminal
+- `agetty-tty2` - login prompt on second virtual terminal
+- `dhcpcd` - [DHCP client](http://roy.marples.name/projects/dhcpcd/index)
+- `docker` - Docker daemon (listening on Unix domain sockets only)
+- `ntpd` - BusyBox NTP daemon (operating in client mode only)
+- `prepare` - Waits for all `prepare_*` services to finish (only runs for `run_heddle.sh -p`
+- `prepare_docker` - Creates the Docker `scratch` image (`run_heddle.sh -p only)
+
+You should run additional services using [`docker`](https://www.docker.com/) or [`capstan`](http://osv.io/capstan/).
+
+There are no certificate authority (CA) certificates in Heddle images by default (nothing in the stock Heddle image needs to access HTTPS sites). It's up to you to manage CA certificates yourself. Make sure you have a strategy in place for updating certificates and handling revocation. It's also up to you to manage any certificates you put into Docker or Capstan images.
+
+If you do need to put CA certificates onto your Heddle boxes, place them into `/home/install/ssl/certs` and run `c_rehash`. `curl` is configured to look for CA certificates in there. I removed CA certificates from Heddle in [this commit](https://github.com/davedoesdev/heddle/commit/5d7ca23489b0c932a3d6fa37b9a727ba1eff10ce).
+
+## Extending Heddle
+
+Work in progress: more soon!
 
 ## Licences
 
