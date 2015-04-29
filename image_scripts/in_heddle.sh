@@ -69,6 +69,7 @@ else
   while [ -f "$tmpp" ]; do sleep 1; done
   head -n 1
   while [ -f "$tmpc" ]; do sleep 1; done
+  echo 'cat | bash'
   cat
   echo reboot
   ) | qemu -nographic "$@" | (
