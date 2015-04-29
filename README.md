@@ -41,7 +41,7 @@ Each build output archive contains the following files:
 - `gen/x86_64/dist/heddle.img` - Raw bootable disk image, partitioned with GPT or MBR and using a Btrfs or Ext4 filesystem.
 - `gen/x86_64/dist/boot_heddle.sh` - Shell script to boot the disk image in KVM.
 - `gen/x86_64/dist/in_heddle.sh` - Shell script for automating customisation of the disk image.
-- `gen/x86_64/dist/update` - Directory containing files necessary to [update an existing Heddle installation](#updatingheddle) to this build.
+- `gen/x86_64/dist/update` - Directory containing files necessary to [update an existing Heddle installation](#updating-heddle) to this build.
 
 `heddle.img` is a sparse file so you should extract the archive using a version of tar which supports sparse files, for example `bsdtar` or recent versions of GNU tar.
 
@@ -59,7 +59,7 @@ There are no shutdown scripts - use `poweroff` or `reboot`. Software should be r
 
 Alternatively, run `boot_heddle.sh` to run the image in KVM first. You'll get a login prompt and two virtual terminals like when booting on real hardware.
 
-If you want to use a script to customise the image, see [Run-time customisation](#runtimecustomisation).
+If you want to use a script to customise the image, see [Run-time customisation](#run-time-customisation).
 
 ## Release builds
 
@@ -173,11 +173,11 @@ The first command creates the distribution image (`../heddle/gen/x86_64/images/h
 
 The second command runs KVM, mounts `heddle.img` and `dist.img` and runs the scripts on `dist.img`. When this command finishes, `heddle.img` will be bootable and ready for use.
 
-You'll also find files for [upgrading existing Heddle installations](#updatingheddle) in `../heddle/gen/x86_64/dist/update`. The `dist` folder there is what gets archived when producing the [pre-built images](#prebuiltimages) (it contains a symbolic link to `heddle.img` too).
+You'll also find files for [upgrading existing Heddle installations](#updating-heddle) in `../heddle/gen/x86_64/dist/update`. The `dist` folder there is what gets archived when producing the [pre-built images](#pre-built-images) (it contains a symbolic link to `heddle.img` too).
 
 ### Booting the image
 
-You can write the distribution image you created to disk just like a [pre-built image](#prebuiltimages), for example:
+You can write the distribution image you created to disk just like a [pre-built image](#pre-built-images), for example:
 
 ```shell
 ddpt if=../heddle/gen/x86_64/images/heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
@@ -235,7 +235,7 @@ Here are some points you should know about the Heddle boot procedure:
 - Heddle is always booted from a FAT32 partition contained in `heddle.img`. 
 - The boot script on this partition finds all the Heddle disks attached to the computer and chooses the one with the highest generation (Btrfs) or mount (Ext4) count as the root.
 - When using Btrfs, all other Heddle disks are automatically added to the root's RAID set. Any existing data on those disks will be lost when they're first added to the set!
-- It's probably best to use the same `heddle.img` on all disks attached to your computer so you have a consistent boot environment regardless of which disk your computer uses to boot from. Heddle has a [built-in mechanism for running updates](#updatingheddle), which you should use if you want to run later versions.
+- It's probably best to use the same `heddle.img` on all disks attached to your computer so you have a consistent boot environment regardless of which disk your computer uses to boot from. Heddle has a [built-in mechanism for running updates](#updating-heddle), which you should use if you want to run later versions.
 
 The RAID level defaults to 0 (striped). You can change it by editing `runtime_scripts/initrd_config.sh` before you run `image_scripts/make_dist_and_heddle_images.sh` and `aboriginal_scripts/dist_heddle.sh`.
 
@@ -326,7 +326,7 @@ If you're building Heddle yourself, you can also customise Heddle in these place
   - `BLD_FOO()`: Bash function which when executed should build and install foo. The install directory root will be in `$INSTALL_DIR`.
   - `PST_FOO()`: Optional bash function which sets any runtime configuration (e.g. environment variables) necessary to run `FOO`. This will be run every time your Heddle image boots.
 - `chroot/` - When Heddle boots, it sets up a chroot to this directory and then merges in the (read-only) Aboriginal Linux root filesystem. If you add directories or files to `chroot`, you'll see them in the final image. You can add extra services to run when Heddle starts in `chroot/service/`. See the existing services for examples or read the [runit documentation](http://smarden.org/runit/).
-- You can [write a Heddle extension](#extendingheddle).
+- You can [write a Heddle extension](#extending-heddle).
 
 Of course, feel free to fork the Heddle repository and make changes.
 
