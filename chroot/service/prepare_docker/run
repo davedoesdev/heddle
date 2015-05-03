@@ -7,6 +7,8 @@ if grep -q 'heddle_prepare=1' /proc/cmdline; then
   fi
 else
   exec 2>&1
+  # docker only allows scratch name when heddle_prepare=1
+  exec sv down prepare_docker
 fi
 set -e
 

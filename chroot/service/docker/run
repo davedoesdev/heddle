@@ -5,6 +5,7 @@ if grep -q 'heddle_prepare=1' /proc/cmdline; then
   else
     exec > /dev/ttyS0 2>&1
   fi
+  export DOCKER_ALLOW_SCRATCH=1
 else
   exec 2>&1
 fi
@@ -13,7 +14,4 @@ rm -f /var/run/docker.pid
 # set cgroup options
 echo -n 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 # run docker
-if grep -q 'heddle_prepare=1' /proc/cmdline; then
-  export DOCKER_ALLOW_SCRATCH=1
-fi
 exec unshare -m docker -d -g /extra/docker #--storage-opt dm.override_udev_sync_check=true
