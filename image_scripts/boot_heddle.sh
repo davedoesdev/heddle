@@ -29,8 +29,12 @@ if [ $# -ge 1 ]; then
 fi
 
 if [ $img_specified -eq 0 ]; then
-  if [ -e "$HERE/$img_file" ]; then
+  img_file2="$(basename "$0")"
+  img_file2="${img_file2#boot_}"
+  img_file2="${img_file2%.sh}.img"
+  if [ -e "$HERE/$img_file2" ]; then
     IMG_DIR="$HERE"
+    img_file="$img_file2"
   else
     IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
   fi

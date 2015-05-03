@@ -64,10 +64,12 @@ if [ -n "$reuse" -a -f "$here/gen/install.sqf" ]; then
   cp "$here/gen/install.sqf" "$DIST_DIR"
 else
   mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M
+  project="$(grep -oE 'heddle_project=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_project=//')"
   version="$(grep -oE 'heddle_version=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_version=//')"
+  echo "project: $project"
   echo "version: $version"
   mkdir -p /tmp/install/dist
-  echo -e "Heddle $version \\\\l\n" > /tmp/install/dist/issue
+  echo -e "$project $version \\\\l\n" > /tmp/install/dist/issue
   mksquashfs /tmp/install "$DIST_DIR/install.sqf" -all-root -mem 512M
   cp "$DIST_DIR/install.sqf" "$here/gen"
 fi
