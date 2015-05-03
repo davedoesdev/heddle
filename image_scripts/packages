@@ -523,7 +523,7 @@ BLD_BOOST() {
  
  //! <b>Effects</b>:
 EOF
-  cp -a boost "$INSTALL_DIR/include"
+  cp -af boost "$INSTALL_DIR/include"
 }
 PST_BOOST() {
   CPPFLAGS="$CPPFLAGS -DBOOST_NO_CXX11_SMART_PTR -DBOOST_NO_CXX11_HDR_ARRAY -DBOOST_LEXICAL_CAST_ASSUME_C_LOCALE -DBOOST_NO_CXX11_ALLOCATOR -D__GLIBC_HAVE_LONG_LONG"
@@ -674,7 +674,7 @@ BLD_LVM() {
   gcc '-D__FBSDID(x)=' -DSIZE_T_MAX=-1 -o autoconf/fmt autoconf/fmt.c
   PATH="$PATH:$PWD/autoconf" make device-mapper
   PATH="$PATH:$PWD/autoconf" make install_device-mapper
-  cp -a autoconf/fmt "$INSTALL_DIR/bin"
+  cp -af autoconf/fmt "$INSTALL_DIR/bin"
   cp libdm/libdevmapper.pc "$INSTALL_DIR/lib/pkgconfig"
 }
 
@@ -901,7 +901,7 @@ BLD_RUNIT() {
   chroot "$CHROOT_DIR" ash <<EOF
   rm -rf "/package/admin/$(basename "$PWD")"
   mkdir -p /package/admin
-  cp -a "$PWD" /package/admin
+  cp -af "$PWD" /package/admin
   cd "/package/admin/$(basename "$PWD")"
   ./package/install
 EOF
@@ -1343,7 +1343,7 @@ GET_CAPSTAN_DEPS() {
   tar -zc "$DIR_CAPSTAN_DEPS"
 }
 BLD_CAPSTAN_DEPS() {
-  cp -a * "$GOPATH"
+  cp -af * "$GOPATH"
 }
 
 DIR_CAPSTAN="capstan-$VER_CAPSTAN"
@@ -1357,7 +1357,8 @@ BLD_CAPSTAN() {
   mkdir -p "$(dirname "$CAPSTAN_DIR")"
   cp -a "$PWD" "$CAPSTAN_DIR"
   cd "$CAPSTAN_DIR"
-  go install -a -tags netgo std
+  go clean -i net
+  go install -tags netgo std
   go install -ldflags "-X main.VERSION '$VER_CAPSTAN'" -tags netgo
 }
 PST_CAPSTAN() {
@@ -1507,6 +1508,18 @@ EOF
   make versatileqemu_config all
 }
 
+VER_STRACE="4.10"
+DIR_STRACE="strace-$VER_STRACE"
+SRC_STRACE="$DIR_STRACE.tar.xz"
+URL_STRACE="http://downloads.sourceforge.net/project/strace/strace/$VER_STRACE/$SRC_STRACE"
+CHK_STRACE="e6180d866ef9e76586b96e2ece2bfeeb3aa23f5cc88153f76e9caedd65e40ee2"
+SUM_STRACE="sha256"
+BLD_STRACE() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -1562,4 +1575,5 @@ PACKAGES=(LIBICONV
           NATSORT
           PCIUTILS
           KEXEC_TOOLS
-          UBOOT)
+          UBOOT
+          STRACE)

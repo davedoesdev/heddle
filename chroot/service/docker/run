@@ -8,8 +8,7 @@ if grep -q 'heddle_prepare=1' /proc/cmdline; then
 else
   exec 2>&1
 fi
-mkdir -p /extra/docker /var/lib
-ln -sf /extra/docker /var/lib
+mkdir -p /extra/docker
 rm -f /var/run/docker.pid
 # set cgroup options
 echo -n 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
@@ -17,4 +16,4 @@ echo -n 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 if grep -q 'heddle_prepare=1' /proc/cmdline; then
   export DOCKER_ALLOW_SCRATCH=1
 fi
-exec unshare -m docker -d #--storage-opt dm.override_udev_sync_check=true
+exec unshare -m docker -d -g /extra/docker #--storage-opt dm.override_udev_sync_check=true
