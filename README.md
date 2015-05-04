@@ -367,7 +367,7 @@ There is no `sudo`. The following services run as `root` on boot:
 
 You should run additional services using [`docker`](https://www.docker.com/) or [`capstan`](http://osv.io/capstan/).
 
-There are no certificate authority (CA) certificates in Heddle images by default (nothing in the stock Heddle image needs to access HTTPS sites). It's up to you to manage CA certificates yourself. Make sure you have a strategy in place for updating certificates and handling revocation. It's also up to you to manage any certificates you put into Docker or Capstan images.
+There are no certificate authority (CA) certificates in Heddle images by default (the Heddle build and prepare stages don't need access to HTTPS sites). It's up to you to manage CA certificates yourself. Make sure you have a strategy in place for updating certificates and handling revocation. It's also up to you to manage any certificates you put into Docker or Capstan images.
 
 If you do need to put CA certificates onto your Heddle boxes, place them into `/home/install/ssl/certs` and run `c_rehash`. `curl` is configured to look for CA certificates in there. I removed CA certificates from Heddle in [this commit](https://github.com/davedoesdev/heddle/commit/5d7ca23489b0c932a3d6fa37b9a727ba1eff10ce).
 
