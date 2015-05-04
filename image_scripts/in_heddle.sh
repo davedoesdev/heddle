@@ -74,12 +74,15 @@ else
   head -n 1
   while [ -f "$tmpc" ]; do sleep 1; done
   echo 'cat | bash'
+  echo 'trap "echo heddle_status:\$?; reboot; exit" ERR'
+  echo 'trap "echo heddle_status:\$?; reboot; exit" EXIT'
   cat
-  echo reboot
+  echo exit
   ) | qemu -nographic "$@" | (
   IFS=''
   delp=0
   delc=0
+  status=
   while read -r data; do
     data="$(echo "$data" | perl -pe 's/\e\[?.*?[\@-~]//g')"
     if [ "$data" = "login: $user (automatic login)"$'\r' ]; then
@@ -88,9 +91,13 @@ else
     elif [ "$data" = $'in_heddle\r' ]; then
       if [ $delc -eq 0 ]; then rm -f "$tmpc"; delc=1; fi
       echo -n '$ '
+    elif [[ "$data" == heddle_status:* ]]; then
+      status="${data#heddle_status:}"
+      status="${status%$'\r'}"
     else
       echo "$data"
     fi
   done
+  exit $status
   )
 fi
