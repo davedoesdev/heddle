@@ -53,7 +53,7 @@ ddpt if=heddle.img of=/dev/sdb bs=512 bpt=128 oflag=sparse
 
 Don't worry that `heddle.img` doesn't fill the entire disk. Heddle detects this when it boots and resizes its main partition to fill the disk.
 
-Once you've written `heddle.img` onto a disk, put the disk into a computer and boot it. You should see the normal Linux kernel boot messages and then a login prompt. There are two existing accounts: `root` (password `root`) and `heddle` (password `heddle`). There are also two virtual terminals if you want two logon sessions.
+Once you've written `heddle.img` onto a disk, put the disk into a computer and boot it. You should see the normal Linux kernel boot messages and then a login prompt. There is one user account: `root` (password `root`). There are also two virtual terminals if you want two logon sessions.
 
 There are no shutdown scripts - use `poweroff` or `reboot`. Software should be resilient to sudden failure so I've made that the normal operation. `fsck` is run on every boot.
 
@@ -111,9 +111,9 @@ cd aboriginal-1.4.0
 ./build.sh x86_64
 ```
 
-Of course, if you put the Heddle source somewhere else, replace `../heddle` with its location.
+Of course, if the Heddle source lives somewhere else (e.g. you're [building an extension](#extending-heddle)) then replace `../heddle` with its location.
 
-You can change the kernel configuration by editing `../heddle/aboriginal_scripts/config/linux` and `../heddle/aboriginal_scripts/config/linux-x86_64`.
+You can change the kernel configuration by editing `../heddle/aboriginal_scripts/config/linux` and `../heddle/aboriginal_scripts/config/linux-x86_64` (or at the equivalent locations in your extension directory if you're building an extension).
 
 ### Build Heddle packages
 
@@ -300,18 +300,38 @@ To automate customisation of a Heddle image, use `in_heddle.sh` (in the same dir
 
 It boots the image in KVM, forwards its standard input onto Heddle and then powers down the virtual machine. The first two lines must be a user name and password for logging in. The remaining lines are piped to `bash` running in the virtual machine.
 
-For example, to login as `root`, change `root`'s password and list all Docker images on the system:
+For example, to login as `root`, change `root`'s password, add a user called `heddle` and list all Docker images on the system:
 
 ```shell
 in_heddle.sh <<EOF
 root
 root
+groupadd users
+useradd -m -g users -s /bin/ash heddle
 chpasswd <<EOP
 root:Password1
+heddle:Password2
 EOP
 docker images
 EOF
 ```
+
+Note that `boot_heddle.sh` and `in_heddle.sh` also pass their arguments (after the first one which is the architecture and defaults to `x86_64`) to KVM. So if you need to transfer lots of data into the image you could do something like this:
+
+```shell
+dd if=/dev/zero of=my_disk.img bs=1 seek=1G count=0
+mkfs.ext4 -F -O ^has_journal my_disk.img
+e2cp some_files* my_disk.img:
+in_heddle.sh x86_64 -hdb my_disk.img <<EOF
+root
+root
+mkdir my_disk
+mount /dev/[hsv]db my_disk
+cp my_disk/* /to/wherever
+EOF
+```
+
+(assuming `root`'s password hasn't been changed yet).
 
 ### Build-time customisation
 
@@ -332,14 +352,9 @@ Of course, feel free to fork the Heddle repository and make changes.
 
 ## Security
 
-Out of the box, Heddle has two user accounts:
+Out of the box, Heddle has a single user account: `root` (password `root`). You should of course change the `root`'s password using `passwd`.
 
-- `root`, password `root`
-- `heddle`, password `heddle`
-
-You should of course change the password on these accounts!
-
-There is no `su`. The following services run as `root` on boot:
+There is no `sudo`. The following services run as `root` on boot:
 
 - `agetty-serial` - login prompt on the serial port
 - `agetty-tty1` - login prompt on first virtual terminal
@@ -358,7 +373,19 @@ If you do need to put CA certificates onto your Heddle boxes, place them into `/
 
 ## Extending Heddle
 
-Work in progress: more soon!
+Heddle's extension mechanism provides a way to add packages and change build configuration without changing the Heddle source itself.
+
+Heddle scripts check whether the environment variable `HEDDLE_EXT_DIR` is set. This should point to an extension directory outside the Heddle source code directory. 
+
+If `HEDDLE_EXT_DIR` is set then Heddle scripts look for files in the extension directory in addition to files in the Heddle source code directory. Here's where you can put files in your extension directory so the Heddle scripts pick them up:
+
+- `aboriginal_scripts/config/` - BusyBox, uClibc and Linux kernel configuration files
+- `image_scripts/packages` - package definitions
+- `chroot/` - files to add to the root filesystem, including services in `chroot/service`
+
+You should run `gen/new_arch.sh` (defaults to `x86_64`), fetch and extract a new copy of the Aboriginal Linux source and then follow the Heddle build instructions from [building Aboriginal Linux](#build-aboriginal-linux) onwards. Images will be written under `$HEDDLE_EXT_DIR/gen`.
+
+For an example Heddle extension, see [Dobby](https://github.com/davedoesdev/dobby).
 
 ## Licences
 

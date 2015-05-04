@@ -27,8 +27,6 @@ if [ ! -d /home/root ]; then
   echo 'export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"' >> /home/root/.profile
 fi
 
-mkdir -p /home/heddle
-
 if [ -b /dev/[hsv]dd2 -a "$(cat /proc/swaps | wc -l)" -eq 1 ]; then
   swapon /dev/[hsv]dd2
 fi
