@@ -1,6 +1,4 @@
 #TODO
-docs
-Turn off create mail spool dir in useradd default
 Say because not got CA certs, Docker pull/search will fail. Say where to put certs for it to pick them up. Say can also save off on another machine (like Dobby). Capstan pulls from http?
 
 

@@ -1059,6 +1059,16 @@ URL_SHADOW="http://pkg-shadow.alioth.debian.org/releases/$SRC_SHADOW"
 CHK_SHADOW="3b0893d1476766868cd88920f4f1231c4795652aa407569faff802bcda0f3d41"
 SUM_SHADOW="sha256"
 BLD_SHADOW() {
+  patch -p0 << 'EOF'
+--- etc/useradd.orig
++++ etc/useradd
+@@ -5,4 +5,4 @@
+ EXPIRE=
+ SHELL=/bin/bash
+ SKEL=/etc/skel
+-CREATE_MAIL_SPOOL=yes
++CREATE_MAIL_SPOOL=no
+EOF
   ./configure "--prefix=$INSTALL_DIR" --sysconfdir=/etc
   make
   chroot "$CHROOT_DIR" ash <<EOF
