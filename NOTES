@@ -1,5 +1,6 @@
 #TODO
-Say because not got CA certs, Docker pull/search will fail. Say where to put certs for it to pick them up. Say can also save off on another machine (like Dobby). Capstan pulls from http?
+Capstan pulls from http?
+shutdown script? sync, terminate services then poweroff/reboot
 
 
 *** Fold and Salt in dobby

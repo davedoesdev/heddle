@@ -54,44 +54,30 @@ else
   CON=ttyAMA0
 fi
 
-qemu() {
-  echo "Booting: $img_file"
-  $CMD -no-reboot -kernel "$UPDATE_DIR/linux" -initrd "$UPDATE_DIR/initrd.img" -hda "$img_file" -append "console=$CON,9600n8 console=tty0 $append" -net user,hostname=heddle -net nic "$@"
-  # vga=0xF07" -usb -usbdevice serial::vc -usbdevice keyboard -usbdevice "disk:$IMG_DIR/heddle.img"
-}
+extra=
+if [ ! -t 0 ]; then
+  user="$(python -u -c 'import sys; sys.stdout.write(sys.stdin.readline())')"
+  append+=" heddle_serial_user=$user heddle_serial_prompt=in_heddle\n"
+  extra=-nographic
+fi
+extra+="$@"
+
+tmp="$(mktemp)"
+chmod +x "$tmp"
+cat >> "$tmp" << EOF
+#!/bin/bash
+echo Booting: $img_file
+$CMD -no-reboot -kernel "$UPDATE_DIR/linux" -initrd "$UPDATE_DIR/initrd.img" -hda "$img_file" -append "console=$CON,9600n8 console=tty0 $append" -net user,hostname=heddle -net nic $extra
+EOF
+# vga=0xF07 -usb -usbdevice serial::vc -usbdevice keyboard -usbdevice "disk:$IMG_DIR/heddle.img"
 
 if [ -t 0 ]; then
-  qemu "$@"
+  "$tmp"
 else
-  user="$(head -n 1)"
-  append+=" heddle_serial_user=$user heddle_serial_prompt=in_heddle\n"
-
-  tmpp="$(mktemp)"
-  tmpc="$(mktemp)"
-
-  (
-  while [ -f "$tmpp" ]; do sleep 1; done
-  head -n 1
-  while [ -f "$tmpc" ]; do sleep 1; done
-  echo 'cat | bash'
-  echo 'trap "echo heddle_status:\$?; reboot; exit" ERR'
-  echo 'trap "echo heddle_status:\$?; reboot; exit" EXIT'
-  cat
-  echo exit
-  ) | qemu -nographic "$@" | (
+  socat "EXEC:$HERE/_in_heddle.sh $user" "EXEC:$tmp" 3<&0 4>&1 | (
   IFS=''
-  delp=0
-  delc=0
-  status=
   while read -r data; do
-    data="$(echo "$data" | perl -pe 's/\e\[?.*?[\@-~]//g')"
-    if [ "$data" = "login: $user (automatic login)"$'\r' ]; then
-      if [ $delp -eq 0 ]; then rm -f "$tmpp"; delp=1; fi
-      echo "$data"
-    elif [ "$data" = $'in_heddle\r' ]; then
-      if [ $delc -eq 0 ]; then rm -f "$tmpc"; delc=1; fi
-      echo -n '$ '
-    elif [[ "$data" == heddle_status:* ]]; then
+    if [[ "$data" == heddle_status:* ]]; then
       status="${data#heddle_status:}"
       status="${status%$'\r'}"
     else
@@ -101,3 +87,7 @@ else
   exit $status
   )
 fi
+
+status=$?
+rm -f "$tmp"
+exit $status

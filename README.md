@@ -352,7 +352,7 @@ Of course, feel free to fork the Heddle repository and make changes.
 
 ## Security
 
-Out of the box, Heddle has a single user account: `root` (password `root`). You should of course change the `root`'s password using `passwd`.
+Out of the box, Heddle has a single user account: `root` (password `root`). You should of course change `root`'s password using `passwd`.
 
 There is no `sudo`. The following services run as `root` on boot:
 
@@ -362,18 +362,36 @@ There is no `sudo`. The following services run as `root` on boot:
 - `dhcpcd` - [DHCP client](http://roy.marples.name/projects/dhcpcd/index)
 - `docker` - Docker daemon (listening on Unix domain sockets only)
 - `ntpd` - BusyBox NTP daemon (operating in client mode only)
-- `prepare` - Waits for all `prepare_*` services to finish (only runs for `run_heddle.sh -p`
+- `prepare` - Waits for all `prepare_*` services to finish (only runs for `run_heddle.sh -p)`
 - `prepare_docker` - Creates the Docker `scratch` image (`run_heddle.sh -p only)
 
 You should run additional services using [`docker`](https://www.docker.com/) or [`capstan`](http://osv.io/capstan/).
 
-There are no certificate authority (CA) certificates in Heddle images by default (the Heddle build and prepare stages don't need access to HTTPS sites). It's up to you to manage CA certificates yourself. Make sure you have a strategy in place for updating certificates and handling revocation. It's also up to you to manage any certificates you put into Docker or Capstan images.
+There are no certificate authority (CA) certificates in Heddle images by default (the Heddle build and prepare stages don't need access to HTTPS sites). If you need CA certificates, it's up to you to manage them yourself. Make sure you have a strategy in place for updating certificates once they're in place and for handling subsequent revocations. It's also up to you to manage any certificates you put into Docker or Capstan images.
 
-If you do need to put CA certificates onto your Heddle boxes, place them into `/home/install/ssl/certs` and run `c_rehash`. `curl` is configured to look for CA certificates in there. I removed CA certificates from Heddle in [this commit](https://github.com/davedoesdev/heddle/commit/5d7ca23489b0c932a3d6fa37b9a727ba1eff10ce).
+Docker and cURL are configured to look for a CA certificate bundle file at `/etc/ssl/certs/ca-certificates.crt`. Heddle has the [`extract-nss-root-certs`](https://github.com/agl/extract-nss-root-certs) tool installed to help with generating a bundle file given the list maintained by Mozilla as input. The Mozilla list should be downloaded over HTTPS and then transferred into your Heddle image or onto a machine running Heddle. For example:
+
+```shell
+(
+echo root
+echo root
+echo "cat > /tmp/certdata.txt << 'EOF'"
+curl https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
+echo EOF
+echo rm -rf /etc/ssl/certs
+echo mkdir -p /etc/ssl/certs
+echo "extract-nss-root-certs /tmp/certdata.txt > /etc/ssl/certs/ca-certificates.crt"
+echo rm -f /tmp/certdata.txt
+) | in_heddle.sh
+```
+
+Alternatively you could copy the CA certificate bundle from another Linux distribution.
+
+Note that without CA certificates, `docker search`, `docker pull` etc will fail. If you don't want to manage CA certificates, an alternative approach is to `docker pull` the Docker image on some other machine, export it to a file using `docker save`, transfer it to your Heddle machine or Heddle image and then `docker load` it. You could put the Docker image into your Heddle image using [`in_heddle.sh` with a disk image](#run-time-customisation) or if you're [extending Heddle](#extending-heddle) then you could do it as part of your build - see Dobby's [`packages`](https://github.com/davedoesdev/dobby/blob/master/image_scripts/packages) and [`prepare_weave`](https://github.com/davedoesdev/dobby/blob/master/chroot/service/prepare_weave/run) service files for an example.
 
 ## Extending Heddle
 
-Heddle's extension mechanism provides a way to add packages and change build configuration without changing the Heddle source itself.
+Heddle's build-time extension mechanism provides a way to add packages and change build configuration without changing the Heddle source itself.
 
 Heddle scripts check whether the environment variable `HEDDLE_EXT_DIR` is set. This should point to an extension directory outside the Heddle source code directory. 
 

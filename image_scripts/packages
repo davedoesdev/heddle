@@ -1042,13 +1042,13 @@ BLD_LIBPCAP() {
   make install
 }
 
-DIR_CURL="curl-7.39.0"
+DIR_CURL="curl-7.42.1"
 SRC_CURL="$DIR_CURL.tar.bz2"
 URL_CURL="http://curl.haxx.se/download/$SRC_CURL"
-CHK_CURL="b222566e7087cd9701b301dd6634b360ae118cc1cbc7697e534dc451102ea4e0"
+CHK_CURL="e2905973391ec2dfd7743a8034ad10eeb58dab8b3a297e7892a41a7999cac887"
 SUM_CURL="sha256"
 BLD_CURL() {
-  ./configure "--prefix=$INSTALL_DIR" "--with-ca-path=$INSTALL_DIR/ssl/certs"
+  ./configure "--prefix=$INSTALL_DIR" --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt --with-ca-path=/etc/ssl/certs
   make
   make install
 }
@@ -1342,7 +1342,7 @@ EOF
 }
 XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c)
 
-VER_CAPSTAN="0.1.7"
+VER_CAPSTAN="0.1.8"
 
 DIR_CAPSTAN_DEPS="capstan-deps-$VER_CAPSTAN"
 SRC_CAPSTAN_DEPS="$DIR_CAPSTAN_DEPS.tar.gz"
@@ -1359,7 +1359,7 @@ BLD_CAPSTAN_DEPS() {
 DIR_CAPSTAN="capstan-$VER_CAPSTAN"
 SRC_CAPSTAN="$DIR_CAPSTAN.tar.gz"
 URL_CAPSTAN="https://github.com/cloudius-systems/capstan/archive/v$VER_CAPSTAN.tar.gz"
-CHK_CAPSTAN="d251f4d8bb1a80bd0942d815c8cbc2e43d2f754e1202c81682b6291d20e796fc"
+CHK_CAPSTAN="737cdc8e9f2add253f341a8b096c3b6bed12e75683f13769607a87cffba94d54"
 SUM_CAPSTAN="sha256"
 BLD_CAPSTAN() {
   CAPSTAN_DIR="$GOPATH/src/github.com/cloudius-systems/capstan"
@@ -1530,6 +1530,33 @@ BLD_STRACE() {
   make install
 }
 
+VER_EXTRACT_NSS_ROOT_CERTS="492d8c95628eb861a9f1467099936bc2b1fd6a7b"
+DIR_EXTRACT_NSS_ROOT_CERTS="extract-nss-root-certs-$VER_EXTRACT_NSS_ROOT_CERTS"
+SRC_EXTRACT_NSS_ROOT_CERTS="$DIR_EXTRACT_NSS_ROOT_CERTS.tar.gz"
+URL_EXTRACT_NSS_ROOT_CERTS="https://github.com/agl/extract-nss-root-certs/archive/$VER_EXTRACT_NSS_ROOT_CERTS.tar.gz"
+CHK_EXTRACT_NSS_ROOT_CERTS="6e29e7b764c34b499571da4baac995910030a4103a96e762c8eba659f806a3b0"
+SUM_EXTRACT_NSS_ROOT_CERTS="sha256"
+BLD_EXTRACT_NSS_ROOT_CERTS() {
+  EXTRACT_NSS_ROOT_CERTS_DIR="$GOPATH/src/github.com/agl/extract-nss-root-certs"
+  rm -rf "$EXTRACT_NSS_ROOT_CERTS_DIR"
+  mkdir -p "$(dirname "$EXTRACT_NSS_ROOT_CERTS_DIR")"
+  cp -a "$PWD" "$EXTRACT_NSS_ROOT_CERTS_DIR"
+  cd "$EXTRACT_NSS_ROOT_CERTS_DIR"
+  go install
+}
+
+VER_HEDDLE_RECV="0.1"
+DIR_HEDDLE_RECV="heddle_recv-$VER_HEDDLE_RECV"
+SRC_HEDDLE_RECV="$DIR_HEDDLE_RECV.tar.gz"
+GET_HEDDLE_RECV() {
+  mkdir "$DIR_HEDDLE_RECV"
+  cp "$HERE"/../runtime_scripts/heddle_recv.sh "$DIR_HEDDLE_RECV"
+  tar -zc "$DIR_HEDDLE_RECV"
+}
+BLD_HEDDLE_RECV() {
+  cp * "$INSTALL_DIR/bin"
+}
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -1586,4 +1613,6 @@ PACKAGES=(LIBICONV
           PCIUTILS
           KEXEC_TOOLS
           UBOOT
-          STRACE)
+          STRACE
+          EXTRACT_NSS_ROOT_CERTS
+          HEDDLE_RECV)
