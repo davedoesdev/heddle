@@ -1,7 +1,7 @@
 #!/bin/bash
 # make build.img, download packages and copy build.sh into it as /init
 set -e
-HERE="$(dirname "$0")"
+HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 ARCH="${1:-x86_64}"
 IMG_HOME="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images/home.img"
 IMG_BUILD="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/build.img"

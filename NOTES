@@ -1,6 +1,6 @@
 #TODO
-Capstan pulls from http?
 shutdown script? sync, terminate services then poweroff/reboot
+Capstan pulls from http?
 
 
 *** Fold and Salt in dobby
@@ -8,4 +8,4 @@ same for nfdhcpd, Fold
 # nfdhcpd
 # Fold - add dhcpcd -Z rules
 # Saltstack (inc ota updates)
-
+CI builds for dobby
