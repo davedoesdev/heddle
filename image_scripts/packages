@@ -1342,13 +1342,13 @@ EOF
 }
 XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c)
 
-VER_CAPSTAN="0.1.8"
+VER_CAPSTAN="4b08deca71d3815d06792ea2267b5f482ec95482"
 
 DIR_CAPSTAN_DEPS="capstan-deps-$VER_CAPSTAN"
 SRC_CAPSTAN_DEPS="$DIR_CAPSTAN_DEPS.tar.gz"
 GET_CAPSTAN_DEPS() {
   mkdir "$DIR_CAPSTAN_DEPS"
-  wget "https://raw.githubusercontent.com/cloudius-systems/capstan/v$VER_CAPSTAN/capstan.go"
+  wget "https://raw.githubusercontent.com/cloudius-systems/capstan/$VER_CAPSTAN/capstan.go"
   GOPATH="$DIR_CAPSTAN_DEPS" go get -d -tags netgo .
   tar -zc "$DIR_CAPSTAN_DEPS"
 }
@@ -1358,8 +1358,8 @@ BLD_CAPSTAN_DEPS() {
 
 DIR_CAPSTAN="capstan-$VER_CAPSTAN"
 SRC_CAPSTAN="$DIR_CAPSTAN.tar.gz"
-URL_CAPSTAN="https://github.com/cloudius-systems/capstan/archive/v$VER_CAPSTAN.tar.gz"
-CHK_CAPSTAN="737cdc8e9f2add253f341a8b096c3b6bed12e75683f13769607a87cffba94d54"
+URL_CAPSTAN="https://github.com/cloudius-systems/capstan/archive/$VER_CAPSTAN.tar.gz"
+CHK_CAPSTAN="980b6eeeb177dd4542f7e34a5a2c32ef6cdd4bcb175b73618385620a73fc1e41"
 SUM_CAPSTAN="sha256"
 BLD_CAPSTAN() {
   CAPSTAN_DIR="$GOPATH/src/github.com/cloudius-systems/capstan"
