@@ -55,7 +55,7 @@ Don't worry that `heddle.img` doesn't fill the entire disk. Heddle detects this 
 
 Once you've written `heddle.img` onto a disk, put the disk into a computer and boot it. You should see the normal Linux kernel boot messages and then a login prompt. There is one user account: `root` (password `root`). There are also two virtual terminals if you want two logon sessions.
 
-There are no shutdown scripts - use `poweroff` or `reboot`. Software should be resilient to sudden failure so I've made that the normal operation. `fsck` is run on every boot.
+The `shutdown` command stops all services, calls `sync`, remounts all filesystems read-only and then calls `poweroff`. To reboot instead, use `-r`. It waits for 7 seconds for services to exit. Use `-t` to change this timeout.
 
 Alternatively, run `boot_heddle.sh` to run the image in KVM first. You'll get a login prompt and two virtual terminals like when booting on real hardware.
 
@@ -345,7 +345,8 @@ If you're building Heddle yourself, you can also customise Heddle in these place
   - `SUM_FOO`: Digest method (e.g. `sha256`).
   - `BLD_FOO()`: Bash function which when executed should build and install foo. The install directory root will be in `$INSTALL_DIR`.
   - `PST_FOO()`: Optional bash function which sets any runtime configuration (e.g. environment variables) necessary to run `FOO`. This will be run every time your Heddle image boots.
-- `chroot/` - When Heddle boots, it sets up a chroot to this directory and then merges in the (read-only) Aboriginal Linux root filesystem. If you add directories or files to `chroot`, you'll see them in the final image. You can add extra services to run when Heddle starts in `chroot/service/`. See the existing services for examples or read the [runit documentation](http://smarden.org/runit/).
+- `chroot/` - When Heddle boots, it sets up a chroot to this directory and then merges in the (read-only) Aboriginal Linux root filesystem. If you add directories or files to `chroot`, you'll see them in the final image.
+  - You can add extra services to run when Heddle starts in `chroot/service/`. See the existing services for examples or read the [runit documentation](http://smarden.org/runit/). Your service should terminate when sent a `TERM` signal. If you leave processes running then `shutdown` won't be able to re-mount your disks in read-only mode before powering off the machine.
 - You can [write a Heddle extension](#extending-heddle).
 
 Of course, feel free to fork the Heddle repository and make changes.

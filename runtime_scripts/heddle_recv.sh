@@ -26,7 +26,7 @@ while true; do
           "$outf"
           echo "heddle_status:$?"
           rm -f "$outf"
-          exec reboot
+          exec shutdown -r
         else
           let i+=1
         fi

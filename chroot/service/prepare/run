@@ -19,9 +19,8 @@ fi
 
 # if we're just preparing, poweroff
 if grep -q 'heddle_prepare=1' /proc/cmdline; then
-  # don't rely on clean shutdown (for fragile software only!)
   # Not all QEMU machines support poweroff so assume -no-reboot was used
-  reboot
+  exec shutdown -r
 fi
 
 # tell sv not to restart us

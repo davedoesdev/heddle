@@ -9,21 +9,18 @@ EXTRA_DIR="$CHROOT_DIR/extra"
 DIST_DIR="$EXTRA_DIR/dist"
 UPDATES_DIR="$EXTRA_DIR/updates"
 
-if [ -b /dev/[hsv]dd2 -a "$(cat /proc/swaps | wc -l)" -eq 1 ]; then
-  swapon /dev/[hsv]dd2
-fi
-
-dev="$(echo /dev/[hsv]dd3)"
-if [ -b "$dev" ]; then
-  cat <<EOF | parted ---pretend-input-tty "${dev%3}" resizepart 3 100%
+if [ -z "$root_part" ]; then
+  dev="$(echo /dev/[hsv]dd)"
+  swapon "${dev}2"
+  cat <<EOF | parted ---pretend-input-tty "$dev" resizepart 3 100%
 fix
 3
 100%
 EOF
-  parted "${dev%3}" print
-  fsck -fy "$dev" || if [ $? -ne 1 ]; then exit $?; fi
-  mount "$dev" "$EXTRA_DIR"
-  resize2fs "$dev" || btrfs filesystem resize max "$EXTRA_DIR"
+  parted "$dev" print
+  fsck -fy "${dev}3" || if [ $? -ne 1 ]; then exit $?; fi
+  mount "${dev}3" "$EXTRA_DIR"
+  resize2fs "${dev}3" || btrfs filesystem resize max "$EXTRA_DIR"
 fi
 
 rm -rf "$DIST_DIR"

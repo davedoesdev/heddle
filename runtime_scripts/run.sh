@@ -27,24 +27,46 @@ if [ ! -d /home/root ]; then
   echo 'export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"' >> /home/root/.profile
 fi
 
-if [ -b /dev/[hsv]dd2 -a "$(cat /proc/swaps | wc -l)" -eq 1 ]; then
-  swapon /dev/[hsv]dd2
-fi
-
-dev="$(echo /dev/[hsv]dd3)"
-if [ -b "$dev" ] && ! mount | grep -q "/extra/docker "; then
-  cat <<EOF | parted ---pretend-input-tty "${dev%3}" resizepart 3 100%
+if [ -z "$root_part" ]; then
+  dev="$(echo /dev/[hsv]dd)"
+  swapon "${dev}2"
+  cat <<EOF | parted ---pretend-input-tty "$dev" resizepart 3 100%
 fix
 3
 100%
 EOF
-  parted "${dev%3}" print
-  fsck -fy "$dev" || if [ $? -ne 1 ]; then exit $?; fi
-  chroot "$CHROOT_DIR" mount "$dev" /extra
-  resize2fs "$dev" || chroot "$CHROOT_DIR" btrfs filesystem resize max /extra
+  parted "$dev" print
+  fsck -fy "${dev}3" || if [ $? -ne 1 ]; then exit $?; fi
+  chroot "$CHROOT_DIR" mount "${dev}3" /extra
+  resize2fs "${dev}3" || chroot "$CHROOT_DIR" btrfs filesystem resize max /extra
 fi
 
 chroot "$CHROOT_DIR" cgroupfs-mount
 
 rm -rf "$CHROOT_DIR/service"/*/supervise
-exec chroot "$CHROOT_DIR" /startup/runsvdir
+chroot "$CHROOT_DIR" /startup/start_runsvdir
+
+(
+echo 'Syncing'
+sync
+
+echo 'Re-mounting drives read-only'
+if [ -z "$root_part" ]; then
+  dev="$(echo /dev/[hsv]dd)"
+  mount -o remount,ro "${dev}3" || true
+  mount -o remount,ro /dev/[hsv]db
+  swapoff "${dev}2" || true
+else
+  mount -o remount,ro "$root_part"
+  swapoff "${root_part%3}2"
+fi
+
+cmd="$(head -n 1 /tmp/heddle_is_shutting_down)"
+echo "Operation: $cmd"
+if [ "$cmd" = poweroff ]; then
+  poweroff
+else
+  reboot
+fi
+) 2>&1 | awk '{print "<0>" $0}' > /dev/kmsg
+

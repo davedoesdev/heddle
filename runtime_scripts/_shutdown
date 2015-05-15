@@ -1,0 +1,16 @@
+#!/bin/bash
+cmd="$1"
+timeout="$2"
+(
+echo 'Killing runsvdir'
+killall -HUP runsvdir
+
+echo 'Waiting for remaining services to stop...'
+sv -w "$timeout" force-stop /service/*
+
+echo 'Waiting for all services to exit...'
+sv -w "$timeout" exit /service/*
+
+echo "$cmd" > /tmp/heddle_is_shutting_down
+touch /tmp/heddle_is_shutting_down.seal
+) 2>&1 | awk '{print "<0>" $0}' > /dev/kmsg

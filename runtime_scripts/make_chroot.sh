@@ -22,10 +22,10 @@ if ! mount | grep -q "$1 "; then
 fi
 
 for x in /*; do
-  d="$1$x"
   if [ -f "$x" ]; then
     continue
   fi
+  d="$1$x"
   if [ ! -e "$d" ]; then
     mkdir -p "$d"
   fi

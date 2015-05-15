@@ -907,6 +907,18 @@ BLD_RUNIT() {
 EOF
 }
 
+VER_SHUTDOWN="0.2"
+DIR_SHUTDOWN="shutdown-$VER_SHUTDOWN"
+SRC_SHUTDOWN="$DIR_SHUTDOWN.tar.gz"
+GET_SHUTDOWN() {
+  mkdir "$DIR_SHUTDOWN"
+  cp "$HERE"/../runtime_scripts/{,_}shutdown "$DIR_SHUTDOWN"
+  tar -zc "$DIR_SHUTDOWN"
+}
+BLD_SHUTDOWN() {
+  cp * "$INSTALL_DIR/sbin"
+}
+
 DIR_ETHTOOL="ethtool-3.18"
 SRC_ETHTOOL="$DIR_ETHTOOL.tar.xz"
 URL_ETHTOOL="https://www.kernel.org/pub/software/network/ethtool/$SRC_ETHTOOL"
@@ -1342,7 +1354,7 @@ EOF
 }
 XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c)
 
-VER_CAPSTAN="4b08deca71d3815d06792ea2267b5f482ec95482"
+VER_CAPSTAN="9a51045023761cd576a02dbd8bc83364528a6a01"
 
 DIR_CAPSTAN_DEPS="capstan-deps-$VER_CAPSTAN"
 SRC_CAPSTAN_DEPS="$DIR_CAPSTAN_DEPS.tar.gz"
@@ -1359,7 +1371,7 @@ BLD_CAPSTAN_DEPS() {
 DIR_CAPSTAN="capstan-$VER_CAPSTAN"
 SRC_CAPSTAN="$DIR_CAPSTAN.tar.gz"
 URL_CAPSTAN="https://github.com/cloudius-systems/capstan/archive/$VER_CAPSTAN.tar.gz"
-CHK_CAPSTAN="980b6eeeb177dd4542f7e34a5a2c32ef6cdd4bcb175b73618385620a73fc1e41"
+CHK_CAPSTAN="c3cb2ff8060abcf9f0783354b3f1efa748280d20e93dad01b0e7c32f50df0dfa"
 SUM_CAPSTAN="sha256"
 BLD_CAPSTAN() {
   CAPSTAN_DIR="$GOPATH/src/github.com/cloudius-systems/capstan"
@@ -1545,7 +1557,7 @@ BLD_EXTRACT_NSS_ROOT_CERTS() {
   go install
 }
 
-VER_HEDDLE_RECV="0.1"
+VER_HEDDLE_RECV="0.2"
 DIR_HEDDLE_RECV="heddle_recv-$VER_HEDDLE_RECV"
 SRC_HEDDLE_RECV="$DIR_HEDDLE_RECV.tar.gz"
 GET_HEDDLE_RECV() {
@@ -1583,6 +1595,7 @@ PACKAGES=(LIBICONV
           IPTABLES
           DOCKER
           RUNIT
+          SHUTDOWN
           ETHTOOL
           LIBNFNETLINK
           LIBMNL
