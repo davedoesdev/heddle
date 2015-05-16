@@ -9,19 +9,17 @@ EXTRA_DIR="$CHROOT_DIR/extra"
 DIST_DIR="$EXTRA_DIR/dist"
 UPDATES_DIR="$EXTRA_DIR/updates"
 
-if [ -z "$root_part" ]; then
-  dev="$(echo /dev/[hsv]dd)"
-  swapon "${dev}2"
-  cat <<EOF | parted ---pretend-input-tty "$dev" resizepart 3 100%
+dev="$(echo /dev/[hsv]dd)"
+swapon "${dev}2"
+cat <<EOF | parted ---pretend-input-tty "$dev" resizepart 3 100%
 fix
 3
 100%
 EOF
-  parted "$dev" print
-  fsck -fy "${dev}3" || if [ $? -ne 1 ]; then exit $?; fi
-  mount "${dev}3" "$EXTRA_DIR"
-  resize2fs "${dev}3" || btrfs filesystem resize max "$EXTRA_DIR"
-fi
+parted "$dev" print
+fsck -fy "${dev}3" || if [ $? -ne 1 ]; then exit $?; fi
+mount "${dev}3" "$EXTRA_DIR"
+resize2fs "${dev}3" || btrfs filesystem resize max "$EXTRA_DIR"
 
 rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR" "$UPDATES_DIR"
@@ -94,3 +92,13 @@ if [ -z "$reuse" -o ! -f "$here/gen/initrd.img" ]; then
   find . | cpio -o -H newc | gzip > "$here/gen/initrd.img"
 fi
 ls -l "$DIST_DIR"
+
+echo 'Syncing'
+sync
+echo 'Re-mounting drives read-only'
+dev="$(echo /dev/[hsv]dd)"
+mount -o remount,ro "${dev}3" || true
+mount -o remount,ro /dev/[hsv]db || true
+swapoff "${dev}2" || true
+# Not all QEMU machines support poweroff so assume -no-reboot was used
+exec reboot

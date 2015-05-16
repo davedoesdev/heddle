@@ -4,7 +4,7 @@ set -e
 if [ ! -h /dev/fd ]; then
   ln -s /proc/self/fd /dev
 fi
-if [ -z "$root_part" -a -b /dev/[hsv]dd ]; then
+if [ -b /dev/[hsv]dd ]; then
   swapon /dev/[hsv]dd
 fi
 arch="$(grep -oE 'heddle_arch=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_arch=//')"
@@ -73,8 +73,13 @@ done
 if [ -n "$interactive" -o -n "$Interactive" ]; then
   exec chroot "$CHROOT_DIR" ash
 elif [ ! -f /tmp/in_chroot ]; then
-  # Not all QEMU machines support poweroff so assume -no-reboot was used
+  echo 'Syncing'
   sync
+  echo 'Re-mounting drives read-only'
+  mount -o remount,ro /dev/[hsv]db || true
+  if [ -b /dev/[hsv]dd ]; then
+    swapoff /dev/[hsv]dd || true
+  fi
+  # Not all QEMU machines support poweroff so assume -no-reboot was used
   exec reboot
 fi
-

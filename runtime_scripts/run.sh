@@ -23,8 +23,11 @@ export THE_PATH="$PATH"
 export THE_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 if [ ! -d /home/root ]; then
   mkdir /home/root
-  echo 'export PATH="$THE_PATH"' > /home/root/.profile
-  echo 'export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"' >> /home/root/.profile
+fi
+
+if [ ! -f "$CHROOT_DIR/etc/profile" ]; then
+  echo 'export PATH="$THE_PATH"' > "$CHROOT_DIR/etc/profile"
+  echo 'export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"' >> "$CHROOT_DIR/etc/profile"
 fi
 
 if [ -z "$root_part" ]; then
@@ -54,11 +57,11 @@ echo 'Re-mounting drives read-only'
 if [ -z "$root_part" ]; then
   dev="$(echo /dev/[hsv]dd)"
   mount -o remount,ro "${dev}3" || true
-  mount -o remount,ro /dev/[hsv]db
+  mount -o remount,ro /dev/[hsv]db || true
   swapoff "${dev}2" || true
 else
-  mount -o remount,ro "$root_part"
-  swapoff "${root_part%3}2"
+  mount -o remount,ro "$root_part" || true
+  swapoff "${root_part%3}2" || true
 fi
 
 cmd="$(head -n 1 /tmp/heddle_is_shutting_down)"
