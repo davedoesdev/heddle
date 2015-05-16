@@ -42,7 +42,7 @@ for pkg in "${PACKAGES[@]}"; do
           pushd "$tmpd/${!vdir}"
           BLD_$pkg 
           popd
-          tar -C "$INSTALL_DIR" -Jc . | e2cp -P 400 -O 0 -G 0 - "$binf"
+          tar --owner root --group root -C "$INSTALL_DIR" -Jc . | e2cp -P 400 -O 0 -G 0 - "$binf"
           rm -rf "$tmpd"
         fi
         break

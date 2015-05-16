@@ -51,12 +51,12 @@ for pkg in "${PACKAGES[@]}"; do
     else
       rm -rf "${!vdir}"
       tar -xf "$HERE/download/${!vsrc}"
-      chown -R root:root "${!vdir}"
       tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
       extraf="$HERE/host/${!vsrc}-$(uname -m)-extra.tar.xz"
       [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
       extraf="$HERE/host/${!vsrc}-any-extra.tar.xz"
       [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
+      chown -R root:root "${!vdir}"
       pushd "${!vdir}"
       BLD_$pkg
       BLD_${pkg}_$arch || true
@@ -71,15 +71,15 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 if [ -n "$interactive" -o -n "$Interactive" ]; then
-  exec chroot "$CHROOT_DIR" ash
-elif [ ! -f /tmp/in_chroot ]; then
-  echo 'Syncing'
-  sync
-  echo 'Re-mounting drives read-only'
-  mount -o remount,ro /dev/[hsv]db || true
-  if [ -b /dev/[hsv]dd ]; then
-    swapoff /dev/[hsv]dd || true
-  fi
-  # Not all QEMU machines support poweroff so assume -no-reboot was used
-  exec reboot
+  chroot "$CHROOT_DIR" ash
 fi
+
+echo 'Syncing'
+sync
+echo 'Re-mounting drives read-only'
+mount -o remount,ro /dev/[hsv]db || true
+if [ -b /dev/[hsv]dd ]; then
+  swapoff /dev/[hsv]dd || true
+fi
+# Not all QEMU machines support poweroff so assume -no-reboot was used
+exec reboot

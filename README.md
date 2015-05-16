@@ -306,8 +306,7 @@ For example, to login as `root`, change `root`'s password, add a user called `he
 in_heddle.sh <<EOF
 root
 root
-groupadd users
-useradd -m -g users -s /bin/ash heddle
+useradd -m -G docker heddle
 chpasswd <<EOP
 root:Password1
 heddle:Password2

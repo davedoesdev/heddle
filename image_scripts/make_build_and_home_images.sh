@@ -111,7 +111,7 @@ for pkg in "${PACKAGES[@]}"; do
             fi
           fi
         done
-        tar -C "$tmpd" -Jc . | e2cp -P 400 -O 0 -G 0 - "$extraf"
+        tar --owner root --group root -C "$tmpd" -Jc . | e2cp -P 400 -O 0 -G 0 - "$extraf"
         rm -rf "$tmpd"
       fi
     fi
