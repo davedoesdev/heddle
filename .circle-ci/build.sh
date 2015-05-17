@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 version="$(git rev-parse --abbrev-ref HEAD)"
 if [ "$version" = master ]; then
