@@ -44,6 +44,11 @@ EOF
   resize2fs "${dev}3" || chroot "$CHROOT_DIR" btrfs filesystem resize max /extra
 fi
 
+if [ -c /dev/kvm ]; then
+  chroot "$CHROOT_DIR" chgrp kvm /dev/kvm
+  chmod g+rw /dev/kvm
+fi
+
 chroot "$CHROOT_DIR" cgroupfs-mount
 
 rm -rf "$CHROOT_DIR/service"/*/supervise
