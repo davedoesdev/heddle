@@ -898,6 +898,7 @@ BLD_RUNIT() {
   sed -i "s/\\/usr\\/local/$(echo "$INSTALL_DIR" | sed 's/\//\\\//g')/g" package/upgrade
   sed -i -r 's/^(here=).*/\1"$PWD"/' package/{compile,upgrade}
   sed -i -r -e 's/^.*(ctmp=)/\1/' -e 's/(cat) -v/\1/' src/check-local
+  sed -i -e 's/0644/0640/g' -e 's/0744/0740/g' src/svlogd.c
   chroot "$CHROOT_DIR" ash <<EOF
   rm -rf "/package/admin/$(basename "$PWD")"
   mkdir -p /package/admin

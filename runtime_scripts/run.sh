@@ -26,8 +26,13 @@ if [ ! -d /home/root ]; then
 fi
 
 if [ ! -f "$CHROOT_DIR/etc/profile" ]; then
-  echo 'export PATH="$THE_PATH"' > "$CHROOT_DIR/etc/profile"
-  echo 'export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"' >> "$CHROOT_DIR/etc/profile"
+  cat > "$CHROOT_DIR/etc/profile" << 'EOF'
+export PATH="$THE_PATH"
+export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"
+if [ "$(id -u)" -ne 0 ]; then
+  umask 007
+fi
+EOF
 fi
 
 if [ -z "$root_part" ]; then

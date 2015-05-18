@@ -190,7 +190,7 @@ KILLCHAR	025
 # 022 is the default value, but 027, or even 077, could be considered
 # for increased privacy. There is no One True Answer here: each sysadmin
 # must make up his/her mind.
-UMASK		022
+UMASK		007
 
 #
 # Password aging controls:
@@ -391,5 +391,5 @@ USERGROUPS_ENAB yes
 # This option is overridden with the -M or -m flags on the useradd(8)
 # command-line.
 #
-#CREATE_HOME     yes
+CREATE_HOME     yes
 
