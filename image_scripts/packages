@@ -1191,10 +1191,10 @@ BLD_PIXMAN() {
   make install
 }
 
-DIR_QEMU="qemu-2.2.1"
+DIR_QEMU="qemu-2.3.0"
 SRC_QEMU="$DIR_QEMU.tar.bz2"
 URL_QEMU="http://wiki.qemu-project.org/download/$SRC_QEMU"
-CHK_QEMU="4617154c6ef744b83e10b744e392ad111dd351d435d6563ce24d8da75b1335a0"
+CHK_QEMU="b6bab7f763d5be73e7cb5ee7d4c8365b7a8df2972c52fa5ded18893bd8281588"
 SUM_QEMU="sha256"
 BLD_QEMU() {
   # Adapt for reflex/byacc
@@ -1346,6 +1346,7 @@ EOF
      while (1) {
          irq = va_arg(va, qemu_irq);
 EOF
+  patch -p1 < CVE-2015-3456.patch
   qemu_target=x86_64
   if [ "$(uname -m)" = armv6l ]; then
     qemu_target=arm
@@ -1359,7 +1360,8 @@ EOF
   make 'BISON=byacc -b $*' WARNINGS= V=1 check
   make install
 }
-XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c)
+XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c
+          any 'http://git.qemu.org/?p=qemu.git;a=blobdiff_plain;f=hw/block/fdc.c;h=d8a8edd936f42d4b1d801c996932668e456b5896;hp=f72a39216347e722496797555db9f208b0c5b4b2;hb=e907746266721f305d67bc0718795fedee2e824c;hpb=968bb75c348a401b85e08d5eb1887a3e6c3185f5' 31a298ba228cb1433f6b39f6efb47c9fae082a3e12875530f5d3f99530d04d58 sha256 CVE-2015-3456.patch)
 
 VER_CAPSTAN="9a51045023761cd576a02dbd8bc83364528a6a01"
 
@@ -1437,7 +1439,7 @@ BLD_PCIUTILS() {
   make PREFIX="$INSTALL_DIR"
   make PREFIX="$INSTALL_DIR" install
 }
-XTR_PCIUTILS=("any" "https://pci-ids.ucw.cz/v2.2/pci.ids.gz" "" "" "pci.ids.gz")
+XTR_PCIUTILS=(any "https://pci-ids.ucw.cz/v2.2/pci.ids.gz" "" "" pci.ids.gz)
 
 DIR_KEXEC_TOOLS="kexec-tools-2.0.8"
 SRC_KEXEC_TOOLS="$DIR_KEXEC_TOOLS.tar.xz"
