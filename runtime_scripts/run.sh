@@ -27,10 +27,10 @@ fi
 
 if [ ! -f "$CHROOT_DIR/etc/profile" ]; then
   cat > "$CHROOT_DIR/etc/profile" << 'EOF'
-export PATH="$THE_PATH"
-export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"
-if [ "$(id -u)" -ne 0 ]; then
-  umask 007
+[ -n "$THE_PATH" ] && export PATH="$THE_PATH"
+[ -n "$THE_LD_LIBRARY_PATH" ] && export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"
+if [ "$(/usr/bin/id -u)" -ne 0 ]; then
+  umask 027
 fi
 EOF
 fi

@@ -111,7 +111,7 @@ NOLOGINS_FILE	/etc/nologin
 # command as "-su".  If not defined, then ps(1) will display the
 # name of the shell actually being run, e.g. something like "-sh".
 #
-SU_NAME		su
+#SU_NAME		su
 
 #
 # *REQUIRED*
@@ -190,7 +190,7 @@ KILLCHAR	025
 # 022 is the default value, but 027, or even 077, could be considered
 # for increased privacy. There is no One True Answer here: each sysadmin
 # must make up his/her mind.
-UMASK		007
+UMASK		027
 
 #
 # Password aging controls:
