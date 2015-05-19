@@ -124,11 +124,43 @@ e2ls -l "$IMG_BUILD:download" | awk '{if (NF > 0) print $NF}' | while read f; do
     vsrc="SRC_$pkg"
     if [ "$f" = "${!vsrc}" ]; then
       found=1
+      break
     fi
   done
   if [ "$found" -eq 0 ]; then
     echo "Removing package: $f"
     e2rm "$IMG_BUILD:download/$f"
+  fi
+done
+
+e2ls -l "$IMG_BUILD:host" | awk '{if (NF > 0) print $NF}' | while read f; do
+  found=0
+  for pkg in "${PACKAGES[@]}"; do
+    vsrc="SRC_$pkg"
+    vxtr="XTR_$pkg"
+    vhst="HST_$pkg"
+    if [ -n "${!vxtr}" ]; then
+      eval xtr="(\"\${$vxtr[@]}\")"
+      for ((i=0; i < ${#xtr[@]}; i+=5)); do
+        if [ "$f" = "${!vsrc}-${xtr[$i]}-extra.tar.xz" ]; then
+          found=1
+          break
+        fi
+      done
+    fi
+    if [ -n "${!vhst}" ]; then
+      eval archs="(\"\${$vhst[@]}\")"
+      for a in "${archs[@]}"; do
+        if [ "$f" = "${!vsrc}-$a.tar.xz" ]; then
+          found=1
+          break
+        fi
+      done
+    fi
+  done
+  if [ "$found" -eq 0 ]; then
+    echo "Removing package: $f"
+    e2rm "$IMG_BUILD:host/$f"
   fi
 done
 
