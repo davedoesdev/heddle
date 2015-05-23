@@ -10,7 +10,7 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 - Supports in-place, atomic update of the entire base operating system and all the packages. No dynamic package management required.
 
-- GPT- or MBR-based images with Btrfs or Ext4 filesystems. RAID supported with BTRFS.
+- GPT- or MBR-based images with Btrfs or Ext4 filesystems. RAID supported with Btrfs.
 
 - Simple init system based on [runit](http://smarden.org/runit/). Heddle is a systemd-free zone!
 
