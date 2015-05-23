@@ -7,7 +7,6 @@ fi
 if [ -b /dev/[hsv]dd ]; then
   swapon /dev/[hsv]dd
 fi
-arch="$(grep -oE 'heddle_arch=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_arch=//')"
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
 
@@ -45,21 +44,21 @@ for pkg in "${PACKAGES[@]}"; do
   vbld="BLD_$pkg"
   if [ -z "$Interactive" -a -n "${!vbld}" -a ! -e "${!vdir}.built" ]; then
     echo "+$pkg" > /dev/tty
-    binf="$HERE/host/${!vsrc}-$(uname -m).tar.xz"
+    binf="$HERE/host/${!vsrc}-$heddle_arch.tar.xz"
     if [ -f "$binf" ]; then
       tar -C "$INSTALL_DIR" -Jxf "$binf"
     else
       rm -rf "${!vdir}"
       tar -xf "$HERE/download/${!vsrc}"
       tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
-      extraf="$HERE/host/${!vsrc}-$(uname -m)-extra.tar.xz"
+      extraf="$HERE/host/${!vsrc}-$heddle_arch-extra.tar.xz"
       [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
       extraf="$HERE/host/${!vsrc}-any-extra.tar.xz"
       [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
       chown -R root:root "${!vdir}"
       pushd "${!vdir}"
       BLD_$pkg
-      BLD_${pkg}_$arch || true
+      BLD_${pkg}_$heddle_arch || true
       popd
     fi
     touch "${!vdir}.built"

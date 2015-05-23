@@ -49,7 +49,7 @@ if [ "$ARCH" = x86_64 ]; then
     CMD+=" -bios /usr/share/ovmf/OVMF.fd"
   fi
 else
-  CMD="qemu-system-arm -m 256 -M versatilepb -cpu arm1136-r2 -kernel $IMG_DIR/boot.kbin"
+  CMD="qemu-system-arm -m 256 -M versatilepb -kernel $IMG_DIR/boot.kbin"
 fi
 
 echo "Booting: $img_file"

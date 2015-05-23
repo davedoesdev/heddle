@@ -93,7 +93,7 @@ When building GPT images, the Heddle build scripts automatically fetch the
 
 ### Get the source
 
-First get the Aboriginal Linux source code. Heddle requires [Aboriginal Linux 1.4.0](http://landley.net/aboriginal/downloads/aboriginal-1.4.0.tar.gz). Untar the archive to create an `aboriginal-1.4.0` directory.
+First get the Aboriginal Linux source code. Heddle requires [Aboriginal Linux 1.4.1](http://landley.net/aboriginal/downloads/aboriginal-1.4.1.tar.gz). Untar the archive to create an `aboriginal-1.4.1` directory.
 
 Then fetch the Heddle source:
 
@@ -101,12 +101,12 @@ Then fetch the Heddle source:
 git clone https://github.com/davedoesdev/heddle.git
 ```
 
-You should have a `heddle` directory alongside the `aboriginal-1.4.0` directory (although the two don't have to live in the same place).
+You should have a `heddle` directory alongside the `aboriginal-1.4.1` directory (although the two don't have to live in the same place).
 
 ### Build Aboriginal Linux
 
 ```shell
-cd aboriginal-1.4.0
+cd aboriginal-1.4.1
 ../heddle/aboriginal_scripts/config.sh
 ./build.sh x86_64
 ```
@@ -193,9 +193,9 @@ You can also test it in KVM by running the following command:
 
 By default, Heddle is built for the `x86_64` architecture. To build for a different architecture, you must:
 
-- Create an Aboriginal Linux target for the architecture. Each target is a separate file in the `sources/targets` directory of the Aboriginal Linux source code. I have successfully built using the existing `armv6l` target (ARM Versatile board with ARM 1136-R2 processor).
+- Create an Aboriginal Linux target for the architecture. Each target is a separate file in the `sources/targets` directory of the Aboriginal Linux source code. I have successfully built using the existing `armv6l` target (ARM Versatile board).
 
-- Create a Kernel configuration file for your architecture in the `aboriginal_scripts/config` directory. The name of this file should begin with `linux-` and end with the architecture name (the `armv6l` one is called `linux-armv6l`).
+- Create a kernel configuration file for your architecture in the `aboriginal_scripts/config` directory. The name of this file should begin with `linux-` and end with the architecture name (the `armv6l` one is called `linux-armv6l`).
 
 - Run `gen/new_arch.sh` and pass it the name of your architecture as an argument. This creates a directory structure under `gen` for your architecture.
 
@@ -205,24 +205,26 @@ By default, Heddle is built for the `x86_64` architecture. To build for a differ
 
 Most of the build scripts take an optional architecture argument which defaults to `x86_64`. So to build for `armv6l` you'd do the following:
 
-1. Re-build Aboriginal Linux.
-  1. Extract the Aboriginal Linux source archive to a _new_ directory.
-  2. `cd /some/new/directory/aboriginal-1.4.0`
-  3. `/path/to/heddle/aboriginal_scripts/config.sh armv6l`
-  4. `./build.sh armv6l`
+1. Build Aboriginal Linux. You can re-use your existing Aboriginal Linux source directory.
+  1. `cd aboriginal-1.4.1`
+  2. `./build.sh armv6l`
 2. Build Heddle. You can re-use your existing Heddle source directory - the new images will be written to `gen/armv6l/images`.
-  1. `/path/to/heddle/image_scripts/make_build_and_home_images.sh armv6l`
-  2. `/path/to/heddle/aboriginal_scripts/build_heddle.sh armv6l` (this will take many hours because it uses QEMU emulation)
-  3. `/path/to/heddle/image_scripts/make_run_and_extra_images.sh armv6l`
-  4. `/path/to/heddle/aboriginal_scripts/run_heddle.sh -p armv6l`
-  5. `/path/to/heddle/image_scripts/make_dist_and_heddle_images.sh armv6l`
-  6. `/path/to/heddle/aboriginal_scripts/dist_heddle.sh armv6l`
+  1. `../heddle/image_scripts/make_build_and_home_images.sh armv6l`
+  2. `../heddle/aboriginal_scripts/build_heddle.sh armv6l` (this will take many hours because it uses QEMU emulation)
+  3. `../heddle/image_scripts/make_run_and_extra_images.sh armv6l`
+  4. `../heddle/aboriginal_scripts/run_heddle.sh -p armv6l`
+  5. `../heddle/image_scripts/make_dist_and_heddle_images.sh armv6l`
+  6. `../heddle/aboriginal_scripts/dist_heddle.sh armv6l`
 
-This will generate `/path/to/heddle/gen/armv6l/images/heddle.img` and `/path/to/heddle/gen/armv6l/images/boot.kbin` which you can then write to disk or boot using:
+This will generate `../heddle/gen/armv6l/images/heddle.img` and `../heddle/gen/armv6l/images/boot.kbin` which you can then write to disk or boot using:
 
 ```shell
-/path/to/heddle/image_scripts/boot_heddle.sh armv6l
+../heddle/image_scripts/boot_heddle.sh armv6l
 ```
+
+Of course, if the Heddle source lives somewhere else (e.g. you're [building an extension](#extending-heddle)) then replace `../heddle` with its location.
+
+Please note that Capstan currently only supports `x86_64`.
 
 ## RAID (Btrfs only)
 
@@ -303,11 +305,11 @@ It boots the image in KVM, forwards its standard input onto Heddle and then powe
 For example, to login as `root`, change `root`'s password, add a user called `heddle` and list all Docker images on the system:
 
 ```shell
-in_heddle.sh <<EOF
+in_heddle.sh << 'EOF'
 root
 root
 useradd -G docker heddle
-chpasswd <<EOP
+chpasswd << 'EOP'
 root:Password1
 heddle:Password2
 EOP
@@ -321,7 +323,7 @@ Note that `boot_heddle.sh` and `in_heddle.sh` also pass their arguments (after t
 dd if=/dev/zero of=my_disk.img bs=1 seek=1G count=0
 mkfs.ext4 -F -O ^has_journal my_disk.img
 e2cp some_files* my_disk.img:
-in_heddle.sh x86_64 -hdb my_disk.img <<EOF
+in_heddle.sh x86_64 -hdb my_disk.img << 'EOF'
 root
 root
 mkdir my_disk

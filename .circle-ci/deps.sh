@@ -8,7 +8,7 @@ mkdir -p downloads
 echo +downloads:
 ls downloads
 
-ver_abo=1.4.0
+ver_abo=1.4.1
 ver_bat=3.1.4
 
 abo_base="downloads/aboriginal-$ver_abo"

@@ -16,7 +16,7 @@ patch_armv6l_sync_builtins() {
   patch -p0 << EOF
 --- $1.orig	2015-04-01 21:30:30.293253284 +0100
 +++ $1	2015-04-01 21:33:11.401245774 +0100
-@@ -7,8 +7,13 @@
+@@ -7,8 +7,14 @@
  #include <sys/time.h>
  #include <sys/resource.h>
  
@@ -25,6 +25,7 @@ patch_armv6l_sync_builtins() {
 +#include <pthread.h>
 +#include <stdint.h>
 +#include <assert.h>
++typedef uint8_t uint8;
 +typedef uint32_t uint32;
 +typedef uint64_t uint64;
 +typedef uintptr_t uintptr;
@@ -81,12 +82,34 @@ __sync_lock_test_and_set_4 (uint32* ptr, uint32 val)
   return ret;
 }
 
+uint8
+__sync_lock_test_and_set_1 (uint8*, uint8)
+  __attribute__ ((visibility ("hidden")));
+
+uint8
+__sync_lock_test_and_set_1 (uint8* ptr, uint8 val)
+{
+  int i;
+  uint8 ret;
+
+  i = pthread_mutex_lock (&sync_lock);
+  __go_assert (i == 0);
+
+  ret = *ptr;
+  *ptr = val;
+
+  i = pthread_mutex_unlock (&sync_lock);
+  __go_assert (i == 0);
+
+  return ret;
+}
+
 uint32
 __sync_fetch_and_or_4 (uint32*, uint32)
   __attribute__ ((visibility ("hidden")));
 
 uint32
-__sync_fetch_and_or_4 (uint32* ptr, uint32 add)
+__sync_fetch_and_or_4 (uint32* ptr, uint32 val)
 {
   int i;
   uint32 ret;
@@ -95,7 +118,51 @@ __sync_fetch_and_or_4 (uint32* ptr, uint32 add)
   __go_assert (i == 0);
 
   ret = *ptr;
-  *ptr |= add;
+  *ptr |= val;
+
+  i = pthread_mutex_unlock (&sync_lock);
+  __go_assert (i == 0);
+
+  return ret;
+}
+
+uint32
+__sync_fetch_and_and_4 (uint32*, uint32)
+  __attribute__ ((visibility ("hidden")));
+
+uint32
+__sync_fetch_and_and_4 (uint32* ptr, uint32 val)
+{
+  int i;
+  uint32 ret;
+
+  i = pthread_mutex_lock (&sync_lock);
+  __go_assert (i == 0);
+
+  ret = *ptr;
+  *ptr &= val;
+
+  i = pthread_mutex_unlock (&sync_lock);
+  __go_assert (i == 0);
+
+  return ret;
+}
+
+uint32
+__sync_fetch_and_sub_4 (uint32*, uint32)
+  __attribute__ ((visibility ("hidden")));
+
+uint32
+__sync_fetch_and_sub_4 (uint32* ptr, uint32 val)
+{
+  int i;
+  uint32 ret;
+
+  i = pthread_mutex_lock (&sync_lock);
+  __go_assert (i == 0);
+
+  ret = *ptr;
+  *ptr -= val;
 
   i = pthread_mutex_unlock (&sync_lock);
   __go_assert (i == 0);
@@ -207,7 +274,7 @@ URL_PERL="http://www.cpan.org/src/5.0/$SRC_PERL"
 CHK_PERL="fef10210f9e6f4dc2d190be0aee8e1fa2af664630f1d415868d33eebca26d4b5"
 SUM_PERL="sha256"
 BLD_PERL() {
-  if [ "$(uname -m)" = armv6l ]; then
+  if [ "$heddle_arch" = armv6l ]; then
     # Work around SEGV on ARM
     patch -p0 << 'EOF'
 --- Makefile.SH.orig
@@ -322,7 +389,7 @@ BLD_LLVM_COMPILER_RT() {
   if [ -b /dev/ubdb ]; then
     sed -i 's/^GORACE=.*/\0 || true/' buildgo.sh
   fi
-  if [ "$(uname -m)" = x86_64 ]; then
+  if [ "$heddle_arch" = x86_64 ]; then
     ./buildgo.sh
   fi
 }
@@ -461,12 +528,30 @@ EOF
  }
 EOF
 
+  # Linux 3.19 is more restricted in what can be sent so disable sending
+  # corrupted ICMP packet. See # https://github.com/golang/go/issues/10730 and
+  # https://github.com/golang/go/commit/f97f876125f72f543a14f57fb6570dee6bfa2c6f
+  # - hopefully we can remove this patch for Go 1.5.
+  patch -p0 << 'EOF'
+--- src/net/file_test.go.orig
++++ src/net/file_test.go
+@@ -174,8 +174,6 @@
+ 
+ 	{net: "udp6", addr: "[::1]", ipv6: true},
+ 
+-	{net: "ip4:icmp", addr: "127.0.0.1"},
+-
+ 	{net: "unixgram", addr: "@gotest3/net", linux: true},
+ }
+ 
+EOF
+
   # Copy race detector we built from source
-  if [ "$(uname -m)" = x86_64 ]; then
+  if [ "$heddle_arch" = x86_64 ]; then
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
   fi
 
-  if [ "$(uname -m)" = armv6l ]; then
+  if [ "$heddle_arch" = armv6l ]; then
     patch_armv6l_sync_builtins misc/cgo/test/sync_builtins.c
   fi
 
@@ -1149,7 +1234,7 @@ URL_DHCPCD="http://roy.marples.name/downloads/dhcpcd/$SRC_DHCPCD"
 CHK_DHCPCD="43f93a0a536b93e26e4c7733582df7595d73aff9acfef298323e59dd8db8cdab"
 SUM_DHCPCD="sha256"
 BLD_DHCPCD() {
-  CPPFLAGS="$CPPFLAGS -D_BSD_SOURCE -D_GNU_SOURCE -D_IPV6_H" ./configure "--prefix=$INSTALL_DIR" "--build=$(uname -m)-unknown-$(uname -s | tr A-Z a-z)"
+  CPPFLAGS="$CPPFLAGS -D_BSD_SOURCE -D_GNU_SOURCE -D_IPV6_H" ./configure "--prefix=$INSTALL_DIR" "--build=$heddle_arch-unknown-$(uname -s | tr A-Z a-z)"
   make
   chroot "$CHROOT_DIR" ash <<EOF
   cd "$PWD"
@@ -1348,7 +1433,7 @@ EOF
 EOF
   patch -p1 < CVE-2015-3456.patch
   qemu_target=x86_64
-  if [ "$(uname -m)" = armv6l ]; then
+  if [ "$heddle_arch" = armv6l ]; then
     qemu_target=arm
     patch_armv6l_sync_builtins util/sync-builtins.c
     cat >> util/Makefile.objs << 'EOF'
@@ -1483,29 +1568,6 @@ BLD_UBOOT() {
 EOF
 }
 BLD_UBOOT_armv6l() {
-  # Aboriginal Linux armv6l target uses arm1136-r2
-  patch -p0 << 'EOF'
---- arch/arm/Kconfig.orig
-+++ arch/arm/Kconfig
-@@ -352,7 +352,7 @@
- 
- config ARCH_VERSATILE
- 	bool "ARM Ltd. Versatile family"
--	select CPU_ARM926EJS
-+	select CPU_ARM1136
- 
- config TARGET_INTEGRATORCP_CM1136
- 	bool "Support integratorcp_cm1136"
---- arch/arm/cpu/arm1136/Makefile.orig
-+++ arch/arm/cpu/arm1136/Makefile
-@@ -10,3 +10,4 @@
- 
- obj-$(CONFIG_MX31) += mx31/
- obj-$(CONFIG_MX35) += mx35/
-+obj-$(CONFIG_ARCH_VERSATILE) += versatile/
-EOF
-  cp -r arch/arm/cpu/{arm926ejs,arm1136}/versatile
-
   # Change boot args, add initrd support and increase RAM to 256Mb
   patch -p0 << 'EOF'
 --- include/configs/versatile.h.orig

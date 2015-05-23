@@ -24,7 +24,7 @@ SQF_MODULES="$UPDATE_DIR/modules.sqf"
 SQF_FIRMWARE="$UPDATE_DIR/firmware.sqf"
 SQF_ROOT="$UPDATE_DIR/root.sqf"
 
-if [ ! -e "$SQF_ROOT" ]; then
+if [ "build/system-image-$ARCH/rootfs.cpio.gz" -nt "$SQF_ROOT" ]; then
   tmpd="$(mktemp -d)"
   zcat "build/system-image-$ARCH/rootfs.cpio.gz" | ( cd "$tmpd"; cpio -i -H newc -f dev/console )
   unsquashfs -d "$tmpd/usr/overlay" "build/system-image-$ARCH/toolchain.sqf" 
@@ -34,11 +34,11 @@ if [ ! -e "$SQF_ROOT" ]; then
   rm -rf "$tmpd"
 fi
 
-if [ ! -e "$SQF_MODULES" ]; then
+if [ "build/system-image-$ARCH/modules/lib/modules" -nt "$SQF_MODULES" ]; then
   mksquashfs "build/system-image-$ARCH/modules/lib/modules" "$SQF_MODULES" -noappend -all-root -wildcards -e '*/build' '*/source'
 fi
 
-if [ ! -e "$SQF_FIRMWARE" ]; then
+if [ "build/system-image-$ARCH/modules/lib/firmware" -nt "$SQF_FIRMWARE" ]; then
   mksquashfs "build/system-image-$ARCH/modules/lib/firmware" "$SQF_FIRMWARE" -noappend -all-root
 fi
 

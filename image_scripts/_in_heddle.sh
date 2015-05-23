@@ -43,6 +43,7 @@ while true; do
     data="$(echo "$data" | perl -pe 's/\e\[?.*?[\@-~]//g')"
     echo "$data" 1>&4
     if [ "$data" = "login: $1 (automatic login)"$'\r' ]; then
+      python -u -c $'import sys\ns=""\nwhile not s.endswith("Password: "): s+=sys.stdin.read(1)\nsys.stdout.write(s)' 1>&4
       # write password
       python -u -c 'import sys; sys.stdout.write(sys.stdin.readline())' 0<&3
     elif [ "$data" = $'in_heddle\r' ]; then

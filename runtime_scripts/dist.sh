@@ -74,7 +74,7 @@ else
   mksquashfs /rmnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
   cp "$DIST_DIR/run.sqf" "$here/gen"
 fi
-if [ "$(uname -m)" = armv6l -a \
+if [ "$heddle_arch" = armv6l -a \
      \( -z "$reuse" -o ! -f "$here/gen/u-boot.bin" \) ]; then
   cp "$CHROOT_DIR/home/source"/u-boot-*/u-boot.bin "$here/gen"
 fi

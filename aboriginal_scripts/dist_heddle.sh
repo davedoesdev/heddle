@@ -34,7 +34,7 @@ UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/dist/update"
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/dist.img"
 export QEMU_EXTRA="-hdd $IMG_DIR/heddle.img -net user,hostname=heddle -net nic"
-export KERNEL_EXTRA="heddle_dist_reuse=$reuse heddle_project=$project heddle_version=$version"
+export KERNEL_EXTRA="heddle_arch=$ARCH heddle_dist_reuse=$reuse heddle_project=$project heddle_version=$version"
 if [ "$ARCH" = x86_64 ]; then
   if [ "$qemu_mode" -eq 0 ]; then
     QEMU_EXTRA+=" -cpu host -smp 2"
