@@ -122,13 +122,12 @@ if [ -n "$chroot_build" ]; then
   sudo mount -o rbind /proc /tmp/chroot/proc
   sudo mount -o rbind /sys /tmp/chroot/sys
   sudo mount -o rbind /dev /tmp/chroot/dev
-  export heddle_arch="$ARCH"
-  sudo chroot /tmp/chroot /bin/ash << 'EOF'
+  sudo chroot /tmp/chroot /bin/ash << EOF
 set -e
-echo "heddle_arch: $heddle_arch" > /dev/tty
+export heddle_arch="$ARCH"
 export HOME=/home
 export PATH
-cd "$HOME"
+cd
 touch /tmp/in_chroot
 exec /mnt/init
 EOF
