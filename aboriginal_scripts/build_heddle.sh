@@ -125,7 +125,7 @@ if [ -n "$chroot_build" ]; then
   export heddle_arch="$ARCH"
   sudo chroot /tmp/chroot /bin/ash << 'EOF'
 set -e
-echo "heddle_arch: $heddle_arch"
+echo "heddle_arch: $heddle_arch" > /dev/tty
 export HOME=/home
 export PATH
 cd "$HOME"
