@@ -37,6 +37,7 @@ else
 fi
 for pkg in "${pkgs[@]}"; do
   declare "BLD_$pkg"=1
+  
 done
 for pkg in "${PACKAGES[@]}"; do
   vdir="DIR_$pkg"
@@ -58,7 +59,9 @@ for pkg in "${PACKAGES[@]}"; do
       chown -R root:root "${!vdir}"
       pushd "${!vdir}"
       BLD_$pkg
-      BLD_${pkg}_$heddle_arch || true
+      if [ "$(type -t "BLD_${pkg}_$heddle_arch")" = function ]; then
+        BLD_${pkg}_$heddle_arch
+      fi
       popd
     fi
     touch "${!vdir}.built"
