@@ -1476,11 +1476,11 @@ EOF
 XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c
           any 'http://git.qemu.org/?p=qemu.git;a=blobdiff_plain;f=hw/block/fdc.c;h=d8a8edd936f42d4b1d801c996932668e456b5896;hp=f72a39216347e722496797555db9f208b0c5b4b2;hb=e907746266721f305d67bc0718795fedee2e824c;hpb=968bb75c348a401b85e08d5eb1887a3e6c3185f5' 31a298ba228cb1433f6b39f6efb47c9fae082a3e12875530f5d3f99530d04d58 sha256 CVE-2015-3456.patch)
 
-VER_QBOOT="d1da38e16592f6f541d0fa9aa675fa296585f779"
+VER_QBOOT="71f714aa968bf6b0fa811a59445a7fb3f9befc23"
 DIR_QBOOT="qboot-$VER_QBOOT"
 SRC_QBOOT="$DIR_QBOOT.tar.gz"
 URL_QBOOT="https://github.com/bonzini/qboot/archive/$VER_QBOOT.tar.gz"
-CHK_QBOOT="956961efeb8cc5c565eee064ab11e75793f3500aea4418293874a38f3e977472"
+CHK_QBOOT="b69657758faa5abd07d40d42a46773b0b6be0e03cef304360b732e54a69cc637"
 SUM_QBOOT="sha256"
 BLD_QBOOT() {
   # GCC 4.2.1 doesn't have bswap builtins
@@ -1496,43 +1496,9 @@ BLD_QBOOT() {
  
  #define CBFS_HEADER_MAGIC    0x4F524243		// ORBC
  #define CBFS_HEADER_VERSION1 0x31313131
---- main.c.orig
-+++ main.c
-@@ -78,7 +78,7 @@
- 	return boot_from_cbfs(base, sz);
- }
- 
--int main(void)
-+int __attribute__ ((section (".text.startup"))) main(void)
- {
- 	setup_hw();
- 
 EOF
 }
 BLD_QBOOT_x86_64() {
-  # GCC 4.2.1 seems to have a bug with matching constraints
-  # https://github.com/bonzini/qboot/issues/4
-  patch -p1 << 'EOF'
-diff --git a/include/ioport.h b/include/ioport.h
-index bbec982..208be41 100644
---- a/include/ioport.h
-+++ b/include/ioport.h
-@@ -3,12 +3,12 @@
-
- static inline void outsb(unsigned short port, void *buf, int len)
- {
--	asm volatile("rep outsb %%ds:(%0), %3" : "+S" (buf), "+c" (len) : "m"(buf), "Nd"(port), "0" (buf), "1" (len));
-+	asm volatile("rep outsb %%ds:(%0), %3" : "=S" (buf), "=c" (len) : "m"(buf), "Nd"(port), "0" (buf), "1" (len));
- }
-
- static inline void insb(void *buf, unsigned short port, int len)
- {
--	asm volatile("rep insb %3, %%es:(%0)" : "+D" (buf), "+c" (len), "=m"(buf) : "Nd"(port), "0" (buf), "1" (len));
-+	asm volatile("rep insb %3, %%es:(%0)" : "=D" (buf), "=c" (len), "=m"(buf) : "Nd"(port), "0" (buf), "1" (len));
- }
-
- static inline unsigned char inb(unsigned short port)
-EOF
   make
   cp bios.bin "$INSTALL_DIR/share/qemu/qboot-bios.bin"
 }

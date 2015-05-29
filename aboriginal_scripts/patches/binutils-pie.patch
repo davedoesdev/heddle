@@ -1,0 +1,20 @@
+--- binutils/bfd/elf64-x86-64.c.orig	2015-05-29 21:11:04.497570766 +0100
++++ binutils/bfd/elf64-x86-64.c	2015-05-29 21:12:27.949573413 +0100
+@@ -792,7 +792,7 @@
+ 	  goto create_got;
+ 
+ 	case R_X86_64_TPOFF32:
+-	  if (info->shared)
++	  if (!info->executable)
+ 	    {
+ 	      (*_bfd_error_handler)
+ 		(_("%B: relocation %s against `%s' can not be used when making a shared object; recompile with -fPIC"),
+@@ -2983,7 +2983,7 @@
+ 	  break;
+ 
+ 	case R_X86_64_TPOFF32:
+-	  BFD_ASSERT (! info->shared);
++	  BFD_ASSERT (info->executable);
+ 	  relocation = tpoff (info, relocation);
+ 	  break;
+ 
