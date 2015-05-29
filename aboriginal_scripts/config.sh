@@ -92,3 +92,78 @@ for f in ${HEDDLE_EXT_DIR:+"$HEDDLE_EXT_DIR"/aboriginal_scripts/patches/*.patch}
   fi
 done
 
+# Add support for -pie to ccwrap
+patch -p0 << 'EOF'
+--- sources/toys/ccwrap.c.orig	2015-05-29 07:03:54.523059741 +0100
++++ sources/toys/ccwrap.c	2015-05-29 09:16:18.571311754 +0100
+@@ -125,13 +125,14 @@
+ // Some compiler versions don't provide separate T and S versions of begin/end,
+ // so fall back to the base version if they're not there.
+ 
+-char *find_TSpath(char *base, char *top, int use_shared, int use_static_linking)
++char *find_TSpath(char *base, char *top, int use_shared, int use_static_linking,
++                  int use_pie)
+ {
+   int i;
+   char *temp;
+ 
+   temp = xmprintf(base, top,
+-    use_shared ? "S.o" : use_static_linking ? "T.o" : ".o");
++    use_shared || use_pie ? "S.o" : use_static_linking ? "T.o" : ".o");
+ 
+   if (!is_file(temp, 0)) {
+     free(temp);
+@@ -144,7 +145,7 @@
+ 
+ enum {
+   Clibccso, Clink, Cprofile, Cshared, Cstart, Cstatic, Cstdinc, Cstdlib,
+-  Cverbose, Cx, Cdashdash,
++  Cverbose, Cx, Cdashdash, Cpie,
+ 
+   CPctordtor, CP, CPstdinc
+ };
+@@ -382,6 +383,10 @@
+ 
+         return 0;
+       } else if (!strcmp(c, "pg")) SET_FLAG(Cprofile);
++      else if (!strcmp(c, "pie")) {
++        keepc--;
++        SET_FLAG(Cpie);
++      }
+     } else if (*c == 's') {
+       keepc--;
+       if (!strcmp(c, "shared")) {
+@@ -440,6 +445,7 @@
+     outv[outc++] = "-nostdlib";
+     outv[outc++] = GET_FLAG(Cstatic) ? "-static" : dynlink;
+     if (GET_FLAG(Cshared)) outv[outc++] = "-shared";
++    if (GET_FLAG(Cpie)) outv[outc++] = "-pie";
+ 
+     // Copy libraries to output (first move fallback to end, break circle)
+     libs = libs->next->next;
+@@ -452,11 +458,12 @@
+     if (GET_FLAG(CPctordtor)) {
+       outv[outc++] = xmprintf("%s/lib/crti.o", topdir);
+       outv[outc++] = find_TSpath("%s/cc/lib/crtbegin%s", topdir,
+-                                 GET_FLAG(Cshared), GET_FLAG(Cstatic));
++                                 GET_FLAG(Cshared), GET_FLAG(Cstatic),
++                                 GET_FLAG(Cpie));
+     }
+     if (!GET_FLAG(Cprofile) && GET_FLAG(Cstart))
+       outv[outc++] = xmprintf("%s/lib/%scrt1.o", topdir,
+-                              GET_FLAG(Cshared) ? "S" : "");
++                              GET_FLAG(Cshared) || GET_FLAG(Cpie) ? "S" : "");
+   }
+ 
+   // Copy unclaimed arguments
+@@ -482,7 +489,8 @@
+     }
+     if (GET_FLAG(CPctordtor)) {
+       outv[outc++] = find_TSpath("%s/cc/lib/crtend%s", topdir,
+-                                 GET_FLAG(Cshared), GET_FLAG(Cstatic));
++                                 GET_FLAG(Cshared), GET_FLAG(Cstatic),
++                                 GET_FLAG(Cpie));
+       outv[outc++] = xmprintf("%s/lib/crtn.o", topdir);
+     }
+   }
+EOF
