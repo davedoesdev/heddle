@@ -1,4 +1,4 @@
-[![Build Status](https://circleci.com/gh/davedoesdev/heddle.svg?style=svg)](https://circleci.com/gh/davedoesdev/heddle) [![Successful builds with links to disk images](http://githubraw.herokuapp.com/davedoesdev/heddle/master/builds.svg)](http://githubraw.herokuapp.com/davedoesdev/heddle/master/.circle-ci/builds.html)
+[![Build Status](https://circleci.com/gh/davedoesdev/heddle.svg?style=svg)](https://circleci.com/gh/davedoesdev/heddle) [![Successful builds with links to disk images](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/builds.svg)](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/.circle-ci/builds.html)
 
 Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and [Capstan](http://osv.io/capstan/) applications.
 
@@ -24,7 +24,7 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 ### Pre-built images
 
-First you need a Heddle image. Every time a commit is made to this repository, Heddle is built on CircleCI. Successful builds are listed [here](http://githubraw.herokuapp.com/davedoesdev/heddle/master/.circle-ci/builds.html). For each build, you can download the following artifacts:
+First you need a Heddle image. Every time a commit is made to this repository, Heddle is built on CircleCI. Successful builds are listed [here](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/.circle-ci/builds.html). For each build, you can download the following artifacts:
 
 - Build output archives
   - `heddle-[commitid]-gpt-btrfs-x86_64.tar.xz`
@@ -65,7 +65,7 @@ If you want to use a script to customise the image, see [Run-time customisation]
 
 From time-to-time release branches will be forked from `master` and named `v0.0.1`, `v0.0.2` etc.
 
-The [build list](http://githubraw.herokuapp.com/davedoesdev/heddle/master/.circle-ci/builds.html) shows the branch name for each build and can also show only release builds (click the __Release branches__ radio button).
+The [build list](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/.circle-ci/builds.html) shows the branch name for each build and can also show only release builds (click the __Release branches__ radio button).
 
 ## Building Heddle
 
