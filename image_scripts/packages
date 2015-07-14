@@ -1508,7 +1508,7 @@ RPO_CAPSTAN="https://github.com/cloudius-systems/capstan.git"
 DIR_CAPSTAN="capstan-$VER_CAPSTAN"
 SRC_CAPSTAN="$DIR_CAPSTAN.tar.gz"
 GET_CAPSTAN() {
-  GOPATH="$PWD/$DIR_CAPSTAN"
+  export GOPATH="$PWD/$DIR_CAPSTAN"
   d="$GOPATH/src/github.com/cloudius-systems"
   mkdir -p "$d"
   cd "$d"
