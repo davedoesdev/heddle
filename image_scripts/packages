@@ -1082,10 +1082,10 @@ BLD_LIBNETFILTER_QUEUE() {
   make install
 }
 
-DIR_BYACC="byacc-20141128"
+DIR_BYACC="byacc-20150711"
 SRC_BYACC="$DIR_BYACC.tar.gz"
 URL_BYACC="http://invisible-island.net/datafiles/release/byacc.tar.gz"
-CHK_BYACC="f517fc21f08c1a1f010177357df58fc64eb1131011e5dcd48c19fe44c47198d0"
+CHK_BYACC="c354e4ee14c4a1bf11e55dde9275011d14887ef066406a088b6fa56caf039248"
 SUM_BYACC="sha256"
 BLD_BYACC() {
   ./configure "--prefix=$INSTALL_DIR" --enable-btyacc
@@ -1504,30 +1504,25 @@ BLD_QBOOT_x86_64() {
 }
 
 VER_CAPSTAN="9a51045023761cd576a02dbd8bc83364528a6a01"
-
-DIR_CAPSTAN_DEPS="capstan-deps-$VER_CAPSTAN"
-SRC_CAPSTAN_DEPS="$DIR_CAPSTAN_DEPS.tar.gz"
-GET_CAPSTAN_DEPS() {
-  mkdir "$DIR_CAPSTAN_DEPS"
-  wget "https://raw.githubusercontent.com/cloudius-systems/capstan/$VER_CAPSTAN/capstan.go"
-  GOPATH="$DIR_CAPSTAN_DEPS" go get -d -tags netgo .
-  tar -zc "$DIR_CAPSTAN_DEPS"
-}
-BLD_CAPSTAN_DEPS() {
-  cp -af * "$GOPATH"
-}
-
+RPO_CAPSTAN="https://github.com/cloudius-systems/capstan.git"
 DIR_CAPSTAN="capstan-$VER_CAPSTAN"
 SRC_CAPSTAN="$DIR_CAPSTAN.tar.gz"
-URL_CAPSTAN="https://github.com/cloudius-systems/capstan/archive/$VER_CAPSTAN.tar.gz"
-CHK_CAPSTAN="c3cb2ff8060abcf9f0783354b3f1efa748280d20e93dad01b0e7c32f50df0dfa"
-SUM_CAPSTAN="sha256"
+GET_CAPSTAN() {
+  GOPATH="$PWD/$DIR_CAPSTAN"
+  d="$GOPATH/src/github.com/cloudius-systems"
+  mkdir -p "$d"
+  cd "$d"
+  git clone "$RPO_CAPSTAN"
+  cd capstan
+  git checkout "$VER_CAPSTAN"
+  go get -d -tags netgo .
+  tar -C "$GOPATH/.." -zc "$DIR_CAPSTAN"
+}
 BLD_CAPSTAN() {
-  CAPSTAN_DIR="$GOPATH/src/github.com/cloudius-systems/capstan"
-  rm -rf "$CAPSTAN_DIR"
-  mkdir -p "$(dirname "$CAPSTAN_DIR")"
-  cp -a "$PWD" "$CAPSTAN_DIR"
-  cd "$CAPSTAN_DIR"
+  d="$GOPATH/src/github.com/cloudius-systems/capstan"
+  rm -rf "$d"
+  cp -af * "$GOPATH"
+  cd "$d"
   go clean -i net
   go install -tags netgo std
   go install -ldflags "-X main.VERSION '$VER_CAPSTAN'" -tags netgo
@@ -1746,7 +1741,6 @@ PACKAGES=(LIBICONV
           PIXMAN
           QEMU
           QBOOT
-          CAPSTAN_DEPS
           CAPSTAN
           KMOD
           NATSORT
