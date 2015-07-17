@@ -7,12 +7,12 @@ IMG_HOME="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images/home.img"
 IMG_BUILD="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/build.img"
 
 if [ ! -e "$IMG_HOME" ]; then
-  dd if=/dev/zero "of=$IMG_HOME" bs=1024 "seek=$((4 * 1024 * 1024))" count=0
+  dd if=/dev/zero "of=$IMG_HOME" bs=1024 "seek=$((8 * 1024 * 1024))" count=0
   mkfs.ext4 -F -O ^has_journal "$IMG_HOME"
 fi
 
 if [ ! -e "$IMG_BUILD" ]; then
-  dd if=/dev/zero "of=$IMG_BUILD" bs=1024 "seek=$((1 * 1024 * 1024))" count=0
+  dd if=/dev/zero "of=$IMG_BUILD" bs=1024 "seek=$((2 * 1024 * 1024))" count=0
   mkfs.ext4 -F -O ^has_journal "$IMG_BUILD"
 fi
 
