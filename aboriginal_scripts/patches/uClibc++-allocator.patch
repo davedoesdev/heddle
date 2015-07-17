@@ -1,0 +1,11 @@
+--- build/packages/uClibc++/include/memory.orig	2015-07-17 22:37:36.834773445 +0100
++++ build/packages/uClibc++/include/memory	2015-07-17 22:42:15.141407344 +0100
+@@ -58,7 +58,7 @@
+ 	const_pointer address(const_reference r) const { return &r; }
+ 	
+ 	allocator() throw(){}
+-	template <class U> allocator(const allocator<U>& ) throw();
++	template <class U> allocator(const allocator<U>& ) throw(){}
+ 	~allocator() throw(){}
+ 
+ 	//Space for n Ts

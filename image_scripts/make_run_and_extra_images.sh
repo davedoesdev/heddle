@@ -38,11 +38,11 @@ part_name() {
 }
 
 # Treat rEFInd as a host tool and download it if required
-VER_REFIND="0.8.4"
+VER_REFIND="0.8.7"
 DIR_REFIND="refind-bin-$VER_REFIND"
 SRC_REFIND="$DIR_REFIND.zip"
 URL_REFIND="http://downloads.sourceforge.net/project/refind/$VER_REFIND/$SRC_REFIND"
-CHK_REFIND="08769aa9e4f41c0c267438d639bb37a5f97b3ddc8a5d208d75e95d204c73819e"
+CHK_REFIND="a5caefac0ba1691a5c958a4d8fdb9d3e14e223acd3b1605a5b0e58860d9d76b4"
 SUM_REFIND="sha256"
 
 if [ "$ARCH" = x86_64 -a \
