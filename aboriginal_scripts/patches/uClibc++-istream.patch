@@ -1,5 +1,5 @@
---- build/packages/uClibc++/include/istream.orig	2012-05-25 22:15:31.000000000 +0100
-+++ build/packages/uClibc++/include/istream	2015-07-17 20:25:16.576480253 +0100
+--- build/packages/uClibc++/include/istream.orig	2015-07-18 08:23:44.294261748 +0100
++++ build/packages/uClibc++/include/istream	2015-07-18 08:21:21.092822795 +0100
 @@ -69,6 +69,8 @@
  		basic_istream<charT,traits>& operator>>(unsigned int& n);
  		basic_istream<charT,traits>& operator>>(long& n);
@@ -9,7 +9,15 @@
  		basic_istream<charT,traits>& operator>>(void*& p);
  		basic_istream<charT,traits>& operator>>(basic_streambuf<char_type,traits>* sb);
  
-@@ -447,6 +449,22 @@
+@@ -183,6 +185,7 @@
+ 				}
+ 				s[i] = c;
+ 			}
++			count_last_ufmt_input = n-1;
+ 			s[n-1] = traits::eos();
+ 			return *this;
+ 		}
+@@ -447,6 +450,22 @@
  		return *this;
  	}
  
