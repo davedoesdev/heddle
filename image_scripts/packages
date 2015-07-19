@@ -300,7 +300,7 @@ BLD_PERL() {
  
 EOF
   fi
-  ./Configure -de "-Dprefix=$INSTALL_DIR" -Dusenm=n < /dev/null
+  ./Configure -de "-Dprefix=$INSTALL_DIR" -Dusenm=n -A ccflags=-fPIC < /dev/null
   make
   make install
 }
