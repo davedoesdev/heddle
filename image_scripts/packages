@@ -240,6 +240,9 @@ BLD_ZLIB() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
+  cd contrib/minizip
+  make
+  cp minizip miniunz "$INSTALL_DIR/bin"
 }
 
 DIR_SQLITE="sqlite-autoconf-3080701"

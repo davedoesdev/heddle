@@ -50,7 +50,14 @@ for pkg in "${PACKAGES[@]}"; do
       tar -C "$INSTALL_DIR" -Jxf "$binf"
     else
       rm -rf "${!vdir}"
-      tar -xf "$HERE/download/${!vsrc}"
+      case "${!vsrc}" in
+        *.zip)
+          miniunz "$HERE/download/${!vsrc}"
+          ;;
+        *)
+          tar -xf "$HERE/download/${!vsrc}"
+          ;;
+      esac
       tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
       extraf="$HERE/host/${!vsrc}-$heddle_arch-extra.tar.xz"
       [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
