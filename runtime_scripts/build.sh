@@ -58,7 +58,7 @@ for pkg in "${PACKAGES[@]}"; do
           tar -xf "$HERE/download/${!vsrc}"
           ;;
       esac
-      tar -xf "$HERE/supplemental.tar.gz" "./${!vdir}" >& /dev/null || true
+      tar -xf "$HERE/supplemental.tar.gz" "./$pkg" "./${!vdir}" >& /dev/null || true
       extraf="$HERE/host/${!vsrc}-$heddle_arch-extra.tar.xz"
       [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
       extraf="$HERE/host/${!vsrc}-any-extra.tar.xz"
