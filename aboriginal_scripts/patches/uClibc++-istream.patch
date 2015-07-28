@@ -1,5 +1,5 @@
---- build/packages/uClibc++/include/istream.orig	2015-07-18 08:23:44.294261748 +0100
-+++ build/packages/uClibc++/include/istream	2015-07-18 08:21:21.092822795 +0100
+--- a/include/istream	2015-07-18 08:23:44.294261748 +0100
++++ b/include/istream	2015-07-18 08:21:21.092822795 +0100
 @@ -69,6 +69,8 @@
  		basic_istream<charT,traits>& operator>>(unsigned int& n);
  		basic_istream<charT,traits>& operator>>(long& n);

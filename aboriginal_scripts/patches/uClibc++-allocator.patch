@@ -1,5 +1,5 @@
---- build/packages/uClibc++/include/memory.orig	2015-07-17 22:37:36.834773445 +0100
-+++ build/packages/uClibc++/include/memory	2015-07-17 22:42:15.141407344 +0100
+--- a/include/memory	2015-07-17 22:37:36.834773445 +0100
++++ b/include/memory	2015-07-17 22:42:15.141407344 +0100
 @@ -58,7 +58,7 @@
  	const_pointer address(const_reference r) const { return &r; }
  	
