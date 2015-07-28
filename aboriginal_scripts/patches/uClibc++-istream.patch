@@ -40,8 +40,8 @@
  #ifdef __UCLIBCXX_HAS_FLOATS__
  	template <class charT, class traits> _UCXXEXPORT basic_istream<charT,traits>&
  		basic_istream<charT,traits>::operator>>(float& n)
---- build/packages/uClibc++/include/istream_helpers.orig	2012-05-25 22:15:31.000000000 +0100
-+++ build/packages/uClibc++/include/istream_helpers	2015-07-17 20:33:33.170097338 +0100
+--- a/include/istream_helpers.orig	2012-05-25 22:15:31.000000000 +0100
++++ b/include/istream_helpers	2015-07-17 20:33:33.170097338 +0100
 @@ -300,6 +300,57 @@
  		}
  	};
@@ -100,8 +100,8 @@
  
  #ifdef __UCLIBCXX_HAS_FLOATS__
  
---- build/packages/uClibc++/src/istream.cpp.orig	2012-05-25 22:15:31.000000000 +0100
-+++ build/packages/uClibc++/src/istream.cpp	2015-07-17 20:32:14.090381350 +0100
+--- a/src/istream.cpp.orig	2012-05-25 22:15:31.000000000 +0100
++++ b/src/istream.cpp	2015-07-17 20:32:14.090381350 +0100
 @@ -56,6 +56,8 @@
  	template _UCXXEXPORT istream & istream::operator>>(unsigned int &n);
  	template _UCXXEXPORT istream & istream::operator>>(long unsigned &n);
