@@ -352,6 +352,10 @@ If you're building Heddle yourself, you can also customise Heddle in these place
 
 Of course, feel free to fork the Heddle repository and make changes.
 
+### Boot-time customisation
+
+You can change Heddle's kernel command line by editing `boot/refind.conf` (GPT images) or `boot/syslinux.cfg` (MBR images).
+
 ## Security
 
 Out of the box, Heddle has a single user account: `root` (password `root`). You should of course change `root`'s password using `passwd`. The default `umask` for `root` is `0022`.
@@ -406,6 +410,7 @@ If `HEDDLE_EXT_DIR` is set then Heddle scripts look for files in the extension d
 - `aboriginal_scripts/config/` - BusyBox, uClibc and Linux kernel configuration files
 - `image_scripts/packages` - package definitions
 - `chroot/` - files to add to the root filesystem, including services in `chroot/service`
+- `boot/` - boot loader configuration files (`refind.conf`, `syslinux.cfg`)
 
 You should run `gen/new_arch.sh` (defaults to `x86_64`), fetch and extract a new copy of the Aboriginal Linux source and then follow the Heddle build instructions from [building Aboriginal Linux](#build-aboriginal-linux) onwards. Images will be written under `$HEDDLE_EXT_DIR/gen`.
 
