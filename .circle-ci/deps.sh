@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/cedric-vincent/xUbuntu_12.04/ /' >> /etc/apt/sources.list.d/proot.list"
 sudo apt-get update -qq
 sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar proot
 
