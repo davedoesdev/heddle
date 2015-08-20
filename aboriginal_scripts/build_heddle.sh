@@ -113,13 +113,13 @@ if [ -n "$chroot_build" ]; then
   e2extract "$HDB" home
   e2extract "$HDC" mnt
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
-  proot -0 -r "$ROOT_DIR"    \
-        -b "$PWD/home:/home" \
-        -b "$PWD/mnt:/mnt"   \
-        -b "$PWD/tmp:/tmp"   \
-        -b /proc             \
-        -b /sys              \
-        -b /dev              \
+  proot -0 -r "$ROOT_DIR" \
+        -b home:/home     \
+        -b mnt:/mnt       \
+        -b tmp:/tmp       \
+        -b /proc          \
+        -b /sys           \
+        -b /dev           \
         /bin/ash << EOF
 set -e
 export heddle_arch="$ARCH"
