@@ -113,14 +113,16 @@ if [ -n "$chroot_build" ]; then
   e2extract "$HDB" home
   e2extract "$HDC" mnt
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
-  proot -0 -r "$ROOT_DIR" \
-        -b home:/home     \
-        -b mnt:/mnt       \
-        -b tmp:/tmp       \
-        -b /proc          \
-        -b /sys           \
-        -b /dev           \
-        /bin/ash << EOF
+  sudo mount -o bind "$ROOT_DIR" /tmp/chroot
+  sudo mount -o remount,ro /tmp/chroot
+  sudo mount -o bind home /tmp/chroot/home
+  sudo mount -o bind mnt /tmp/chroot/mnt
+  sudo mount -o remount,ro /tmp/chroot/mnt
+  sudo mount -o bind tmp /tmp/chroot/tmp # don't use memory for tmpfs
+  sudo mount -o rbind /proc /tmp/chroot/proc
+  sudo mount -o rbind /sys /tmp/chroot/sys
+  sudo mount -o rbind /dev /tmp/chroot/dev
+  sudo chroot /tmp/chroot /bin/ash << EOF
 set -e
 export heddle_arch="$ARCH"
 export HOME=/home
