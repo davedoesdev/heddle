@@ -9,7 +9,7 @@ echo +downloads:
 ls downloads
 
 ver_abo=1.4.1
-ver_bat=3.1.7
+ver_bat=4.0.2
 
 abo_base="downloads/aboriginal-$ver_abo"
 abo_seal="$abo_base.seal"
