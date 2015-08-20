@@ -113,7 +113,7 @@ if [ -n "$chroot_build" ]; then
   e2extract "$HDB" home
   e2extract "$HDC" mnt
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
-  proot -0 -r "$ROOT_DIR"    \
+  proot -0 -w / -r "$ROOT_DIR"    \
         -b "$PWD/home:/home" \
         -b "$PWD/mnt:/mnt"   \
         -b "$PWD/tmp:/tmp"   \
