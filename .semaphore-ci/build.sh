@@ -22,10 +22,7 @@ if ! build >& ../$logf; then
 fi
 tail -n 100 ../$logf
 
-exit
-
-sudo mv ../$logf /
-sudo xz /$logf
+xz ../$logf
 
 (
 e2extract() {
@@ -47,12 +44,12 @@ e2extract() {
   done
 }
 srcp="heddle-$version-src-x86_64"
-srcf="/$srcp.tar"
+srcf="$HOME/$srcp.tar"
 
-cd ../downloads
-sudo bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
+cd "SEMAPHORE_CACHE_DIR"
+bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
 
-cd ..
+cd
 git archive -o heddle.tar.gz HEAD
 sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" heddle.tar.gz
 rm -f heddle.tar.gz
@@ -60,7 +57,7 @@ rm -f heddle.tar.gz
 tmpd="$(mktemp -d)"
 e2extract gen/build.img "$tmpd"
 cd "$tmpd/download"
-sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" *
+bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 cd ../host
 sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 rm -rf "$tmpd"
@@ -74,9 +71,11 @@ prepare_and_dist() {
   ../aboriginal_scripts/run_heddle.sh -p -q          || return 1
   ../image_scripts/make_dist_and_heddle_images.sh -l || return 1
   ../aboriginal_scripts/dist_heddle.sh -q -r         || return 1
-  sudo bsdtar -C .. -s "/^\./$prefix/" -JLcf "/$prefix.tar.xz" ./gen/x86_64/dist
+  bsdtar -C .. -s "/^\./$prefix/" -JLcf "$HOME/$prefix.tar.xz" ./gen/x86_64/dist
 }
 prepare_and_dist gpt-btrfs
 prepare_and_dist gpt-ext4 -e
 prepare_and_dist mbr-btrfs -m
 prepare_and_dist mbr-ext4 '-m -e'
+
+ls "$HOME"
