@@ -21,7 +21,9 @@ if ! build >& ../$logf; then
   exit 1
 fi
 tail -n 100 ../$logf
+
 exit
+
 sudo mv ../$logf /
 sudo xz /$logf
 
