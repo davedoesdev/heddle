@@ -12,14 +12,6 @@ sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
 
 build() {
-  sudo ln -sf /bin/true /sbin/udevadm
-  sudo service cassandra stop
-  sudo service elasticsearch stop
-  sudo service mongodb stop
-  sudo service apache2 stop
-  sudo service postgresql stop
-  sudo service rabbitmq-server stop
-  sudo service mysql stop
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -c
 }
@@ -29,6 +21,7 @@ if ! build >& ../$logf; then
   exit 1
 fi
 tail -n 100 ../$logf
+exit
 sudo mv ../$logf /
 sudo xz /$logf
 

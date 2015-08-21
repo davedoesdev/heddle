@@ -4,18 +4,17 @@ set -e
 sudo apt-get update -qq
 sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar
 
-mkdir -p downloads
 echo +downloads:
-ls downloads
+ls "$SEMAPHORE_CACHE_DIR"
 
 ver_abo=1.4.1
 ver_bat=4.0.2
 
-abo_base="downloads/aboriginal-$ver_abo"
+abo_base="$SEMAPHORE_CACHE_DIR/aboriginal-$ver_abo"
 abo_seal="$abo_base.seal"
 abo_file="$abo_base.tar.gz"
 
-bat_base="downloads/build-aboriginal-$ver_abo-heddle-x86_64-$ver_bat"
+bat_base="$SEMAPHORE_CACHE_DIR/build-aboriginal-$ver_abo-heddle-x86_64-$ver_bat"
 bat_seal="$bat_base.seal"
 bat_file="$bat_base.tar.xz"
 
@@ -34,6 +33,6 @@ bsdtar -Jxf "$bat_file"
 mv heddle/gen/build.img gen
 rm -rf heddle
 
-find downloads -mindepth 1 -not -path "$abo_base.*" -not -path "$bat_base.*" -exec rm -v {} \;
+find "$SEMAPHORE_CACHE_DIR" -mindepth 1 -not -path "$abo_base.*" -not -path "$bat_base.*" -exec rm -v {} \;
 echo -downloads:
-ls downloads
+ls "$SEMAPHORE_CACHE_DIR"
