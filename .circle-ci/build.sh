@@ -21,7 +21,7 @@ build() {
   sudo service rabbitmq-server stop
   sudo service mysql stop
   ../image_scripts/make_build_and_home_images.sh || return 1
-  ../aboriginal_scripts/build_heddle.sh -c
+  ../aboriginal_scripts/build_heddle.sh -u
 }
 logf=heddle-$version-log-x86_64.txt
 if ! build >& ../$logf; then

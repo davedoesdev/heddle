@@ -2,11 +2,15 @@
 set -e
 
 chroot_build=
-while getopts c opt
+uml_build=
+while getopts cu opt
 do
   case $opt in
     c)
       chroot_build=1
+      ;;
+    u)
+      uml_build=1
       ;;
   esac
 done
@@ -107,7 +111,36 @@ e2extract() {
   done
 }
 
-if [ -n "$chroot_build" ]; then
+if [ -n "$uml_build" ]; then
+  echo "uml build" | tee /dev/tty
+  cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
+  cat > "$ROOT_DIR/init.uml" << 'EOF'
+#!/bin/ash
+mount -t proc proc /proc
+mount -t tmpfs tmp /tmp
+mkdir /tmp/root
+mount -o rbind / /tmp/root
+mount -o remount,ro /tmp/root
+if [ -b /dev/ubda ]; then
+  mount -t devtmpfs dev /tmp/root/dev
+else
+  mkdir /tmp/dev
+  mknod /tmp/dev/ttyS0 c 4 64
+  mknod /tmp/dev/urandom c 1 9
+  mknod /tmp/dev/null c 1 3
+  mount -o bind /tmp/dev /tmp/root/dev
+fi
+mknod /tmp/root/dev/hdb b 98 0
+mknod /tmp/root/dev/hdc b 98 16
+mount /dev/hdb /tmp/root/home
+mount -o ro /dev/hdc /tmp/root/mnt
+export HOME=/home
+export PATH
+exec /usr/sbin/chroot /tmp/root /bin/ash < /dev/ttyS0 > /dev/ttyS0 2>&1
+EOF
+  chmod +x "$ROOT_DIR/init.uml"
+  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
+elif [ -n "$chroot_build" ]; then
   echo "chroot build" | tee /dev/tty
   mkdir /tmp/chroot home mnt tmp
   e2extract "$HDB" home

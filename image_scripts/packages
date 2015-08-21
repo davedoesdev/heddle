@@ -1094,7 +1094,7 @@ BLD_BYACC() {
   ./configure "--prefix=$INSTALL_DIR" --enable-btyacc
   make
   make install
-  ( cd "$INSTALL_DIR/bin"; ln -s yacc byacc )
+  ( cd "$INSTALL_DIR/bin"; ln -sf yacc byacc )
 }
 
 DIR_REFLEX="reflex-20131209"

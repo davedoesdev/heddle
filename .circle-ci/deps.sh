@@ -2,7 +2,7 @@
 set -e
 
 sudo apt-get update -qq
-sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar
+sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar user-mode-linux
 
 mkdir -p downloads
 echo +downloads:
