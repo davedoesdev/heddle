@@ -56,6 +56,9 @@ bsdtar -s "@^@$srcp/@" -rf "$srcf" aboriginal-*.tar.gz
 
 tmpd="$(mktemp -d)"
 e2extract gen/build.img "$tmpd"
+echo xTMPD
+ls "$tmpd"
+echo yTMPD
 cd "$tmpd/download"
 bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 cd ../host
