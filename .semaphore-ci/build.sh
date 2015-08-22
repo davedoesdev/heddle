@@ -46,7 +46,7 @@ e2extract() {
 srcp="heddle-$version-src-x86_64"
 srcf="$HOME/$srcp.tar"
 
-cd "SEMAPHORE_CACHE_DIR"
+cd "$SEMAPHORE_CACHE_DIR"
 bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
 
 cd
