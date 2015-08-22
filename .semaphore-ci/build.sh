@@ -46,20 +46,20 @@ e2extract() {
 srcp="heddle-$version-src-x86_64"
 srcf="$HOME/$srcp.tar"
 
-cd "$SEMAPHORE_CACHE_DIR"
-bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
-
-cd
+cd ..
 git archive -o heddle.tar.gz HEAD
-sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" heddle.tar.gz
+bsdtar -s "@^@$srcp/@" -cf "$srcf" heddle.tar.gz
 rm -f heddle.tar.gz
+
+cd "$SEMAPHORE_CACHE_DIR"
+bsdtar -s "@^@$srcp/@" -rf "$srcf" aboriginal-*.tar.gz
 
 tmpd="$(mktemp -d)"
 e2extract gen/build.img "$tmpd"
 cd "$tmpd/download"
 bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 cd ../host
-sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" *
+bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 rm -rf "$tmpd"
 )
 
