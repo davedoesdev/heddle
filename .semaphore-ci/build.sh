@@ -5,7 +5,7 @@ ps auxw
 service --status-all
 free -m
 
-sudi service apache2 stop
+sudo service apache2 stop
 sudo service cassandra stop
 sudo service mysql stop
 sudo service mongod stop
