@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+ps auxw
+service --status-all
+free -m
+
+
 version="$(git rev-parse --abbrev-ref HEAD)"
 if [ "$version" = master ]; then
   version="$(git rev-parse HEAD)"
