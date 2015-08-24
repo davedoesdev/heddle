@@ -51,19 +51,16 @@ git archive -o heddle.tar.gz HEAD
 bsdtar -s "@^@$srcp/@" -cf "$srcf" heddle.tar.gz
 rm -f heddle.tar.gz
 
-cd "$SEMAPHORE_CACHE_DIR"
-bsdtar -s "@^@$srcp/@" -rf "$srcf" aboriginal-*.tar.gz
-
 tmpd="$(mktemp -d)"
 e2extract gen/build.img "$tmpd"
-echo xTMPD
-ls "$tmpd"
-echo yTMPD
 cd "$tmpd/download"
 bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 cd ../host
 bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 rm -rf "$tmpd"
+
+cd "$SEMAPHORE_CACHE_DIR"
+bsdtar -s "@^@$srcp/@" -rf "$srcf" aboriginal-*.tar.gz
 )
 
 prepare_and_dist() {
