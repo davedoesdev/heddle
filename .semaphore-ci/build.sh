@@ -5,6 +5,18 @@ ps auxw
 service --status-all
 free -m
 
+sudi service apache2 stop
+sudo service cassandra stop
+sudo service mysql stop
+sudo service mongod stop
+sudo service postgresql stop
+sudo service rabbitmq-server stop
+sudo service rethinkdb stop
+sudo service sphinxsearch stop
+
+ps auxw
+service --status-all
+free -m
 
 version="$(git rev-parse --abbrev-ref HEAD)"
 if [ "$version" = master ]; then
