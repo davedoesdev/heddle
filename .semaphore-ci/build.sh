@@ -7,8 +7,10 @@ free -m
 
 sudo service apache2 stop
 sudo service cassandra stop
-sudo service mysql stop
+sudo service elasticsearch stop
+sudo service memcached stop
 sudo service mongod stop
+sudo service mysql stop
 sudo service postgresql stop
 sudo service rabbitmq-server stop
 sudo service rethinkdb stop
