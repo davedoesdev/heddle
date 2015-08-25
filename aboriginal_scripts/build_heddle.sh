@@ -142,13 +142,20 @@ EOF
   exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
 elif [ -n "$chroot_build" ]; then
   echo "chroot build" | tee /dev/tty
+  mkdir /tmp/chroot home mnt tmp
+  e2extract "$HDB" home
+  e2extract "$HDC" mnt
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
-  e2extract "$HDB" "$ROOT_DIR/home"
-  e2extract "$HDC" "$ROOT_DIR/mnt"
-  sudo mount -o rbind /proc "$ROOT_DIR/proc"
-  sudo mount -o rbind /sys "$ROOT_DIR/sys"
-  sudo mount -o rbind /dev "$ROOT_DIR/dev"
-  sudo chroot "$ROOT_DIR" /bin/ash << EOF
+  sudo mount -o bind "$ROOT_DIR" /tmp/chroot
+  sudo mount -o remount,ro /tmp/chroot
+  sudo mount -o bind home /tmp/chroot/home
+  sudo mount -o bind mnt /tmp/chroot/mnt
+  sudo mount -o remount,ro /tmp/chroot/mnt
+  sudo mount -o bind tmp /tmp/chroot/tmp # don't use memory for tmpfs
+  sudo mount -o rbind /proc /tmp/chroot/proc
+  sudo mount -o rbind /sys /tmp/chroot/sys
+  sudo mount -o rbind /dev /tmp/chroot/dev
+  sudo chroot /tmp/chroot /bin/ash << EOF
 set -e
 export heddle_arch="$ARCH"
 export HOME=/home
@@ -157,7 +164,7 @@ cd
 touch /tmp/in_chroot
 exec /mnt/init
 EOF
-  sudo tar --owner root --group root -Jc -C "$ROOT_DIR" home/{install,chroot} | e2cp -P 400 -O 0 -G 0 - "$HDB:home.tar.xz"
+  sudo tar --owner root --group root -Jc home/{install,chroot} | e2cp -P 400 -O 0 -G 0 - "$HDB:home.tar.xz"
 else
   echo "qemu/kvm build" | tee /dev/tty
   if [ "$ARCH" = x86_64 ]; then
