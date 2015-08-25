@@ -20,6 +20,7 @@ build() {
   sudo service postgresql stop
   sudo service rabbitmq-server stop
   sudo service mysql stop
+  service --status-all
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -c
 }
