@@ -145,9 +145,9 @@ elif [ -n "$chroot_build" ]; then
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
   e2extract "$HDB" "$ROOT_DIR/home"
   e2extract "$HDC" "$ROOT_DIR/mnt"
-  sudo mount -t proc proc "$ROOT_DIR/proc"
-  sudo mount -t sysfs sys "$ROOT_DIR/sys"
-  sudo mount -t devtmpfs dev "$ROOT_DIR/dev"
+  #sudo mount -o rbind /proc "$ROOT_DIR/proc"
+  #sudo mount -o rbind /sys "$ROOT_DIR/sys"
+  #sudo mount -o rbind /dev "$ROOT_DIR/dev"
   sudo chroot "$ROOT_DIR" /bin/ash << EOF
 set -e
 export heddle_arch="$ARCH"
