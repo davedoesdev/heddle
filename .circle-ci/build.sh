@@ -11,16 +11,17 @@ cd aboriginal-*
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
 
+sudo ln -sf /bin/true /sbin/udevadm
+sudo service cassandra stop
+sudo service elasticsearch stop
+sudo service mongodb stop
+sudo service apache2 stop
+sudo service postgresql stop
+sudo service rabbitmq-server stop
+sudo service mysql stop
+service --status-all
+
 build() {
-  sudo ln -sf /bin/true /sbin/udevadm
-  sudo service cassandra stop
-  sudo service elasticsearch stop
-  sudo service mongodb stop
-  sudo service apache2 stop
-  sudo service postgresql stop
-  sudo service rabbitmq-server stop
-  sudo service mysql stop
-  service --status-all
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -c
 }
