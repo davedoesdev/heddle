@@ -164,7 +164,7 @@ cd
 touch /tmp/in_chroot
 exec /mnt/init
 EOF
-  sudo tar --owner root --group root -Jc home/{install,chroot} | e2cp -P 400 -O 0 -G 0 - "$HDB:home.tar.xz"
+  sudo tar --owner root --group root -Jc home/{install,chroot} | e2cp -P 400 -O 0 -G 0 - "$HDB:/home.tar.xz"
 else
   echo "qemu/kvm build" | tee /dev/tty
   if [ "$ARCH" = x86_64 ]; then
