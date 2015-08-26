@@ -1,10 +1,6 @@
 #!/bin/bash
 set -e
 
-ps auxw
-service --status-all
-free -m
-
 sudo service apache2 stop
 sudo service cassandra stop
 sudo service elasticsearch stop
@@ -15,8 +11,6 @@ sudo service postgresql stop
 sudo service rabbitmq-server stop
 sudo service rethinkdb stop
 sudo service sphinxsearch stop
-
-ps auxw
 service --status-all
 free -m
 
@@ -92,9 +86,10 @@ prepare_and_dist() {
   ../aboriginal_scripts/dist_heddle.sh -q -r         || return 1
   bsdtar -C .. -s "/^\./$prefix/" -JLcf "$HOME/$prefix.tar.xz" ./gen/x86_64/dist
 }
-prepare_and_dist gpt-btrfs
-prepare_and_dist gpt-ext4 -e
-prepare_and_dist mbr-btrfs -m
-prepare_and_dist mbr-ext4 '-m -e'
+#prepare_and_dist gpt-btrfs
+#prepare_and_dist gpt-ext4 -e
+#prepare_and_dist mbr-btrfs -m
+#prepare_and_dist mbr-ext4 '-m -e'
 
-ls "$HOME"
+ls -l "$HOME" ../gen/x86_64/images/home.img
+e2ls -l ../gen/x86_64/images/home.img
