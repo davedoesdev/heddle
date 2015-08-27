@@ -3,7 +3,7 @@ set -e
 
 chroot_build=
 uml_build=
-while getopts cur opt
+while getopts cu opt
 do
   case $opt in
     c)
@@ -11,9 +11,6 @@ do
       ;;
     u)
       uml_build=1
-      ;;
-    r)
-      remove_images=1
       ;;
   esac
 done
@@ -148,9 +145,6 @@ elif [ -n "$chroot_build" ]; then
   mkdir /tmp/chroot home mnt tmp
   e2extract "$HDB" home
   e2extract "$HDC" mnt
-  if [ -n "$remove_images" ]; then
-    rm -f "$HDB" "$HDC"
-  fi
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
   sudo mount -o bind "$ROOT_DIR" /tmp/chroot
   sudo mount -o remount,ro /tmp/chroot
@@ -170,14 +164,7 @@ cd
 touch /tmp/in_chroot
 exec /mnt/init
 EOF
-  tar_home() {
-    sudo tar --owner root --group root -Jc home/{install,chroot}
-  }
-  if [ -n "$remove_images" ]; then
-    tar_home > "$(dirname "$HDB")/home.tar.xz"
-  else
-    tar_home | e2cp -P 400 -O 0 -G 0 - "$HDB:/home.tar.xz"
-  fi
+  sudo tar --owner root --group root -Jc home/{install,chroot} | e2cp -P 400 -O 0 -G 0 - "$HDB:/home.tar.xz"
 else
   echo "qemu/kvm build" | tee /dev/tty
   if [ "$ARCH" = x86_64 ]; then
