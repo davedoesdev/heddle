@@ -37,6 +37,9 @@ tail -n 100 ../$logf
 
 xz ../$logf
 
+ls -lh ../gen/x86_64/images/home.tar.xz
+df -h
+
 #(
 #e2extract() {
 #  e2ls -l "$1:$3" | while read -r l; do
@@ -91,4 +94,3 @@ xz ../$logf
 #prepare_and_dist mbr-btrfs -m
 #prepare_and_dist mbr-ext4 '-m -e'
 
-ls -lh ../gen/x86_64/images/home.tar.xz
