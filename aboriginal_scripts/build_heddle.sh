@@ -135,7 +135,7 @@ exec /mnt/init < /dev/ttyS0 > /dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
   ( cd "$ROOT_DIR"; find . | cpio -o -H newc | gzip ) > initrd.img
-  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" ro initrd=initrd.img init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
+  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" initrd=initrd.img init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
 else
   echo "qemu/kvm build" | tee /dev/tty
   if [ "$ARCH" = x86_64 ]; then
