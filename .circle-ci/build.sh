@@ -8,6 +8,7 @@ fi
 echo "version: $version"
 
 cd aboriginal-*
+sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
 
 sudo ln -sf /bin/true /sbin/udevadm
@@ -21,7 +22,7 @@ sudo service mysql stop
 
 build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
-  ../aboriginal_scripts/build_heddle.sh
+  ../aboriginal_scripts/build_heddle.sh -u
 }
 logf=heddle-$version-log-x86_64.txt
 #if ! build >& ../$logf; then
