@@ -112,6 +112,7 @@ e2extract() {
 }
 
 if [ -n "$uml_build" ]; then
+  set -x
   echo "uml build" | tee /dev/tty
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
   cat > "$ROOT_DIR/init.uml" << 'EOF'
@@ -139,7 +140,7 @@ export PATH
 exec /usr/sbin/chroot /tmp/root /bin/ash < /dev/ttyS0 > /dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
+  linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
 elif [ -n "$chroot_build" ]; then
   echo "chroot build" | tee /dev/tty
   mkdir /tmp/chroot home mnt tmp
