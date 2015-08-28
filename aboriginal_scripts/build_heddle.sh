@@ -6,9 +6,6 @@ uml_build=
 while getopts cu opt
 do
   case $opt in
-    c)
-      chroot_build=1
-      ;;
     u)
       uml_build=1
       ;;
@@ -115,54 +112,44 @@ if [ -n "$uml_build" ]; then
   set -x
   echo "uml build" | tee /dev/tty
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
+  mksquashfs "$ROOT_DIR" root.sqf -noappend -all-root
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
-mkdir /tmp/root
-mount -o rbind / /tmp/root
-mount -o remount,ro /tmp/root
+
 mkdir /tmp/dev
 mknod /tmp/dev/ttyS0 c 4 64
 mknod /tmp/dev/urandom c 1 9
 mknod /tmp/dev/null c 1 3
-mknod /tmp/dev/hdb b 98 0
-mknod /tmp/dev/hdc b 98 16
+mknod /tmp/dev/hda b 98 0
+mknod /tmp/dev/hdb b 98 16
+mknod /tmp/dev/hdc b 98 32
+
+mkdir /tmp/root
+mount -o ro /tmp/dev/hda /tmp/root
 mount -o bind /tmp/dev /tmp/root/dev
+mount -t proc proc /tmp/root/proc
+mount -t tmpfs tmp /tmp/root/tmp
+mount -t sysfs sys /tmp/root/sys
+
 mount /tmp/dev/hdb /tmp/root/home
 mount -o ro /tmp/dev/hdc /tmp/root/mnt
+
 export HOME=/home
 export PATH
-ls /dev
+
 exec /usr/sbin/chroot /tmp/root /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
-elif [ -n "$chroot_build" ]; then
-  echo "chroot build" | tee /dev/tty
-  mkdir /tmp/chroot home mnt tmp
-  e2extract "$HDB" home
-  e2extract "$HDC" mnt
-  cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
-  sudo mount -o bind "$ROOT_DIR" /tmp/chroot
-  sudo mount -o remount,ro /tmp/chroot
-  sudo mount -o bind home /tmp/chroot/home
-  sudo mount -o bind mnt /tmp/chroot/mnt
-  sudo mount -o remount,ro /tmp/chroot/mnt
-  sudo mount -o bind tmp /tmp/chroot/tmp # don't use memory for tmpfs
-  sudo mount -o rbind /proc /tmp/chroot/proc
-  sudo mount -o rbind /sys /tmp/chroot/sys
-  sudo mount -o rbind /dev /tmp/chroot/dev
-  sudo chroot /tmp/chroot /bin/ash << EOF
-set -e
-export heddle_arch="$ARCH"
-export HOME=/home
-export PATH
-cd
-touch /tmp/in_chroot
-exec /mnt/init
-EOF
-  sudo tar --owner root --group root -Jc home/{install,chroot} | e2cp -P 400 -O 0 -G 0 - "$HDB:/home.tar.xz"
+# we have system-image-x86_64
+# can we put toolchain.sqf to hda?
+# and initramfs as rootfs.cpio.gz?
+# then can call /sbin/init.sh
+# no - we need to do the redirection
+# so mksquashfs on $ROOT_DIR and make that HDA
+# we'll also need to link ubda,b,c
+  exec linux.uml ubd0=root.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
 else
   echo "qemu/kvm build" | tee /dev/tty
   if [ "$ARCH" = x86_64 ]; then
