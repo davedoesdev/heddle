@@ -116,27 +116,27 @@ mkdir /zroot
 mv /* /zroot
 
 mkdir /proc
-/zroot/bin/mount -t proc proc /proc
+mount -t proc proc /proc
 
-/zroot/bin/mknod /zroot/dev/ttyS0 c 4 64
-/zroot/bin/mknod /zroot/dev/urandom c 1 9
-/zroot/bin/mknod /zroot/dev/null c 1 3
-/zroot/bin/mknod /zroot/dev/hdb b 98 0
-/zroot/bin/mknod /zroot/dev/hdc b 98 16
-/zroot/bin/ln -s hdb /zroot/dev/ubdb
-/zroot/bin/ln -s hdc /zroot/dev/ubdc
+mknod /zroot/dev/ttyS0 c 4 64
+mknod /zroot/dev/urandom c 1 9
+mknod /zroot/dev/null c 1 3
+mknod /zroot/dev/hdb b 98 0
+mknod /zroot/dev/hdc b 98 16
+ln -s hdb /zroot/dev/ubdb
+ln -s hdc /zroot/dev/ubdc
 
-/zroot/bin/mount -t proc proc /zroot/proc
-/zroot/bin/mount -t tmpfs tmp /zroot/tmp
-/zroot/bin/mount -t sysfs sys /zroot/sys
+mount -t proc proc /zroot/proc
+mount -t tmpfs tmp /zroot/tmp
+mount -t sysfs sys /zroot/sys
 
-/zroot/bin/mount /zroot/dev/hdb /zroot/home
-/zroot/bin/mount -o ro /zroot/dev/hdc /zroot/mnt
+mount /zroot/dev/hdb /zroot/home
+mount -o ro /zroot/dev/hdc /zroot/mnt
 
 export HOME=/home
 export PATH
 
-exec /zroot/bin/chroot /zroot /mnt/init < /zroot/dev/ttyS0 > /zroot/dev/ttyS0 2>&1
+exec chroot /zroot /mnt/init < /zroot/dev/ttyS0 > /zroot/dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
   ( cd "$ROOT_DIR"; find . | cpio -o -H newc | gzip ) > initrd.img
