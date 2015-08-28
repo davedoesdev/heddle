@@ -125,6 +125,9 @@ mknod /tmp/dev/null c 1 3
 mknod /tmp/dev/hda b 98 0
 mknod /tmp/dev/hdb b 98 16
 mknod /tmp/dev/hdc b 98 32
+ln -s hda /tmp/dev/ubda
+ln -s hdb /tmp/dev/ubdb
+ln -s hdc /tmp/dev/ubdc
 
 mkdir /tmp/root
 mount -o ro /tmp/dev/hda /tmp/root
@@ -142,13 +145,6 @@ export PATH
 exec /usr/sbin/chroot /tmp/root /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-# we have system-image-x86_64
-# can we put toolchain.sqf to hda?
-# and initramfs as rootfs.cpio.gz?
-# then can call /sbin/init.sh
-# no - we need to do the redirection
-# so mksquashfs on $ROOT_DIR and make that HDA
-# we'll also need to link ubda,b,c
   exec linux.uml ubd0=root.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
 else
   echo "qemu/kvm build" | tee /dev/tty
