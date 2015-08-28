@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-chroot_build=
 uml_build=
 while getopts cu opt
 do
@@ -115,23 +114,30 @@ if [ -n "$uml_build" ]; then
 #!/bin/ash
 mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
-mount -t sysfs sys /sys
 
-mknod /dev/ttyS0 c 4 64
-mknod /dev/urandom c 1 9
-mknod /dev/null c 1 3
-mknod /dev/hdb b 98 0
-mknod /dev/hdc b 98 16
-ln -s hdb /dev/ubdb
-ln -s hdc /dev/ubdc
+mkdir /tmp/dev
+mknod /tmp/dev/ttyS0 c 4 64
+mknod /tmp/dev/urandom c 1 9
+mknod /tmp/dev/null c 1 3
+mknod /tmp/dev/hdb b 98 0
+mknod /tmp/dev/hdc b 98 16
+ln -s hdb /tmp/dev/ubdb
+ln -s hdc /tmp/dev/ubdc
 
-mount /dev/hdb /home
-mount -o ro /dev/hdc /mnt
+mkdir /tmp/root
+mount -o bind / /tmp/root
+mount -o remount,ro /tmp/root
+mount -t proc proc /tmp/root/proc
+mount -t tmpfs tmp /tmp/root/tmp
+mount -t sysfs sys /tmp/root/sys
+
+mount /dev/hdb /tmp/root/home
+mount -o ro /dev/hdc /tmp/root/mnt
 
 export HOME=/home
 export PATH
 
-exec chroot / /mnt/init < /dev/ttyS0 > /dev/ttyS0 2>&1
+exec chroot /tmp/root /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
   ( cd "$ROOT_DIR"; find . | cpio -o -H newc | gzip ) > initrd.img
