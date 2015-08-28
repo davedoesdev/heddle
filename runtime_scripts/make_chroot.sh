@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 HERE="$(dirname "$0")"
 
 if [ $# -ne 1 ]; then

@@ -117,9 +117,6 @@ mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
 mount -t sysfs sys /sys
 
-echo WOW
-ls /dev
-echo WEE
 mknod /dev/ttyS0 c 4 64
 mknod /dev/urandom c 1 9
 mknod /dev/null c 1 3
