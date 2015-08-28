@@ -132,7 +132,7 @@ mount -o ro /dev/hdc /mnt
 export HOME=/home
 export PATH
 
-exec /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
+exec /mnt/init < /dev/ttyS0 > /dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
   ( cd "$ROOT_DIR"; find . | cpio -o -H newc | gzip ) > initrd.img
