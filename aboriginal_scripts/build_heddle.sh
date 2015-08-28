@@ -130,10 +130,9 @@ mount -o remount,ro /tmp/root
 mount -t proc proc /tmp/root/proc
 mount -t tmpfs tmp /tmp/root/tmp
 mount -t sysfs sys /tmp/root/sys
-mount -o bind /tmp/dev /tmp/root/dev
 
-mount /tmp/dev/hdb /tmp/root/home
-mount -o ro /tmp/dev/hdc /tmp/root/mnt
+mount /dev/hdb /tmp/root/home
+mount -o ro /dev/hdc /tmp/root/mnt
 
 export HOME=/home
 export PATH
