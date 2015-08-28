@@ -109,6 +109,7 @@ e2extract() {
 }
 
 if [ -n "$uml_build" ]; then
+  set -x
   echo "uml build" | tee /dev/tty
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
   cat > "$ROOT_DIR/init.uml" << 'EOF'
@@ -117,9 +118,6 @@ mount -t proc proc /proc
 mount -t tmpfs tmp /tmp
 mount -t sysfs sys /sys
 
-echo WOW
-ls /dev
-echo WEE
 mknod /dev/ttyS0 c 4 64
 mknod /dev/urandom c 1 9
 mknod /dev/null c 1 3
