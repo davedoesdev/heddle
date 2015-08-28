@@ -22,7 +22,7 @@ sudo service mysql stop
 
 build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
-  ../aboriginal_scripts/build_heddle.sh
+  ../aboriginal_scripts/build_heddle.sh -u
 }
 logf=heddle-$version-log-x86_64.txt
 #if ! build >& ../$logf; then
