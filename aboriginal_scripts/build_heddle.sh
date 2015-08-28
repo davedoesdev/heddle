@@ -125,7 +125,7 @@ ln -s hdb /tmp/dev/ubdb
 ln -s hdc /tmp/dev/ubdc
 
 mkdir /tmp/root
-mount -o rbind / /tmp/root
+mount -o bind,ro / /tmp/root
 mount -o remount,ro /tmp/root
 mount -t proc proc /tmp/root/proc
 mount -t tmpfs tmp /tmp/root/tmp
