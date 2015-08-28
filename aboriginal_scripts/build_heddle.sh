@@ -134,7 +134,7 @@ mount -o ro /tmp/dev/hdc /tmp/root/mnt
 export HOME=/home
 export PATH
 ls /dev
-exec /usr/sbin/chroot /tmp/root /tmp/root/mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
+exec /usr/sbin/chroot /tmp/root /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
   exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
