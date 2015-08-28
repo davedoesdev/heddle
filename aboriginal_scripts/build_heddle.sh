@@ -109,6 +109,7 @@ e2extract() {
 }
 
 if [ -n "$uml_build" ]; then
+  set -x
   echo "uml build" | tee /dev/tty
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
   mksquashfs "$ROOT_DIR" root.sqf -noappend -all-root
