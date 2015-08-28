@@ -25,8 +25,7 @@ build() {
   ../aboriginal_scripts/build_heddle.sh -u
 }
 logf=heddle-$version-log-x86_64.txt
-touch ../$logf
-if ! build; then
+if ! build >& ../$logf; then
   tail -n 1000 ../$logf
   exit 1
 fi
