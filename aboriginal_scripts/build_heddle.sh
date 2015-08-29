@@ -111,10 +111,13 @@ e2extract() {
 if [ -n "$uml_build" ]; then
   echo "uml build" | tee /dev/tty
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
+  rm -f "$ROOT_DIR/root.sqf"
+  mksquashfs "$ROOT_DIR" root.sqf -noappend -all-root
+  mv root.sqf "$ROOT_DIR"
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 mount -t proc proc /proc
-mount -t tmpfs -o size=1024M tmp /tmp
+mount -t tmpfs tmp /tmp
 
 mkdir /tmp/dev
 mknod /tmp/dev/ttyS0 c 4 64
@@ -126,8 +129,7 @@ ln -s hdb /tmp/dev/ubdb
 ln -s hdc /tmp/dev/ubdc
 
 mkdir /tmp/root
-find / -maxdepth 1 -not -name tmp -exec cp -a {} /tmp/root \;
-sudo /usr/sbin/chroot /tmp/root ls -l /bin
+unsquashfs -d /tmp/root /root.sqf
 
 mount -o bind /tmp/dev /tmp/root/dev
 mount -t proc proc /tmp/root/proc
@@ -142,8 +144,6 @@ export PATH
 exec /usr/sbin/chroot /tmp/root /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-# can we create a tmpfs inside uml and cp -a /dev/hda to it?
-# then use that as the chroot
   exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="$((BUILD_MEM + 1024))M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
 else
   echo "qemu/kvm build" | tee /dev/tty
