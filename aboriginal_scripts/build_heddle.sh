@@ -111,9 +111,9 @@ e2extract() {
 if [ -n "$uml_build" ]; then
   echo "uml build" | tee /dev/tty
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
-  rm -f "$ROOT_DIR/root.sqf"
-  mksquashfs "$ROOT_DIR" root.sqf -noappend -all-root
-  mv root.sqf "$ROOT_DIR"
+  rm -f "$ROOT_DIR/root.tar.xz"
+  tar --owner root --group root -Jcf root.tar.xz -C "$ROOT_DIR" .
+  mv root.tar.xz "$ROOT_DIR"
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 mount -t proc proc /proc
@@ -129,7 +129,7 @@ ln -s hdb /tmp/dev/ubdb
 ln -s hdc /tmp/dev/ubdc
 
 mkdir /tmp/root
-unsquashfs -d /tmp/root /root.sqf
+tar -C /tmp/root -Jxf /root.tar.xz
 
 mount -o bind /tmp/dev /tmp/root/dev
 mount -t proc proc /tmp/root/proc
