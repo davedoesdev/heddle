@@ -1,7 +1,6 @@
 #!/bin/bash
 # build enough to get docker and capstan working
 set -e
-set -x
 if [ ! -h /dev/fd ]; then
   ln -s /proc/self/fd /dev
 fi
