@@ -134,6 +134,7 @@ mount /tmp/dev/hda /tmp/root
 mkdir /tmp/chroot
 mount -t tmpfs -o size=1024M tmp /tmp/chroot
 cp -a /tmp/root/* /tmp/chroot
+sudo /usr/sbin/chroot /tmp/chroot ls -l /bin
 
 mount -o bind /tmp/dev /tmp/chroot/dev
 mount -t proc proc /tmp/chroot/proc
@@ -145,7 +146,7 @@ mount -o ro /tmp/dev/hdc /tmp/chroot/mnt
 export HOME=/home
 export PATH
 
-ls -l /tmp/chroot/bin
+ls -l /tmp/chroot
 echo $PATH
 
 exec /usr/sbin/chroot /tmp/chroot /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
