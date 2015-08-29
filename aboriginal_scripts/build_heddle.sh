@@ -124,15 +124,14 @@ mknod /tmp/dev/null c 1 3
 mknod /tmp/dev/hda b 98 0
 mknod /tmp/dev/hdb b 98 16
 mknod /tmp/dev/hdc b 98 32
-mknod /tmp/dev/ubda b 98 0
-mknod /tmp/dev/ubdb b 98 16
-mknod /tmp/dev/ubdc b 98 32
+ln -s hda /tmp/dev/ubda
+ln -s hdb /tmp/dev/ubdb
+ln -s hdc /tmp/dev/ubdc
 
 mkdir /tmp/root
-mount -o ro /tmp/dev/hda /tmp/root
+mount /tmp/dev/hda /tmp/root
 mount -o bind /tmp/dev /tmp/root/dev
 mount -t proc proc /tmp/root/proc
-mount -t tmpfs tmp /tmp/root/tmp
 mount -t sysfs sys /tmp/root/sys
 
 mount /tmp/dev/hdb /tmp/root/home

@@ -83,17 +83,15 @@ if [ -n "$interactive" -o -n "$Interactive" ]; then
   chroot "$CHROOT_DIR" ash
 fi
 
-if [ ! -f /tmp/in_chroot ]; then
-  echo 'Syncing'
-  sync
-  echo 'Re-mounting drives read-only'
-  mount -o remount,ro /dev/[hsv]db || true
-  if [ -b /dev/[hsv]dd ]; then
-    swapoff /dev/[hsv]dd || true
-  fi
-  if [ -b /dev/ubdb ]; then
-    exec poweroff
-  fi
-  # Not all QEMU machines support poweroff so assume -no-reboot was used
-  exec reboot
+echo 'Syncing'
+sync
+echo 'Re-mounting drives read-only'
+mount -o remount,ro /dev/[hsv]db || true
+if [ -b /dev/[hsv]dd ]; then
+  swapoff /dev/[hsv]dd || true
 fi
+if [ -b /dev/ubdb ]; then
+  exec poweroff
+fi
+# Not all QEMU machines support poweroff so assume -no-reboot was used
+exec reboot
