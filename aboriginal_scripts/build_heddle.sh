@@ -111,50 +111,40 @@ e2extract() {
 if [ -n "$uml_build" ]; then
   echo "uml build" | tee /dev/tty
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
-  mksquashfs "$ROOT_DIR" root.sqf -noappend -all-root
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 mount -t proc proc /proc
-mount -t tmpfs tmp /tmp
+mount -t tmpfs -o size=1024M tmp /tmp
 
 mkdir /tmp/dev
 mknod /tmp/dev/ttyS0 c 4 64
 mknod /tmp/dev/urandom c 1 9
 mknod /tmp/dev/null c 1 3
-mknod /tmp/dev/hda b 98 0
-mknod /tmp/dev/hdb b 98 16
-mknod /tmp/dev/hdc b 98 32
-ln -s hda /tmp/dev/ubda
+mknod /tmp/dev/hdb b 98 0
+mknod /tmp/dev/hdc b 98 16
 ln -s hdb /tmp/dev/ubdb
 ln -s hdc /tmp/dev/ubdc
 
 mkdir /tmp/root
-mount /tmp/dev/hda /tmp/root
+find / -maxdepth 1 -not -name tmp -exec cp -a {} /tmp/root \;
+sudo /usr/sbin/chroot /tmp/root ls -l /bin
 
-mkdir /tmp/chroot
-mount -t tmpfs -o size=1024M tmp /tmp/chroot
-cp -a /tmp/root/* /tmp/chroot
-sudo /usr/sbin/chroot /tmp/chroot ls -l /bin
+mount -o bind /tmp/dev /tmp/root/dev
+mount -t proc proc /tmp/root/proc
+mount -t sysfs sys /tmp/root/sys
 
-mount -o bind /tmp/dev /tmp/chroot/dev
-mount -t proc proc /tmp/chroot/proc
-mount -t sysfs sys /tmp/chroot/sys
-
-mount /tmp/dev/hdb /tmp/chroot/home
-mount -o ro /tmp/dev/hdc /tmp/chroot/mnt
+mount /tmp/dev/hdb /tmp/root/home
+mount -o ro /tmp/dev/hdc /tmp/root/mnt
 
 export HOME=/home
 export PATH
 
-ls -l /tmp/chroot
-echo $PATH
-
-exec /usr/sbin/chroot /tmp/chroot /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
+exec /usr/sbin/chroot /tmp/root /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
 # can we create a tmpfs inside uml and cp -a /dev/hda to it?
 # then use that as the chroot
-  exec linux.uml ubd0=root.sqf "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="$((BUILD_MEM + 1024))M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
+  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="$((BUILD_MEM + 1024))M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
 else
   echo "qemu/kvm build" | tee /dev/tty
   if [ "$ARCH" = x86_64 ]; then
