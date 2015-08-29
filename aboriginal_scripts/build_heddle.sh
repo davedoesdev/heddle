@@ -133,7 +133,7 @@ mount /tmp/dev/hda /tmp/root
 
 mkdir /tmp/chroot
 mount -t tmpfs -o size=1024M tmp /tmp/chroot
-cp -a /tmp/root /tmp/chroot
+cp -a /tmp/root/* /tmp/chroot
 
 mount -o bind /tmp/dev /tmp/chroot/dev
 mount -t proc proc /tmp/chroot/proc
