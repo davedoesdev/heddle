@@ -70,6 +70,9 @@ for pkg in "${PACKAGES[@]}"; do
         BLD_${pkg}_$heddle_arch
       fi
       popd
+      if [ -b /dev/ubdb ]; then
+        rm -rf "${!vdir}"
+      fi
     fi
     touch "${!vdir}.built"
     echo "-$pkg" > /dev/tty
