@@ -145,6 +145,7 @@ export HOME=/home
 export PATH
 
 mount
+ls /tmp/dev
 
 exec /usr/sbin/chroot /tmp/root /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
 EOF
