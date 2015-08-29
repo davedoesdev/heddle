@@ -141,8 +141,8 @@ mount -o ro /tmp/dev/hdc /tmp/root/mnt
 mkdir /tmp/source /tmp/root/home/source
 mount -o bind /tmp/source /tmp/root/home/source
 
-ifconfig eth0 10.0.2.15
-route add default gw 10.0.2.2
+ifconfig eth0 10.0.2.15 up
+route add default dev eth0
 
 export HOME=/home
 export PATH
