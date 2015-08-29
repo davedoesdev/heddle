@@ -145,7 +145,7 @@ mount -o ro /tmp/dev/hdc /tmp/chroot/mnt
 export HOME=/home
 export PATH
 
-ls /tmp/chroot
+ls -l /tmp/chroot/bin
 echo $PATH
 
 exec /usr/sbin/chroot /tmp/chroot /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
