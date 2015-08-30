@@ -117,7 +117,6 @@ if [ -n "$uml_build" ]; then
 mount -t proc proc /proc
 mount -t tmpfs tmp /dev
 
-mkdir /dev
 mknod /dev/ttyS0 c 4 64
 mknod /dev/urandom c 1 9
 mknod /dev/null c 1 3
