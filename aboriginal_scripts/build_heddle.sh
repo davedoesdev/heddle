@@ -125,6 +125,7 @@ mknod /dev/hdc b 98 32
 ln -s hda /dev/ubda
 ln -s hdb /dev/ubdb
 ln -s hdc /dev/ubdc
+ls -l /dev
 
 mount -o ro /dev/hda /root
 mount /dev/hdb /root/home
