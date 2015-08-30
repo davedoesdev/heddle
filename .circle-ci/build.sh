@@ -19,7 +19,7 @@ sudo service apache2 stop
 sudo service postgresql stop
 sudo service rabbitmq-server stop
 sudo service mysql stop
-sudo service uml-utilities status
+sudo service uml-utilities start
 
 build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
