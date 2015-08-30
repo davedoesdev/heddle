@@ -132,7 +132,7 @@ mount /dev/hdb /root/home
 mount -o ro /dev/hdc /root/mnt
 mount -o bind /dev /root/dev
 mount -o bind /proc /root/proc
-mount -t tmpfs tmp /tmp/root/tmp
+mount -t tmpfs tmp /root/tmp
 mount -t sysfs sys /root/sys
 mount
 
