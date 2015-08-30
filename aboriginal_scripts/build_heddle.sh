@@ -111,9 +111,7 @@ e2extract() {
 if [ -n "$uml_build" ]; then
   echo "uml build" | tee /dev/tty
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
-  rm -f "$ROOT_DIR/root.tar.xz"
-  tar --owner root --group root -Jcf root.tar.xz -C "$ROOT_DIR" .
-  mv root.tar.xz "$ROOT_DIR"
+  mksquashfs "$ROOT_DIR" root.sqf -noappend -all-root
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 mount -t proc proc /proc
@@ -123,38 +121,33 @@ mkdir /tmp/dev
 mknod /tmp/dev/ttyS0 c 4 64
 mknod /tmp/dev/urandom c 1 9
 mknod /tmp/dev/null c 1 3
-mknod /tmp/dev/hdb b 98 0
-mknod /tmp/dev/hdc b 98 16
+mknod /tmp/dev/hda b 98 0
+mknod /tmp/dev/hdb b 98 16
+mknod /tmp/dev/hdc b 98 32
+ln -s hda /tmp/dev/ubda
 ln -s hdb /tmp/dev/ubdb
 ln -s hdc /tmp/dev/ubdc
 
 mkdir /tmp/root
-tar -C /tmp/root -Jxf /root.tar.xz
-
+mount -o ro /tmp/dev/hda /tmp/root
+mount /tmp/dev/hdb /tmp/root/home
+mount -o ro /tmp/dev/hdc /tmp/root/mnt
 mount -o bind /tmp/dev /tmp/root/dev
 mount -t proc proc /tmp/root/proc
 mount -t sysfs sys /tmp/root/sys
-
-mount /tmp/dev/hdb /tmp/root/home
-mount -o ro /tmp/dev/hdc /tmp/root/mnt
-
-mkdir /tmp/source /tmp/root/home/source
-mount -o bind /tmp/source /tmp/root/home/source
+mount
 
 ifconfig eth0 10.0.2.15 up
 route add default dev eth0
+ifconfig
 
 export HOME=/home
 export PATH
 
-mount
-ls /tmp/dev
-ifconfig
-
 exec /usr/sbin/chroot /tmp/root /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  exec linux.uml "ubd0=$HDB" "ubd1=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="$((BUILD_MEM + 1024))M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
+  exec linux.uml "ubd0=root.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
 else
   echo "qemu/kvm build" | tee /dev/tty
   if [ "$ARCH" = x86_64 ]; then

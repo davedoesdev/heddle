@@ -1,7 +1,5 @@
-if [ ! -b /dev/ubdb ]; then
-  mount -o remount,ro /
-  mount -t tmpfs /tmp /tmp
-fi
+mount -o remount,ro /
+mount -t tmpfs /tmp /tmp
 sysctl -q kernel.printk="3 4 1 3" || true
 ifconfig lo 127.0.0.1
 
