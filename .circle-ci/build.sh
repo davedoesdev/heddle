@@ -20,10 +20,6 @@ sudo service postgresql stop
 sudo service rabbitmq-server stop
 sudo service mysql stop
 
-sudo chmod o+w /etc/default/uml-utilities /var/run/uml-utilities
-echo "UML_SWITCH_USER=\"$(id -un)\"" >> /etc/default/uml-utilities
-sudo service uml-utilities restart
-
 build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -u
