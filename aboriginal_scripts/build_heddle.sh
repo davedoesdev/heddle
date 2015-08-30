@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-chroot_build=
 uml_build=
 while getopts cu opt
 do
