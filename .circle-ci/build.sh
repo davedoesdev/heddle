@@ -21,7 +21,7 @@ sudo service rabbitmq-server stop
 sudo service mysql stop
 
 sudo chmod o+w /etc/default/uml-utilities /var/run/uml-utilities
-cat ubuntu >> /etc/default/uml-utilities
+echo "UML_SWITCH_USER=\"$(id -un)\"" >> /etc/default/uml-utilities
 sudo service uml-utilities restart
 
 build() {
