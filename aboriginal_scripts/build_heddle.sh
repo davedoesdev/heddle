@@ -115,26 +115,26 @@ if [ -n "$uml_build" ]; then
   cat > "$ROOT_DIR/init.uml" << 'EOF'
 #!/bin/ash
 mount -t proc proc /proc
-mount -t tmpfs tmp /tmp
+mount -t tmpfs tmp /dev
 
-mkdir /tmp/dev
-mknod /tmp/dev/ttyS0 c 4 64
-mknod /tmp/dev/urandom c 1 9
-mknod /tmp/dev/null c 1 3
-mknod /tmp/dev/hda b 98 0
-mknod /tmp/dev/hdb b 98 16
-mknod /tmp/dev/hdc b 98 32
-ln -s hda /tmp/dev/ubda
-ln -s hdb /tmp/dev/ubdb
-ln -s hdc /tmp/dev/ubdc
+mkdir /dev
+mknod /dev/ttyS0 c 4 64
+mknod /dev/urandom c 1 9
+mknod /dev/null c 1 3
+mknod /dev/hda b 98 0
+mknod /dev/hdb b 98 16
+mknod /dev/hdc b 98 32
+ln -s hda /dev/ubda
+ln -s hdb /dev/ubdb
+ln -s hdc /dev/ubdc
 
-mkdir /tmp/root
-mount -o ro /tmp/dev/hda /tmp/root
-mount /tmp/dev/hdb /tmp/root/home
-mount -o ro /tmp/dev/hdc /tmp/root/mnt
-mount -o bind /tmp/dev /tmp/root/dev
-mount -t proc proc /tmp/root/proc
-mount -t sysfs sys /tmp/root/sys
+mount -o ro /dev/hda /root
+mount /dev/hdb /root/home
+mount -o ro /dev/hdc /root/mnt
+mount -o bind /dev /root/dev
+mount -o bind /proc /root/proc
+mount -t tmpfs tmp /tmp/root/tmp
+mount -t sysfs sys /root/sys
 mount
 
 ifconfig eth0 10.0.2.15 up
@@ -144,7 +144,7 @@ ifconfig
 export HOME=/home
 export PATH
 
-exec /usr/sbin/chroot /tmp/root /mnt/init < /tmp/dev/ttyS0 > /tmp/dev/ttyS0 2>&1
+exec /usr/sbin/chroot /root /mnt/init < /dev/ttyS0 > /dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
   exec linux.uml "ubd0=root.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
