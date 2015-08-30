@@ -1,10 +1,5 @@
 #!/bin/bash
 # build enough to get docker and capstan working
-if [ -b /dev/ubdb ]; then
-  echo YES in uml
-else
-  echo NO not in uml
-fi
 set -e
 if [ ! -h /dev/fd ]; then
   ln -s /proc/self/fd /dev
