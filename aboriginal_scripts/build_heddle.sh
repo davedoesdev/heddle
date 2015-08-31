@@ -142,10 +142,10 @@ ifconfig
 export HOME=/home
 export PATH
 
-exec /usr/sbin/chroot /root /mnt/init
+exec /usr/sbin/chroot /root /mnt/init < /dev/ttyS0 > /dev/ttyS0 2>&1
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  exec linux.uml "ubd0=root.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
+  exec linux.uml "ubd0=root.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
 else
   echo "qemu/kvm build" | tee /dev/tty
   if [ "$ARCH" = x86_64 ]; then
