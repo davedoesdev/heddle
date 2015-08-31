@@ -1,7 +1,7 @@
 mount -o remount,ro /
 mount -t tmpfs /tmp /tmp
 sysctl -q kernel.printk="3 4 1 3" || true
-ifconfig lo 127.0.0.1
+ifconfig lo 127.0.0.1 up
 
 CHROOT_DIR="$HOME/chroot"
 "$HERE/make_chroot.sh" "$CHROOT_DIR"
