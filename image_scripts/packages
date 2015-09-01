@@ -523,7 +523,7 @@ EOF
 EOF
 
   # Copy race detector we built from source
-  if [ "$heddle_arch" = x86_64 -a ! -b /dev/ubdb ]; then
+  if [ "$heddle_arch" = x86_64 ]; then
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
   fi
 
