@@ -554,6 +554,7 @@ URL_LIBAIO="https://git.fedorahosted.org/cgit/libaio.git/snapshot/$SRC_LIBAIO"
 CHK_LIBAIO="5c69f43b71d0979b870f49a6cb9e2547ae2344575d8428698ebf5fde13b33529"
 SUM_LIBAIO="sha256"
 BLD_LIBAIO() {
+  rm -f "$INSTALL_DIR"/{include/libaio.h,lib/libaio.*}
   make "prefix=$INSTALL_DIR" install
 }
 
@@ -730,10 +731,22 @@ BLD_LVM() {
   ac_cv_flag_HAVE_PIE=no LIBS=-lpthread ./configure "--prefix=$INSTALL_DIR" --with-lvm1=none --without-systemdsystemunitdir --disable-udev-systemd-background-jobs --enable-static_link
   sed -ri 's/autoconf\/(install-sh)/\1/g' make.tmpl
   gcc '-D__FBSDID(x)=' -DSIZE_T_MAX=-1 -o autoconf/fmt autoconf/fmt.c
+  rm -f "$INSTALL_DIR"/{include/libdevmapper.h,lib/libdevmapper.*,sbin/dmsetup{,.static}}
   PATH="$PATH:$PWD/autoconf" make device-mapper
   PATH="$PATH:$PWD/autoconf" make install_device-mapper
   cp -af autoconf/fmt "$INSTALL_DIR/bin"
   cp libdm/libdevmapper.pc "$INSTALL_DIR/lib/pkgconfig"
+}
+
+DIR_GETTEXT="gettext-0.19.4"
+SRC_GETTEXT="$DIR_GETTEXT.tar.xz"
+URL_GETTEXT="http://ftp.gnu.org/pub/gnu/gettext/$SRC_GETTEXT"
+CHK_GETTEXT="719adadb8bf3e36bac52c243a01c0add18d23506a3a40437e6f5899ceab18d20"
+SUM_GETTEXT="sha256"
+BLD_GETTEXT() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
 }
 
 VER_UTIL_LINUX="2.25.2"
@@ -866,9 +879,18 @@ URL_BTRFS_PROGS="http://ftp.de.debian.org/debian/pool/main/b/btrfs-tools/$SRC_BT
 CHK_BTRFS_PROGS="1abac9ab6c00b551142306431a7f6017"
 SUM_BTRFS_PROGS="md5"
 BLD_BTRFS_PROGS() {
-  patch -p0 <<EOF
+  patch -p0 << EOF
 --- Makefile.orig
 +++ Makefile
+@@ -26,7 +26,7 @@
+ INSTALL = install
+ prefix ?= /usr/local
+ bindir = \$(prefix)/bin
+-lib_LIBS = -luuid -lblkid -lm -lz -llzo2 -L.
++lib_LIBS = -luuid -lintl -lblkid -lm -lz -llzo2 -L.
+ libdir ?= \$(prefix)/lib
+ incdir = \$(prefix)/include/btrfs
+ LIBS = \$(lib_LIBS) \$(libs_static)
 @@ -47,7 +47,7 @@
  MAKEOPTS = --no-print-directory Q=\$(Q)
  
@@ -1076,7 +1098,7 @@ BLD_REFLEX() {
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
-  ( cd "$INSTALL_DIR/bin"; ln -s reflex flex; ln -s reflex lex )
+  ( cd "$INSTALL_DIR/bin"; ln -sf reflex flex; ln -sf reflex lex )
 }
 
 DIR_CONNTRACK_TOOLS="conntrack-tools-1.4.2"
@@ -1174,7 +1196,7 @@ URL_PARTED="http://ftp.gnu.org/gnu/parted/$SRC_PARTED"
 CHK_PARTED="858b589c22297cacdf437f3baff6f04b333087521ab274f7ab677cb8c6bb78e4"
 SUM_PARTED="sha256"
 BLD_PARTED() {
-  LIBS=-liconv ./configure "--prefix=$INSTALL_DIR" --without-readline
+  LIBS="-liconv -lintl" ./configure "--prefix=$INSTALL_DIR" --without-readline
   make
   make install
 }
@@ -1213,17 +1235,6 @@ BLD_DHCPCD() {
   cd "$PWD"
   make install
 EOF
-}
-
-DIR_GETTEXT="gettext-0.19.4"
-SRC_GETTEXT="$DIR_GETTEXT.tar.xz"
-URL_GETTEXT="http://ftp.gnu.org/pub/gnu/gettext/$SRC_GETTEXT"
-CHK_GETTEXT="719adadb8bf3e36bac52c243a01c0add18d23506a3a40437e6f5899ceab18d20"
-SUM_GETTEXT="sha256"
-BLD_GETTEXT() {
-  ./configure "--prefix=$INSTALL_DIR"
-  make
-  make install
 }
 
 VER_GLIB="2.42.1"
@@ -1681,6 +1692,7 @@ PACKAGES=(LIBICONV
           BOOST
           THIN_PROVISIONING_TOOLS
           LVM
+          GETTEXT
           UTIL_LINUX
           LZO
           E2FSPROGS
@@ -1709,7 +1721,6 @@ PACKAGES=(LIBICONV
           POPT
           GPTFDISK
           DHCPCD
-          GETTEXT
           GLIB
           PIXMAN
           QEMU
