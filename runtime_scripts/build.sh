@@ -2,15 +2,6 @@
 # build enough to get docker and capstan working
 set -e
 
-if [ ! -f /tmp/in_chroot ]; then
-  if [ ! -h /dev/fd ]; then
-    ln -s /proc/self/fd /dev
-  fi
-  if [ -b /dev/[hsv]dd ]; then
-    swapon /dev/[hsv]dd
-  fi
-fi
-
 cleanup() {
   trap - EXIT
   echo 'Syncing'
@@ -26,7 +17,16 @@ cleanup() {
   # Not all QEMU machines support poweroff so assume -no-reboot was used
   exec reboot
 }
-trap cleanup EXIT
+
+if [ ! -h /dev/fd ]; then
+  ln -s /proc/self/fd /dev
+fi
+if [ ! -f /tmp/in_chroot ]; then
+  if [ -b /dev/[hsv]dd ]; then
+    swapon /dev/[hsv]dd
+  fi
+  trap cleanup EXIT
+fi
 
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
