@@ -1,12 +1,16 @@
 #!/bin/bash
 set -e
 
+chroot_build=
 uml_build=
 interactive=
 Interactive=
 while getopts cuiI opt
 do
   case $opt in
+    c)
+      chroot_build=1
+      ;; 
     u)
       uml_build=1
       ;;
@@ -96,26 +100,28 @@ ROOT_DIR="$PWD/build/root-filesystem-$ARCH"
 OVERLAY_DIR="$PWD/build/native-compiler-$ARCH"
 cd "build/system-image-$ARCH"
 
-e2extract() {
-  e2ls -l "$1:$3" | while read -r l; do
-    if [ -n "$l" ]; then
-      f="$(echo "$l" | awk '{print $NF}')"
-      if [ "$f" != lost+found ]; then
-        m="$(echo "$l" | awk '{print substr($2, length($2)-4, 1)}')"
-        if [ "$m" = 4 ]; then
-          mkdir "$2$3/$f"
-          e2extract "$1" "$2" "$3/$f"
-        else
-          e2cp "$1:$3/$f" "$2$3/$f"
-        fi
-        p="$(echo "$l" | awk '{print substr($2, length($2)-2)}')"
-        chmod "$p" "$2$3/$f"
-      fi
-    fi
-  done
-}
-
-if [ -n "$uml_build" ]; then
+if [ -n "$chroot_build" ]; then
+  echo "chroot build" | tee /dev/tty
+  mkdir /tmp/chroot tmp
+  cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
+  sudo mount -o bind "$ROOT_DIR" /tmp/chroot
+  sudo mount -o remount,ro /tmp/chroot
+  sudo mount -o loop "$HDB" /tmp/chroot/home
+  sudo mount -o loop,ro "$HDC" /tmp/chroot/mnt
+  sudo mount -o bind tmp /tmp/chroot/tmp # don't use memory for tmpfs
+  sudo mount -o rbind /proc /tmp/chroot/proc
+  sudo mount -o rbind /sys /tmp/chroot/sys
+  sudo mount -o rbind /dev /tmp/chroot/dev
+  sudo chroot /tmp/chroot /bin/ash << EOF
+set -e
+export heddle_arch="$ARCH"
+export HOME=/home
+export PATH
+cd
+touch /tmp/in_chroot
+exec /mnt/init $interactive $Interactive
+EOF
+elif [ -n "$uml_build" ]; then
   echo "uml build" | tee /dev/tty
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
   mksquashfs "$ROOT_DIR" root.sqf -noappend -all-root
