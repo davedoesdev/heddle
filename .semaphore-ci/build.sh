@@ -24,6 +24,12 @@ sudo service sphinxsearch stop
 service --status-all
 free -m
 
+sudo apt-get purge -y apache2 cassandra elasticsearch memcached mongodb-org \
+                      mysql-server postgresql-9.4 rabbitmq-server rethinkdb \
+                      sphinxsearch
+sudo apt-get autoremove -y
+df -h
+
 build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -c
