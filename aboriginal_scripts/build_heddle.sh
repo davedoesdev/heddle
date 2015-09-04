@@ -124,7 +124,6 @@ if [ -n "$uml_build" ]; then
 mount -t proc proc /proc
 mount -t tmpfs tmp /dev
 
-mknod /dev/ttyS0 c 4 64
 mknod /dev/random c 1 8
 mknod /dev/urandom c 1 9
 mknod /dev/null c 1 3
@@ -151,14 +150,10 @@ ifconfig
 export HOME=/home
 export PATH
 
-/usr/sbin/chroot /root /mnt/init $interactive $Interactive < /dev/ttyS0 > /dev/ttyS0 2>&1
-
-sync
-mount -o remount,ro /dev/hdb || true
-exec poweroff
+exec /usr/sbin/chroot /root /mnt/init $interactive $Interactive
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  exec linux.uml "ubd0=root.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" con0=fd:3,fd:4 ssl0=fd:0,fd:1 console=ttyS0 "heddle_arch=$ARCH" eth0=slirp 3>/dev/null 4>&1
+  exec linux.uml "ubd0=root.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" "heddle_arch=$ARCH" eth0=slirp
 else
   echo "qemu/kvm build" | tee /dev/tty
   if [ "$ARCH" = x86_64 ]; then

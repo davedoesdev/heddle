@@ -7,6 +7,24 @@ fi
 if [ -b /dev/[hsv]dd ]; then
   swapon /dev/[hsv]dd
 fi
+
+cleanup() {
+  trap - EXIT
+  echo 'Syncing'
+  sync
+  echo 'Re-mounting drives read-only'
+  mount -o remount,ro /dev/[hsv]db || true
+  if [ -b /dev/[hsv]dd ]; then
+    swapoff /dev/[hsv]dd || true
+  fi
+  if [ -b /dev/ubdb ]; then
+    exec poweroff
+  fi
+  # Not all QEMU machines support poweroff so assume -no-reboot was used
+  exec reboot
+}
+trap cleanup EXIT
+
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
 
@@ -82,16 +100,3 @@ done
 if [ -n "$interactive" -o -n "$Interactive" ]; then
   chroot "$CHROOT_DIR" ash
 fi
-
-echo 'Syncing'
-sync
-echo 'Re-mounting drives read-only'
-mount -o remount,ro /dev/[hsv]db || true
-if [ -b /dev/[hsv]dd ]; then
-  swapoff /dev/[hsv]dd || true
-fi
-if [ -b /dev/ubdb ]; then
-  exec poweroff
-fi
-# Not all QEMU machines support poweroff so assume -no-reboot was used
-exec reboot
