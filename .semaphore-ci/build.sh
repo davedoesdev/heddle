@@ -11,25 +11,6 @@ cd aboriginal-*
 sudo chmod a+rw /dev/kvm
 ( while true; do echo keep alive!; sleep 60; done ) &
 
-sudo service apache2 stop
-sudo service cassandra stop
-sudo service elasticsearch stop
-sudo service memcached stop
-sudo service mongod stop
-sudo service mysql stop
-sudo service postgresql stop
-sudo service rabbitmq-server stop
-sudo service rethinkdb stop
-sudo service sphinxsearch stop
-service --status-all
-free -m
-
-sudo apt-get purge -y apache2 cassandra elasticsearch memcached mongodb-org \
-                      mysql-server postgresql-9.4 rabbitmq-server rethinkdb \
-                      sphinxsearch
-sudo apt-get autoremove -y
-df -h
-
 build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -c
