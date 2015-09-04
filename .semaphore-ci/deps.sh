@@ -2,7 +2,7 @@
 set -e
 
 sudo apt-get update -qq
-sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar btrfs-tools qemu-kvm
+sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar btrfs-tools
 
 echo +downloads:
 ls "$SEMAPHORE_CACHE_DIR"
