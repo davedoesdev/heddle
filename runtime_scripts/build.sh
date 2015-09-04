@@ -1,11 +1,14 @@
 #!/bin/bash
 # build enough to get docker and capstan working
 set -e
-if [ ! -h /dev/fd ]; then
-  ln -s /proc/self/fd /dev
-fi
-if [ -b /dev/[hsv]dd ]; then
-  swapon /dev/[hsv]dd
+
+if [ ! -f /tmp/in_chroot ]; then
+  if [ ! -h /dev/fd ]; then
+    ln -s /proc/self/fd /dev
+  fi
+  if [ -b /dev/[hsv]dd ]; then
+    swapon /dev/[hsv]dd
+  fi
 fi
 
 cleanup() {
