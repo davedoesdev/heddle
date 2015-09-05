@@ -19,8 +19,9 @@ if ! build >& "../$logf"; then
   tail -n 1000 "../$logf"
   exit 1
 fi
-cd ..
-tail -n 100 "$logf"
+tail -n 100 "../$logf"
 sudo rm -rf /tmp/chroot/home/source
-bsdtar -Jcf "heddle-$version-home-x86_64.tar.xz" "$logf" -C /tmp/chroot home
+sync
+cd ..
+bsdtar -Jcf "heddle-$version-home-x86_64.tar.xz" gen/x86_64/images/home.img "$logf"
 ls -lh
