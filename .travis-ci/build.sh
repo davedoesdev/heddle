@@ -20,7 +20,7 @@ if ! build >& "../$logf"; then
   exit 1
 fi
 tail -n 100 "../$logf"
-rm -rf /tmp/chroot/home/source
+sudo rm -rf /tmp/chroot/home/source
 sync
 cd ..
 bsdtar -Jcf "heddle-$version-home-x86_64.tar.xz" gen/x86_64/images/home.img "$logf"
