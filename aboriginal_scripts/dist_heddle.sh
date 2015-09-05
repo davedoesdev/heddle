@@ -5,7 +5,7 @@ HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 project="$(basename "$(cd "${HEDDLE_EXT_DIR:-"$HERE/.."}"; echo $PWD)")"
 
 version="$(cd "${HEDDLE_EXT_DIR:-"$HERE"}"; git rev-parse --abbrev-ref HEAD)"
-if [ "$version" = master ]; then
+if [ "$version" = master -o "$version" = HEAD ]; then
   version="$(cd "${HEDDLE_EXT_DIR:-"$HERE"}"; git rev-parse HEAD)"
 fi
 if [ -n "$(cd "${HEDDLE_EXT_DIR:-"$HERE"}"; git status --porcelain)" ]; then
