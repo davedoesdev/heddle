@@ -1,0 +1,16 @@
+sudo: required
+language: c
+install: true
+before_install:
+  - service --status-all
+  - ps auxw
+  - free -m -t
+  - df -h
+addons:
+  apt:
+    packages:
+      - e2tools
+      - coreutils
+script:
+  - ./.travis-ci/deps.sh
+  - ./.travis-ci/build.sh
