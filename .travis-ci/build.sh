@@ -20,5 +20,7 @@ if ! build >& ../$logf; then
   exit 1
 fi
 tail -n 100 ../$logf
-xz ../$logf
+xz ../$logf ../gen/x86_64/images/home.img
+mv ../gen/x86_64/images/home.img.xz ../heddle-$version-home-x86_64.img.xz
+ls -lh ..
 
