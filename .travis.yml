@@ -11,6 +11,5 @@ addons:
     packages:
       - e2tools
       - coreutils
-script:
-  - ./.travis-ci/deps.sh
-  - ./.travis-ci/build.sh
+      - bsdtar
+script: ./.travis-ci/deps.sh && ./.travis-ci/build.sh
