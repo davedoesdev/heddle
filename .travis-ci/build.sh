@@ -2,6 +2,7 @@
 set -e
 
 version="$(git rev-parse --abbrev-ref HEAD)"
+echo $version
 if [ "$version" = master ]; then
   version="$(git rev-parse HEAD)"
 fi
