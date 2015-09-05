@@ -21,8 +21,12 @@ if ! build >& "../$logf"; then
 fi
 cd ..
 tail -n 100 "$logf"
+set -x
+df -h
 sudo rm -rf /tmp/chroot/home/source
+df -h
 bsdtar -Jcf "heddle-$version-home-x86_64.tar.xz" "$logf" -C /tmp/chroot home
+df -h
 ls -lh
 
 #(
