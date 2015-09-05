@@ -7,8 +7,6 @@ if [ "$version" = master ]; then
 fi
 echo "version: $version"
 
-sudo chmod a+rw /dev/kvm
-
 cd aboriginal-*
 ( while true; do echo keep alive!; sleep 60; done ) &
 
