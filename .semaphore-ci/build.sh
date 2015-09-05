@@ -14,13 +14,13 @@ build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -c
 }
-logf=heddle-$version-log-x86_64.txt
-if ! build >& ../$logf; then
-  tail -n 1000 ../$logf
+logf="heddle-$version-log-x86_64.txt"
+if ! build >& "../$logf"; then
+  tail -n 1000 "../$logf"
   exit 1
 fi
-tail -n 100 ../$logf
-xz ../$logf
+tail -n 100 "../$logf"
+xz "../$logf"
 
 #(
 #e2extract() {
