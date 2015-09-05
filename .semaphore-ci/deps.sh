@@ -5,12 +5,13 @@ sudo apt-get purge -y apache2 cassandra elasticsearch memcached mongodb-org \
                       mysql-server postgresql-9.4 rabbitmq-server rethinkdb \
                       sphinxsearch
 sudo apt-get autoremove -y
-service --status-all
-free -m
-df -h
 
 sudo apt-get update -qq
 sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar btrfs-tools
+
+service --status-all
+free -m
+df -h
 
 echo +downloads:
 ls "$SEMAPHORE_CACHE_DIR"
