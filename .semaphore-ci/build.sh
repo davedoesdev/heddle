@@ -24,6 +24,7 @@ tail -n 100 "$logf"
 sudo rm -rf /tmp/chroot/home/source
 sync
 df -h
+bsdtar -Jc "$logf" gen/x86_64/images/home.img | wc -c
 #bsdtar -Jcf "heddle-$version-home-x86_64.tar.xz" gen/x86_64/images/home.img "$logf"
 #ls -lh
 
