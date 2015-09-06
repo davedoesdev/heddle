@@ -22,11 +22,12 @@ fi
 cd ..
 tail -n 100 "$logf"
 sudo rm -rf /tmp/chroot/home/source
-sync
 df -h
-bsdtar -zcf - "$logf" gen/x86_64/images/home.img | wc -c
-#bsdtar -Jcf "heddle-$version-home-x86_64.tar.xz" gen/x86_64/images/home.img "$logf"
-#ls -lh
+mkdir /tmp/home
+# mount home without recursive bind to get rid of its chroot bind mounts
+sudo mount -o bind /tmp/chroot/home /tmp/home
+sudo tar -zcf "heddle-$version-home-x86_64.tar.xz" "$logf" -C /tmp home
+ls -lh
 
 #(
 #e2extract() {
