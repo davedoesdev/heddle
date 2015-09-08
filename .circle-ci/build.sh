@@ -13,6 +13,15 @@ cd aboriginal-*
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
 
+while ! curl -f -o "../heddle-$version-home-x86_64.tar.xz" "http://txf-davedoesdev.rhcloud.com/default/$(echo -n "$version" | openssl dgst -sha256 -hmac "$DEFAULT_RECEIVER_SECRET" | awk '{print $2}')/$version"; do
+  sleep 1
+done
+
+ls -lh ..
+sha256sum "../heddle-$version-home-x86_64.tar.xz"
+
+exit 1
+
 build() {
   ../image_scripts/make_build_and_home_images.sh || return 1
   ../aboriginal_scripts/build_heddle.sh -u

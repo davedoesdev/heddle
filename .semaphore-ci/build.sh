@@ -30,7 +30,9 @@ sudo tar -zcf "heddle-$version-home-x86_64.tar.xz" "$logf" -C /tmp home
 ls -lh
 sha256sum "heddle-$version-home-x86_64.tar.xz"
 
-curl -f -T "heddle-$version-home-x86_64.tar.xz" "http://txf-davedoesdev.rhcloud.com/default/$(echo -n "$version" | openssl dgst -sha256 -hmac "$DEFAULT_SENDER_SECRET" | awk '{print $2}')/$version"
+while ! curl -f -T "heddle-$version-home-x86_64.tar.xz" "http://txf-davedoesdev.rhcloud.com/default/$(echo -n "$version" | openssl dgst -sha256 -hmac "$DEFAULT_SENDER_SECRET" | awk '{print $2}')/$version"; do
+  sleep 1
+done
 
 #(
 #e2extract() {
