@@ -44,7 +44,7 @@ require('http').request(process.env.URL, function (res)
         process.exitCode = 1;
         res.pipe(process.stderr);
     }
-});
+}).end();
 EOF
 }
 
