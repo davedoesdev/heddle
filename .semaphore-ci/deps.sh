@@ -11,8 +11,6 @@ sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common 
 
 sudo rm -rf /home/runner/{.npm,.phpbrew,.phpunit,.kerl,.kiex,.lein,.nvm,.npm,.phpbrew,.rbenv}
 
-nvm install 0.12
-
 service --status-all
 free -m
 df -h
