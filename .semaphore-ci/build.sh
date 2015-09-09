@@ -26,13 +26,54 @@ df -h
 mkdir /tmp/home
 # mount home without recursive bind to get rid of its chroot bind mounts
 sudo mount -o bind /tmp/chroot/home /tmp/home
-sudo tar -zcf "heddle-$version-home-x86_64.tar.xz" "$logf" -C /tmp home
-ls -lh
-sha256sum "heddle-$version-home-x86_64.tar.xz"
+homef="heddle-$version-home-x86_64.tar.xz"
+sudo tar -zcf "$homef" "$logf" -C /tmp home
+ls -lh "$homef"
 
-while ! curl -f -T "heddle-$version-home-x86_64.tar.xz" "http://txf-davedoesdev.rhcloud.com/default/$(echo -n "$version" | openssl dgst -sha256 -hmac "$DEFAULT_SENDER_SECRET" | awk '{print $2}')/$version"; do
-  sleep 1
-done
+hmac() {
+  SECRET="$1" node 3<&0 << 'EOF'
+var hmac = require('crypto').createHmac('sha256', process.env.SECRET);
+require('fs').createReadStream(null, {fd: 3}).pipe(hmac);
+var t = new require('stream').Transform();
+t._transform = function (data, encoding, callback)
+{
+    this.push(data.toString('hex'));
+    callback();
+};
+hmac.pipe(t);
+t.pipe(process.stdout);
+EOF
+}
+
+txf() {
+  URL="$1" node 3<&0 << 'EOF'
+var opts = require('url').parse(process.env.URL);
+opts.method = 'PUT';
+require('fs').createReadStream(null, {fd: 3}).pipe(
+    require('http').request(opts, function (res)
+    {
+        if (res === 200)
+        {
+            res.pipe(process.stdout);
+        }
+        else
+        {
+            console.error('error', res.statusCode);
+            process.exitCode = 1;
+            res.pipe(process.stderr);
+        }
+    }));
+EOF
+}
+
+txf_url() {
+  echo "http://txf-davedoesdev.rhcloud.com/default/$(echo -n "$1" | hmac "$DEFAULT_SENDER_SECRET")/$1"
+}
+
+mac="$(hmac "$INTEGRITY_SECRET" < "$homef")"
+
+while ! txf "$(txf_url "$version")" < "$homef"; do sleep 1; done
+while ! echo -n "$mac" | txf "$(txf_url "$version.mac")"; do sleep 1; done
 
 #(
 #e2extract() {

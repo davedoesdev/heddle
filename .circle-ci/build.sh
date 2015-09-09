@@ -13,12 +13,51 @@ cd aboriginal-*
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
 
-while ! curl -f -o "../heddle-$version-home-x86_64.tar.xz" "http://txf-davedoesdev.rhcloud.com/default/$(echo -n "$version" | openssl dgst -sha256 -hmac "$DEFAULT_RECEIVER_SECRET" | awk '{print $2}')/$version"; do
-  sleep 1
-done
+homef="../heddle-$version-home-x86_64.tar.xz"
 
-ls -lh ..
-sha256sum "../heddle-$version-home-x86_64.tar.xz"
+hmac() {
+  SECRET="$1" node 3<&0 << 'EOF'
+var hmac = require('crypto').createHmac('sha256', process.env.SECRET);
+require('fs').createReadStream(null, {fd: 3}).pipe(hmac);
+var t = new require('stream').Transform();
+t._transform = function (data, encoding, callback)
+{
+    this.push(data.toString('hex'));
+    callback();
+};
+hmac.pipe(t);
+t.pipe(process.stdout);
+EOF
+}
+
+txf() {
+  URL="$1" node << 'EOF'
+require('http').request(opts, function (res)
+{
+    if (res === 200)
+    {
+        res.pipe(process.stdout);
+    }
+    else
+    {
+        console.error('error', res.statusCode);
+        process.exitCode = 1;
+        res.pipe(process.stderr);
+    }
+});
+EOF
+}
+
+txf_url() {
+  echo "http://txf-davedoesdev.rhcloud.com/default/$(echo -n "$1" | hmac "$DEFAULT_RECEIVER_SECRET")/$1"
+}
+
+while ! txf "$(txf_url "$version")" > "$homef"; do sleep 1; done
+while ! mac="$(txf "$(txf_url "$version.mac")")"; do sleep 1; done
+
+ls -lh "$homef"
+hmac "$INTEGRITY_SECRET" < "$homef"
+echo "$mac"
 
 exit 1
 
