@@ -52,7 +52,7 @@ opts.method = 'PUT';
 require('fs').createReadStream(null, {fd: 3}).pipe(
     require('http').request(opts, function (res)
     {
-        if (res === 200)
+        if (res.statusCode === 200)
         {
             res.pipe(process.stdout);
         }

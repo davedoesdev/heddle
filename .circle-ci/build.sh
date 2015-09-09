@@ -34,7 +34,7 @@ txf() {
   URL="$1" node << 'EOF'
 require('http').request(process.env.URL, function (res)
 {
-    if (res === 200)
+    if (res.statusCode === 200)
     {
         res.pipe(process.stdout);
     }
