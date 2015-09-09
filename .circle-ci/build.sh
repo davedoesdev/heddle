@@ -32,7 +32,7 @@ EOF
 
 txf() {
   URL="$1" node << 'EOF'
-require('http').request(opts, function (res)
+require('http').request(process.env.URL, function (res)
 {
     if (res === 200)
     {
