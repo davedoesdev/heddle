@@ -6,6 +6,9 @@ general:
     - "/heddle-*.tar.xz"
     - "/heddle-*-log-*.txt.xz"
     - "/heddle-*-src-*.tar"
+machine:
+  node:
+    version: 0.12
 dependencies:
   cache_directories:
     - downloads
