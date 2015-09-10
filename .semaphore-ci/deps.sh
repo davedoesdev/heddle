@@ -9,7 +9,7 @@ sudo apt-get autoremove -y
 sudo apt-get update -qq
 sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar btrfs-tools
 
-sudo rm -rf /home/runner/{.npm,.phpbrew,.phpunit,.kerl,.kiex,.lein,.nvm,.npm,.phpbrew,.rbenv}
+sudo rm -rf /home/runner/{.phpbrew,.phpunit,.kerl,.kiex,.lein,.rbenv,.npm}
 
 service --status-all
 free -m
