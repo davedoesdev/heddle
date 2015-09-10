@@ -56,10 +56,14 @@ while ! txf "$(txf_url "$version")" > "$homef"; do sleep 1; done
 while ! mac="$(txf "$(txf_url "$version.mac")")"; do sleep 1; done
 
 ls -lh "$homef"
-hmac "$INTEGRITY_SECRET" < "$homef"
-echo "$mac"
+calc_mac="$(hmac "$INTEGRITY_SECRET" < "$homef")"
+echo "$calc_mac" "$mac"
 
 exit 1
+
+# check macs match
+# check homef has log file with right name
+# make the images and source tars first thing
 
 build() {
   ../image_scripts/make_build_and_home_images.sh || return 1

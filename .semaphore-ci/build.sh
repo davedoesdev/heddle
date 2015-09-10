@@ -49,20 +49,28 @@ txf() {
   URL="$1" node 3<&0 << 'EOF'
 var opts = require('url').parse(process.env.URL);
 opts.method = 'PUT';
-require('fs').createReadStream(null, {fd: 3}).pipe(
-    require('http').request(opts, function (res)
+var fs = require('fs');
+fs.createReadStream(null, {fd: 3}).pipe(require('http').request(opts, function (res)
+{
+    var fd;
+    if (res.statusCode === 200)
     {
-        if (res.statusCode === 200)
-        {
-            res.pipe(process.stdout);
-        }
-        else
-        {
-            console.error('error', res.statusCode);
-            process.exitCode = 1;
-            res.pipe(process.stderr);
-        }
-    }));
+        process.exitCode = 0;
+        fd = 1;
+    }
+    else
+    {
+        console.error('error', res.statusCode);
+        process.exitCode = 1;
+        fd = 2;
+    }
+    var s = fs.createWriteStream(null, {fd: fd});
+    s.on('finish', function ()
+    {
+        process.exit(process.exitCode);
+    });
+    res.pipe(s);
+}));
 EOF
 }
 
