@@ -13,7 +13,7 @@ cd aboriginal-*
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
 
-homef="../heddle-$version-home-x86_64.tar.xz"
+homef="../heddle-$version-home-x86_64.tar.gz"
 
 hmac() {
   SECRET="$1" node 3<&0 << 'EOF'
