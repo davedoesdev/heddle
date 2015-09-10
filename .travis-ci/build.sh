@@ -26,5 +26,6 @@ df -h
 mkdir /tmp/home
 # mount home without recursive bind to get rid of its chroot bind mounts
 sudo mount -o bind /tmp/chroot/home /tmp/home
-sudo tar -zcf "heddle-$version-home-x86_64.tar.xz" "$logf" -C /tmp home
-ls -lh
+homef="heddle-$version-home-x86_64.tar.gz"
+sudo tar --owner root --group root -zcf "$homef" "$logf" -C /tmp home
+ls -lh "$homef"
