@@ -5,7 +5,7 @@ if [ ! -h /dev/fd ]; then
 fi
 if [ -f /home/home.tar.gz ]; then
   ls -l /home/home.tar.gz
-  tar -C / -Jxf /home/home.tar.gz
+  tar -C / -zxf /home/home.tar.gz home
   df
   rm -f /home/home.tar.gz
 fi
