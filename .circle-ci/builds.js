@@ -50,7 +50,11 @@ function render_builds(sel, url, from, artifact_pp)
                             {
                                 return artifact_pp(a.item.pretty_path);
                             },
-                            'a@href': 'artifact.url'
+                            'a@href': 'artifact.url',
+                        },
+                        sort: function (a, b)
+                        {
+                            return a.pretty_path > b.pretty_path ? 1 : a.pretty_path < b.pretty_path ? -1 : 0;
                         }
                     }
                 });
