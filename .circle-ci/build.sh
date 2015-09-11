@@ -109,6 +109,7 @@ sudo tar -zxf "$homef" -C / "$logf"
 sudo xz "/$logf"
 
 e2cp -P 400 -O 0 -G 0 "$homef" ../gen/x86_64/images/home.img:home.tar.gz
+rm -f "$homef"
 
 prepare_and_dist() {
   echo "type: $1"
