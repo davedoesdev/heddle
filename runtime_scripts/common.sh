@@ -5,8 +5,20 @@ if [ ! -f /tmp/in_chroot ]; then
   ifconfig lo 127.0.0.1 up
 fi
 
+make_chroot=1
+while getopts n opt; do
+  case $opt in
+    n)
+      make_chroot=
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
 CHROOT_DIR="$HOME/chroot"
-"$HERE/make_chroot.sh" "$CHROOT_DIR"
+if [ -n "$make_chroot" ]; then
+  "$HERE/make_chroot.sh" "$CHROOT_DIR"
+fi
 
 export INSTALL_DIR="$HOME/install"
 export PATH="$INSTALL_DIR/bin:$INSTALL_DIR/sbin:/usr/bin:$(echo $PATH | sed 's/\/usr\/distcc://')"

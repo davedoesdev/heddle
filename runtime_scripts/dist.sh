@@ -3,7 +3,7 @@ set -e
 here="$(dirname "$0")"
 mkdir -p /rmnt # in root ramdisk
 mount -o loop,ro "$here/run.img" /rmnt
-HERE=/rmnt . /rmnt/common.sh
+HERE=/rmnt . /rmnt/common.sh -n
 
 EXTRA_DIR="$CHROOT_DIR/extra"
 DIST_DIR="$EXTRA_DIR/dist"
@@ -28,7 +28,7 @@ cp /bin/{bash,busybox,toybox} "$here"/{init,init2}.sh "$DIST_DIR"
 
 rm -rf "$EXTRA_DIR/home"
 mkdir "$EXTRA_DIR/home"{,/install,/run}
-find "$CHROOT_DIR"/home \
+find /home \
      -mindepth 1 -maxdepth 1 \
      -not -name install \
      -not -name source \
@@ -76,7 +76,7 @@ else
 fi
 if [ "$heddle_arch" = armv6l -a \
      \( -z "$reuse" -o ! -f "$here/gen/u-boot.bin" \) ]; then
-  cp "$CHROOT_DIR/home/source"/u-boot-*/u-boot.bin "$here/gen"
+  cp /home/source/u-boot-*/u-boot.bin "$here/gen"
 fi
 if [ -z "$reuse" -o ! -f "$here/gen/initrd.img" ]; then
   echo making initrd.img
