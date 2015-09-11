@@ -74,7 +74,7 @@ EOF
 if [ -t 0 ]; then
   "$tmp"
 else
-  socat "EXEC:$HERE/_in_heddle.sh $user" "EXEC:$tmp" 3<&0 4>&1 | (
+  socat "EXEC:$HERE/_$(basename "$0") $user" "EXEC:$tmp" 3<&0 4>&1 | (
   IFS=''
   while read -r data; do
     if [[ "$data" == heddle_status:* ]]; then
