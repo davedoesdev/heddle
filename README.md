@@ -373,7 +373,7 @@ There is no `sudo`. The following services run as `root` on boot:
 - `docker` - Docker daemon (listening on Unix domain sockets only)
 - `ntpd` - BusyBox NTP daemon (operating in client mode only)
 - `prepare` - Waits for all `prepare_*` services to finish (only runs for `run_heddle.sh -p)`
-- `prepare_docker` - Creates the Docker `scratch` image (`run_heddle.sh -p only)
+- `prepare_docker` - Creates the Docker `scratch` image (`run_heddle.sh -p` only)
 
 You should prefer to run additional services using [`docker`](https://www.docker.com/) or [`capstan`](http://osv.io/capstan/).
 
