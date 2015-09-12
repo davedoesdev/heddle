@@ -1,11 +1,17 @@
 #/bin/bash
 set -e
 HERE="$(dirname "$0")"
+if [ -n "$HEDDLE_EXT_DIR" ]; then
+  project="$(cd "$HEDDLE_EXT_DIR"; basename "$PWD")"
+else
+  project=heddle
+fi
 
 img_file=heddle.img
 img_specified=0
 append=
-while getopts qa:i: opt
+hostname=
+while getopts qa:i:h: opt
 do
   case $opt in
     q)
@@ -17,6 +23,9 @@ do
     i)
       img_file="$OPTARG"
       img_specified=1
+      ;;
+    h)
+      hostname="$OPTARG"
       ;;
   esac
 done
@@ -53,4 +62,4 @@ else
 fi
 
 echo "Booting: $img_file"
-$CMD -no-reboot -hda "$img_file" -net user,hostname=heddle -net nic "$@"
+$CMD -no-reboot -hda "$img_file" -net user,hostname=${hostname:-$project} -net nic "$@"

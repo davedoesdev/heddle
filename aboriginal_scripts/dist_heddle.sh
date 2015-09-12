@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e
 HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
-
-project="$(basename "$(cd "${HEDDLE_EXT_DIR:-"$HERE/.."}"; echo $PWD)")"
+if [ -n "$HEDDLE_EXT_DIR" ]; then
+  project="$(cd "$HEDDLE_EXT_DIR"; basename "$PWD")"
+else
+  project=heddle
+fi
 
 version="$(cd "${HEDDLE_EXT_DIR:-"$HERE"}"; git rev-parse --abbrev-ref HEAD)"
 if [ "$version" = master -o "$version" = HEAD ]; then
@@ -15,7 +18,8 @@ fi
 
 qemu_mode=0
 reuse=0
-while getopts qr opt
+hostname=
+while getopts qrh: opt
 do
   case $opt in
     q)
@@ -23,6 +27,9 @@ do
       ;;
     r)
       reuse=1
+      ;;
+    h)
+      hostname="$OPTARG"
       ;;
   esac
 done
@@ -33,7 +40,7 @@ IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
 UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/dist/update"
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/dist.img"
-export QEMU_EXTRA="-hdd $IMG_DIR/heddle.img -net user,hostname=heddle -net nic"
+export QEMU_EXTRA="-hdd $IMG_DIR/heddle.img -net user,hostname=${hostname:-$project} -net nic"
 export KERNEL_EXTRA="heddle_arch=$ARCH heddle_dist_reuse=$reuse heddle_project=$project heddle_version=$version"
 if [ "$ARCH" = x86_64 ]; then
   if [ "$qemu_mode" -eq 0 ]; then

@@ -1,11 +1,17 @@
 #!/bin/bash
 set -e
 HERE="$(dirname "$0")"
+if [ -n "$HEDDLE_EXT_DIR" ]; then
+  project="$(cd "$HEDDLE_EXT_DIR"; basename "$PWD")"
+else
+  project=heddle
+fi
 
 img_file=heddle.img
 img_specified=0
 append=
-while getopts qa:i: opt
+hostname=
+while getopts qa:i:h: opt
 do
   case $opt in
     q)
@@ -17,6 +23,9 @@ do
     i)
       img_file="$OPTARG"
       img_specified=1
+      ;;
+    h)
+      hostname="$OPTARG"
       ;;
   esac
 done
@@ -67,7 +76,7 @@ chmod +x "$tmp"
 cat >> "$tmp" << EOF
 #!/bin/bash
 echo Booting: $img_file
-$CMD -no-reboot -kernel "$UPDATE_DIR/linux" -initrd "$UPDATE_DIR/initrd.img" -hda "$img_file" -append "console=$CON,9600n8 console=tty0 $append" -net user,hostname=heddle -net nic $extra
+$CMD -no-reboot -kernel "$UPDATE_DIR/linux" -initrd "$UPDATE_DIR/initrd.img" -hda "$img_file" -append "console=$CON,9600n8 console=tty0 $append" -net user,hostname=${hostname:-$project} -net nic $extra
 EOF
 # vga=0xF07 -usb -usbdevice serial::vc -usbdevice keyboard -usbdevice "disk:$IMG_DIR/heddle.img"
 
