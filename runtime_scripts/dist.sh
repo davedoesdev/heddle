@@ -5,7 +5,8 @@ mkdir -p /rmnt # in root ramdisk
 mount -o loop,ro "$here/run.img" /rmnt
 HERE=/rmnt . /rmnt/common.sh -n
 
-EXTRA_DIR="$CHROOT_DIR/extra"
+EXTRA_DIR="/tmp/extra"
+mkdir "$EXTRA_DIR"
 DIST_DIR="$EXTRA_DIR/dist"
 UPDATES_DIR="$EXTRA_DIR/updates"
 
