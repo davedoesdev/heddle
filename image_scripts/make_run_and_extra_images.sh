@@ -91,13 +91,21 @@ if [ "$ARCH" = x86_64 ]; then
     mcopy -i "$tmp" -s "$HERE/../boot/$DIR_REFIND/refind" ::
     mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample}
     mdeltree -i "$tmp" ::/refind/{drivers_{ia32,x64},tools_{ia32,x64}}
-    mcopy -i "$tmp" "${HEDDLE_EXT_DIR:-"$HERE/.."}/boot/refind.conf" ::/refind
+    if [ -n "$HEDDLE_EXT_DIR" -a -e "$HEDDLE_EXT_DIR/boot/refind.conf" ]; then
+      mcopy -i "$tmp" "$HEDDLE_EXT_DIR/boot/refind.conf" ::/refind
+    else
+      mcopy -i "$tmp" "$HERE/../boot/refind.conf" ::/refind
+    fi
     mmd -i "$tmp" ::/EFI
     mmove -i "$tmp" ::/refind ::/EFI/BOOT
     mmove -i "$tmp" ::/EFI/BOOT/{refind_,boot}x64.efi 
   else
     syslinux "$tmp"
-    mcopy -i "$tmp" "${HEDDLE_EXT_DIR:-"$HERE/.."}/boot/syslinux.cfg" ::
+    if [ -n "$HEDDLE_EXT_DIR" -a -e "$HEDDLE_EXT_DIR/boot/syslinux.cfg" ]; then
+      mcopy -i "$tmp" "$HEDDLE_EXT_DIR/boot/syslinux.cfg" ::
+    else
+      mcopy -i "$tmp" "$HERE/../boot/syslinux.cfg" ::
+    fi
     if [ -d /usr/lib/syslinux/modules ]; then
       mcopy -i "$tmp" /usr/lib/syslinux/modules/bios/{menu,libutil}.c32 ::
     else
