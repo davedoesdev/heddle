@@ -31,7 +31,7 @@ fi
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
 
-SOURCE_DIR="$HOME/source"
+SOURCE_DIR=/home/source
 mkdir -p "$SOURCE_DIR" "$INSTALL_DIR"
 cd "$SOURCE_DIR"
 

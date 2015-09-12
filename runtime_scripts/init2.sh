@@ -1,7 +1,5 @@
 #!/bin/ash
 
-export HOME=/home
-
 # Populate /dev
 mountpoint -q proc || mount -t proc proc proc
 mountpoint -q sys || mount -t sysfs sys sys
@@ -17,8 +15,6 @@ export PATH
 
 mount -t tmpfs /tmp /tmp
 
-cd "$HOME"
-
 [ -z "$CONSOLE" ] &&
   CONSOLE="$(sed -n 's@.* console=\(/dev/\)*\([^ ]*\).*@\2@p' /proc/cmdline)"
 [ -z "$CONSOLE" ] && CONSOLE=console
@@ -26,4 +22,4 @@ cd "$HOME"
 # Load coldplug kernel modules
 grep -h MODALIAS /sys/bus/*/devices/*/uevent 2>/dev/null | cut -d = -f 2 | sort -u | xargs /home/install/sbin/modprobe -abq
 
-exec /sbin/oneit -c /dev/"$CONSOLE" "$HOME/run/init"
+exec /sbin/oneit -c /dev/"$CONSOLE" /home/run/init

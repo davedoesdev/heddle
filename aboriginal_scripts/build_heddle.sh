@@ -115,9 +115,7 @@ if [ -n "$chroot_build" ]; then
   sudo chroot /tmp/chroot /bin/ash << EOF
 set -e
 export heddle_arch="$ARCH"
-export HOME=/home
 export PATH
-cd
 touch /tmp/in_chroot
 exec /mnt/init $interactive $Interactive
 EOF
@@ -153,7 +151,6 @@ ifconfig eth0 10.0.2.15 up
 route add default dev eth0
 ifconfig
 
-export HOME=/home
 export PATH
 
 exec /usr/sbin/chroot /root /mnt/init $interactive $Interactive

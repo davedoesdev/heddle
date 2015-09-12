@@ -15,12 +15,12 @@ while getopts n opt; do
 done
 shift $((OPTIND-1))
 
-CHROOT_DIR="$HOME/chroot"
+CHROOT_DIR=/home/chroot
 if [ -n "$make_chroot" ]; then
   "$HERE/make_chroot.sh" "$CHROOT_DIR"
 fi
 
-export INSTALL_DIR="$HOME/install"
+export INSTALL_DIR=/home/install
 export PATH="$INSTALL_DIR/bin:$INSTALL_DIR/sbin:/usr/bin:$(echo $PATH | sed 's/\/usr\/distcc://')"
 export CPPFLAGS="-I$INSTALL_DIR/include"
 export LDFLAGS="-L$INSTALL_DIR/lib"
