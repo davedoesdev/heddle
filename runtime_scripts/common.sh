@@ -5,18 +5,8 @@ if [ ! -f /tmp/in_chroot ]; then
   ifconfig lo 127.0.0.1 up
 fi
 
-make_chroot=1
-while getopts n opt; do
-  case $opt in
-    n)
-      make_chroot=
-      ;;
-  esac
-done
-shift $((OPTIND-1))
-
 CHROOT_DIR=/home/chroot
-if [ -n "$make_chroot" ]; then
+if [ -z "$DONT_MAKE_CHROOT" ]; then
   "$HERE/make_chroot.sh" "$CHROOT_DIR"
 fi
 

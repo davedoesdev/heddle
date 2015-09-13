@@ -3,7 +3,7 @@ set -e
 here="$(dirname "$0")"
 mkdir -p /rmnt # in root ramdisk
 mount -o loop,ro "$here/run.img" /rmnt
-HERE=/rmnt . /rmnt/common.sh -n
+HERE=/rmnt DONT_MAKE_CHROOT=yes . /rmnt/common.sh
 
 EXTRA_DIR="/tmp/extra"
 mkdir "$EXTRA_DIR"
