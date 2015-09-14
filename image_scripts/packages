@@ -308,11 +308,11 @@ EOF
   make install
 }
 
-DIR_OPENSSL="openssl-1.0.1j"
+DIR_OPENSSL="openssl-1.0.2d"
 SRC_OPENSSL="$DIR_OPENSSL.tar.gz"
 URL_OPENSSL="https://www.openssl.org/source/$SRC_OPENSSL"
-CHK_OPENSSL="cff86857507624f0ad42d922bb6f77c4f1c2b819"
-SUM_OPENSSL="sha1"
+CHK_OPENSSL="671c36487785628a703374c652ad2cebea45fa920ae5681515df25d9f2c9a8c8"
+SUM_OPENSSL="sha256"
 BLD_OPENSSL() {
   ./config "--openssldir=$INSTALL_DIR/ssl" shared no-ssl2 no-ssl3
   make depend
@@ -339,13 +339,26 @@ BLD_EXPAT() {
   make install
 }
 
-VER_PYTHON="2.7.9"
+VER_PYTHON="2.7.10"
 DIR_PYTHON="Python-$VER_PYTHON"
 SRC_PYTHON="$DIR_PYTHON.tgz"
 URL_PYTHON="http://www.python.org/ftp/python/$VER_PYTHON/$SRC_PYTHON"
-CHK_PYTHON="5eebcaa0030dc4061156d3429657fb83"
+CHK_PYTHON="d7547558fd673bd9d38e2108c6b42521"
 SUM_PYTHON="md5"
 BLD_PYTHON() {
+  patch -p0 << 'EOF'
+--- Lib/ctypes/util.py.orig	2015-09-14 09:39:55.301188888 +0100
++++ Lib/ctypes/util.py	2015-09-14 09:40:18.181296170 +0100
+@@ -93,7 +93,7 @@
+         fdout, ccout = tempfile.mkstemp()
+         os.close(fdout)
+         cmd = 'if type gcc >/dev/null 2>&1; then CC=gcc; elif type cc >/dev/null 2>&1; then CC=cc;else exit 10; fi;' \
+-              'LANG=C LC_ALL=C $CC -Wl,-t -o ' + ccout + ' 2>&1 -l' + name
++              'LANG=C LC_ALL=C $CC -Wl,-t -o ' + ccout + ' 2>/dev/null -l' + name
+         try:
+             f = os.popen(cmd)
+             try:
+EOF
   ./configure "--prefix=$INSTALL_DIR" --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi --with-system-expat --with-ensurepip=install
   make
   make install

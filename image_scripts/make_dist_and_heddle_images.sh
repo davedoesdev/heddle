@@ -29,7 +29,7 @@ if [ "build/system-image-$ARCH/rootfs.cpio.gz" -nt "$SQF_ROOT" ]; then
   zcat "build/system-image-$ARCH/rootfs.cpio.gz" | ( cd "$tmpd"; cpio -i -H newc -f dev/console )
   unsquashfs -d "$tmpd/usr/overlay" "build/system-image-$ARCH/toolchain.sqf" 
   cp -r --remove-destination "$tmpd/usr/overlay/." "$tmpd"
-  rm -f "$tmpd/init"
+  rm -rf "$tmpd"/{init,usr/overlay}
   mksquashfs "$tmpd" "$SQF_ROOT" -noappend -all-root
   rm -rf "$tmpd"
 fi
