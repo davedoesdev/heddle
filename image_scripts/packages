@@ -1546,7 +1546,7 @@ BLD_CAPSTAN() {
   go install -ldflags "-X main.VERSION '$VER_CAPSTAN'" -tags netgo
 }
 PST_CAPSTAN() {
-  export CAPSTAN_QEMU_PATH="$INSTALL_DIR/bin/qemu-system-x86_64"
+  export CAPSTAN_QEMU_PATH="$INSTALL_DIR/bin/qemu-system-$heddle_arch"
 }
 
 DIR_KMOD="kmod-19"

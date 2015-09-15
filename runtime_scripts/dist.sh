@@ -66,6 +66,7 @@ else
   echo "version: $version"
   mkdir -p /tmp/install/dist
   echo -e "$project $version \\\\l\n" > /tmp/install/dist/issue
+  echo "$heddle_arch" > /tmp/install/dist/arch
   mksquashfs /tmp/install "$DIST_DIR/install.sqf" -all-root -mem 512M
   cp "$DIST_DIR/install.sqf" "$here/gen"
 fi

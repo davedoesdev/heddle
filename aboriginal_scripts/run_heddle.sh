@@ -35,7 +35,7 @@ IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/run.img"
 export QEMU_EXTRA="-hdd $IMG_DIR/extra.img -net user,hostname=${hostname:-$project} -net nic"
-export KERNEL_EXTRA="heddle_prepare=$prepare $append"
+export KERNEL_EXTRA="heddle_arch=$ARCH heddle_prepare=$prepare $append"
 if [ "$ARCH" = x86_64 ]; then
   if [ "$qemu_mode" -eq 0 ]; then
     QEMU_EXTRA+=" -cpu host -smp 2"

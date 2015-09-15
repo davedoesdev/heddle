@@ -9,6 +9,9 @@ if [ -f /home/home.tar.gz ]; then
   df
   rm -f /home/home.tar.gz
 fi
+if [ -z "$heddle_arch" -a -e /home/install/dist/arch ]; then
+  export heddle_arch="$(cat /home/install/dist/arch)"
+fi
 HERE="$(dirname "$0")"
 . "$HERE/common.sh"
 
