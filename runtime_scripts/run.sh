@@ -24,6 +24,7 @@ done
 
 export THE_PATH="$PATH"
 export THE_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+export LIBRARY_PATH="$THE_LD_LIBRARY_PATH"
 if [ ! -d /home/root ]; then
   mkdir /home/root
 fi
@@ -35,7 +36,6 @@ if [ -n "$THE_PATH" ]; then
 fi
 if [ -n "$THE_LD_LIBRARY_PATH" ]; then
   export LD_LIBRARY_PATH="$THE_LD_LIBRARY_PATH"
-  export LIBRARY_PATH="$THE_LD_LIBRARY_PATH"
 fi
 if [ "$(/usr/bin/id -u)" -ne 0 ]; then
   umask 027
