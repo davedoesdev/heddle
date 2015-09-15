@@ -861,7 +861,7 @@ EOF
  			return -errno;
  		}
 EOF
-  ./configure "--prefix=$INSTALL_DIR" --disable-all-programs --enable-libuuid --enable-libblkid --enable-agetty --without-systemd --without-systemdsystemunitdir
+  SOLIB_LDFLAGS=-lintl ./configure "--prefix=$INSTALL_DIR" --disable-all-programs --enable-libuuid --enable-libblkid --enable-agetty --without-systemd --without-systemdsystemunitdir
   make
   make install
 }
@@ -925,15 +925,6 @@ BLD_BTRFS_PROGS() {
   patch -p0 << EOF
 --- Makefile.orig
 +++ Makefile
-@@ -26,7 +26,7 @@
- INSTALL = install
- prefix ?= /usr/local
- bindir = \$(prefix)/bin
--lib_LIBS = -luuid -lblkid -lm -lz -llzo2 -L.
-+lib_LIBS = -luuid -lintl -lblkid -lm -lz -llzo2 -L.
- libdir ?= \$(prefix)/lib
- incdir = \$(prefix)/include/btrfs
- LIBS = \$(lib_LIBS) \$(libs_static)
 @@ -47,7 +47,7 @@
  MAKEOPTS = --no-print-directory Q=\$(Q)
  
@@ -1239,7 +1230,7 @@ URL_PARTED="http://ftp.gnu.org/gnu/parted/$SRC_PARTED"
 CHK_PARTED="858b589c22297cacdf437f3baff6f04b333087521ab274f7ab677cb8c6bb78e4"
 SUM_PARTED="sha256"
 BLD_PARTED() {
-  LIBS="-liconv -lintl" ./configure "--prefix=$INSTALL_DIR" --without-readline
+  ./configure "--prefix=$INSTALL_DIR" --without-readline
   make
   make install
 }
