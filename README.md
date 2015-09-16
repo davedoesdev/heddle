@@ -4,7 +4,7 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 - Built from scratch using [Aboriginal Linux](http://landley.net/aboriginal/) to bootstrap the build.
 
-- Completely automated build. Build Heddle images locally or on [Travis CI](https://travis-ci.org/davedoesdev/build-aboriginal-travis) and [CircleCI](https://circleci.com/gh/davedoesdev/heddle).
+- Completely automated build. Build Heddle images locally or on [Travis CI](https://travis-ci.org/davedoesdev/build-aboriginal-travis), [Semaphore CI](https://semaphoreci.com/davedoesdev/heddle) and [CircleCI](https://circleci.com/gh/davedoesdev/heddle).
 
 - Builds only those packages necessary in order to get Docker and Capstan up and running.
 
