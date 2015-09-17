@@ -93,8 +93,8 @@ txf_url() {
 
 homef="../heddle-$version-home-x86_64.tar.gz"
 
-while ! txf "$(txf_url "$version")" > "$homef"; do sleep 1; done
-while ! mac="$(txf "$(txf_url "$version.mac")")"; do sleep 1; done
+while ! txf "$(txf_url "heddle-$version")" > "$homef"; do sleep 1; done
+while ! mac="$(txf "$(txf_url "heddle-$version.mac")")"; do sleep 1; done
 
 ls -lh "$homef"
 calc_mac="$(hmac "$INTEGRITY_SECRET" < "$homef")"

@@ -80,5 +80,5 @@ txf_url() {
 
 mac="$(hmac "$INTEGRITY_SECRET" < "$homef")"
 
-while ! txf "$(txf_url "$version")" < "$homef"; do sleep 1; done
-while ! echo -n "$mac" | txf "$(txf_url "$version.mac")"; do sleep 1; done
+while ! txf "$(txf_url "heddle-$version")" < "$homef"; do sleep 1; done
+while ! echo -n "$mac" | txf "$(txf_url "heddle-$version.mac")"; do sleep 1; done
