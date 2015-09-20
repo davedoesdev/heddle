@@ -24,7 +24,7 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 ### Pre-built images
 
-First you need a Heddle image. Every time a commit is made to this repository, Heddle is built on CircleCI. Successful builds are listed [here](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/.circle-ci/builds.html). For each build, you can download the following artifacts:
+First you need a Heddle image. Every time a commit is made to this repository, Heddle is built on SemaphoreCI and CircleCI. Successful builds are listed [here](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/.circle-ci/builds.html). For each build, you can download the following artifacts:
 
 - Build output archives
   - `heddle-[commitid]-gpt-btrfs-x86_64.tar.xz`
@@ -38,7 +38,7 @@ First you need a Heddle image. Every time a commit is made to this repository, H
 
 Each build output archive contains the following files:
 
-- `gen/x86_64/dist/heddle.img` - Raw bootable disk image, partitioned with GPT or MBR and using a Btrfs or Ext4 filesystem.
+- `gen/x86_64/dist/heddle.img` - Raw bootable disk image, partitioned with GPT or MBR and using a Btrfs or Ext4 filesystem. GPT images require EFI to boot.
 - `gen/x86_64/dist/boot_heddle.sh` - Shell script to boot the disk image in KVM.
 - `gen/x86_64/dist/in_heddle.sh` - Shell script for automating customisation of the disk image.
 - `gen/x86_64/dist/update` - Directory containing files necessary to [update an existing Heddle installation](#updating-heddle) to this build.
@@ -61,7 +61,7 @@ Alternatively, run `boot_heddle.sh` to run the image in KVM first. You'll get a 
 
 If you want to use a script to customise the image, see [Run-time customisation](#run-time-customisation).
 
-## Release builds
+### Release builds
 
 From time-to-time release branches will be forked from `master` and named `v0.0.1`, `v0.0.2` etc.
 
