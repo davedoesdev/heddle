@@ -57,7 +57,7 @@ for pkg in "${PACKAGES[@]}"; do
       ( cd "$tmpd"; GET_$pkg ) | copy - "download/${!vsrc}"
       if [ "${PIPESTATUS[0]}" -ne 0 ]; then
         e2rm "$dest"
-        echo "$0: failed to get $pkg"
+        echo "$0: failed to get $pkg" 1>&2
         exit 1
       fi
       rm -rf "$tmpd"
@@ -101,14 +101,18 @@ for pkg in "${PACKAGES[@]}"; do
           chk="${xtr2[$((i+1))]}"
           sum="${xtr2[$((i+2))]}"
           file="${xtr2[$((i+3))]}"
-          curl -o "$tmpd/$file" --create-dirs "$url"
-          if [ -n "$chk" -a -n "$sum" ]; then
-            csum="$("${sum}sum" "$tmpd/$file" | awk '{print $1}')"
-            if [ "$csum" != "$chk" ]; then
-              rm -rf "$tmpd"
-              echo "$0: checksum mismatch for $url: $csum != $chk"
-              exit 1
+          echo "downloading $url"
+          if curl -f -o "$tmpd/$file" --create-dirs "$url"; then
+            if [ -n "$chk" -a -n "$sum" ]; then
+              csum="$("${sum}sum" "$tmpd/$file" | awk '{print $1}')"
+              if [ "$csum" != "$chk" ]; then
+                rm -rf "$tmpd"
+                echo "$0: checksum mismatch for $url: $csum != $chk" 1>&2
+                exit 1
+              fi
             fi
+          elif [ "${xtr2[$((i+3+4))]}" != "$file" ]; then
+            exit 1
           fi
         done
         tar --owner root --group root -C "$tmpd" -Jc . | e2cp -P 400 -O 0 -G 0 - "$extraf"

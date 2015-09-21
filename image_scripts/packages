@@ -1708,6 +1708,20 @@ BLD_HEDDLE_RECV() {
   cp * "$INSTALL_DIR/bin"
 }
 
+VER_SMARTMONTOOLS="6.4"
+DIR_SMARTMONTOOLS="smartmontools-$VER_SMARTMONTOOLS"
+SRC_SMARTMONTOOLS="$DIR_SMARTMONTOOLS.tar.gz"
+URL_SMARTMONTOOLS="http://downloads.sourceforge.net/project/smartmontools/smartmontools/$VER_SMARTMONTOOLS/$SRC_SMARTMONTOOLS"
+CHK_SMARTMONTOOLS="eab75600c1eda9c34b13097db71138ab376f3dad8a6a4667fb4d1d081feb7a85"
+SUM_SMARTMONTOOLS="sha256"
+BLD_SMARTMONTOOLS() {
+  ./configure "--prefix=$INSTALL_DIR"
+  make
+  make install
+}
+XTR_SMARTMONTOOLS=(any "http://sourceforge.net/p/smartmontools/code/HEAD/tree/branches/RELEASE_$(echo "$VER_SMARTMONTOOLS" | tr . _)_DRIVEDB/smartmontools/drivedb.h?format=raw" "" "" drivedb.h
+                   any "http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/drivedb.h?format=raw" "" "" drivedb.h)
+
 PACKAGES=(LIBICONV
           PKGCONFIG
           LIBFFI
@@ -1767,4 +1781,5 @@ PACKAGES=(LIBICONV
           UBOOT
           STRACE
           EXTRACT_NSS_ROOT_CERTS
-          HEDDLE_RECV)
+          HEDDLE_RECV
+          SMARTMONTOOLS)

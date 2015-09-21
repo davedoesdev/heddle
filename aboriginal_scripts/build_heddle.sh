@@ -81,11 +81,12 @@ for pkg in "${PACKAGES[@]}"; do
           chk="${xtr2[$((i+1))]}"
           sum="${xtr2[$((i+2))]}"
           file="${xtr2[$((i+3))]}"
-          curl -o "$tmpd/$file" --create-dirs "$url"
+          echo "downloading $url"
+          curl -f -o "$tmpd/$file" --create-dirs "$url"
           csum="$("${sum}sum" "$tmpd/$file" | awk '{print $1}')"
           if [ "$csum" != "$chk" ]; then
             rm -rf "$tmpd"
-            echo "$0: checksum mismatch for $url: $csum != $chk"
+            echo "$0: checksum mismatch for $url: $csum != $chk" 1>&2
             exit 1
           fi
         done
