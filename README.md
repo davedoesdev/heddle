@@ -292,6 +292,12 @@ Heddle runs an NTP client (BusyBox `ntpd`) which gets its time from the `heddle`
 
 If you're running a Heddle server on the public Internet, please consider [adding it to the NTP pool](http://www.pool.ntp.org/join.html). `pool.ntp.org` does a great job and always needs more servers.
 
+## [Smartmontools](https://www.smartmontools.org/)
+
+Heddle comes with `smartctl` and `smartd` for monitoring the state of your machine's disks. `smartd` is _not_ started unless its configuration file exists at `/etc/smartd.conf`. The stock configuration file is available at `/home/install/etc/smartd.conf`.
+
+`mail` and `sendmail` are _not_ available for sending alerts from `smartd`. An alternative is to write a Python script to do the same. The Python [`sender`](http://sender.readthedocs.org/en/latest/) module is available to make this easy.
+
 ## Customising Heddle
 
 ### Run-time customisation

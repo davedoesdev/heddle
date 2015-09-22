@@ -1708,6 +1708,16 @@ BLD_HEDDLE_RECV() {
   cp * "$INSTALL_DIR/bin"
 }
 
+VER_SENDER="0.2"
+DIR_SENDER="sender-$VER_SENDER"
+SRC_SENDER="$DIR_SENDER.tar.gz"
+URL_SENDER="https://pypi.python.org/packages/source/s/sender/$SRC_SENDER"
+CHK_SENDER="5cf51c46af625e7b158915c652ceba4c"
+SUM_SENDER="md5"
+BLD_SENDER() {
+  python setup.py install
+}
+
 VER_SMARTMONTOOLS="6.4"
 DIR_SMARTMONTOOLS="smartmontools-$VER_SMARTMONTOOLS"
 SRC_SMARTMONTOOLS="$DIR_SMARTMONTOOLS.tar.gz"
@@ -1782,4 +1792,5 @@ PACKAGES=(LIBICONV
           STRACE
           EXTRACT_NSS_ROOT_CERTS
           HEDDLE_RECV
+          SENDER
           SMARTMONTOOLS)

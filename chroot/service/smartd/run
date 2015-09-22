@@ -1,0 +1,10 @@
+#!/bin/sh
+if test -e /etc/smartd.conf; then
+  exec 2>&1
+  args=
+  if test -e /etc/smart_drivedb.h; then
+    args="-B +/etc/smart_drivedb.h"
+  fi
+  exec smartd -n -c /etc/smartd.conf $args
+fi
+exec sv down smartd
