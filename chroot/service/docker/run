@@ -1,9 +1,11 @@
 #!/bin/sh
 if grep -q 'heddle_prepare=1' /proc/cmdline; then
-  if [ -c /dev/ttyAMA0 ]; then
-    exec > /dev/ttyAMA0 2>&1
-  else
-    exec > /dev/ttyS0 2>&1
+  if grep -q 'heddle_prepare=10' /proc/cmdline; then
+    if [ -c /dev/ttyAMA0 ]; then
+      exec > /dev/ttyAMA0 2>&1
+    else
+      exec > /dev/ttyS0 2>&1
+    fi
   fi
   export DOCKER_ALLOW_SCRATCH=1
 else

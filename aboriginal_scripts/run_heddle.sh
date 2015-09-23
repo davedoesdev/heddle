@@ -11,11 +11,14 @@ prepare=0
 qemu_mode=0
 append=
 hostname=
-while getopts pqa:h: opt
+while getopts pPqa:h: opt
 do
   case $opt in
     p)
       prepare=1
+      ;;
+    P)
+      prepare=10
       ;;
     q)
       qemu_mode=1

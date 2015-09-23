@@ -157,9 +157,11 @@ export PATH
 exec /usr/sbin/chroot /root /mnt/init $interactive $Interactive
 EOF
   chmod +x "$ROOT_DIR/init.uml"
-  exec linux.uml "ubd0=root.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" "heddle_arch=$ARCH" eth0=slirp
+  exec linux.uml "ubd0=root.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" "heddle_arch=$ARCH"
 else
   echo "qemu/kvm build" | tee /dev/tty
+  # disable networking to make sure we have all the dependencies up front
+  export QEMU_EXTRA="-net none"
   if [ "$ARCH" = x86_64 ]; then
     export QEMU_MEMORY="$BUILD_MEM"
     tmp=
@@ -167,7 +169,7 @@ else
     tmp="$(mktemp)"
     dd if=/dev/zero "of=$tmp" bs=1024 "seek=$(($BUILD_MEM * 1024))" count=0
     mkswap "$tmp"
-    export QEMU_EXTRA="-hdd $tmp"
+    QEMU_EXTRA+=" -hdd $tmp"
   fi
   export KERNEL_EXTRA="heddle_arch=$ARCH"
   ./dev-environment.sh

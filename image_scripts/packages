@@ -562,6 +562,26 @@ EOF
  
 EOF
 
+  # We disable networking when not bulding in chroot in order to detect when
+  # we're missing a depedency. This causes multicast test to fail.
+  patch -p0 << 'EOF'
+--- src/net/multicast_test.go.orig
++++ src/net/multicast_test.go
+@@ -52,7 +52,11 @@
+ 			var err error
+ 			cs := make([]*UDPConn, 2)
+ 			if cs[0], err = ListenMulticastUDP(tt.net, ifi, tt.gaddr); err != nil {
+-				t.Fatalf("First ListenMulticastUDP on %v failed: %v", ifi, err)
++				if (os.Getenv("IN_CHROOT") == "1") {
++					t.Fatalf("First ListenMulticastUDP on %v failed: %v", ifi, err)
++				} else {
++					t.Skip("ignoring failure because not in chroot");
++				}
+ 			}
+ 			if err := checkMulticastListener(cs[0], tt.gaddr.IP); err != nil {
+ 				closer(cs)
+EOF
+
   # Copy race detector we built from source
   if [ "$heddle_arch" = x86_64 ]; then
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
