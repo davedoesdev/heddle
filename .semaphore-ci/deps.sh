@@ -2,8 +2,7 @@
 set -e
 
 sudo apt-get purge -y apache2 cassandra elasticsearch memcached mongodb-org \
-                      mysql-server postgresql-9.4 rabbitmq-server rethinkdb \
-                      sphinxsearch
+                      mysql-server postgresql-9.4 rethinkdb sphinxsearch
 sudo apt-get autoremove -y
 
 sudo apt-get update -qq
