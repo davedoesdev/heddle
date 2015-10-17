@@ -1694,6 +1694,21 @@ EOF
  typedef unsigned long size_t;
 EOF
 
+  # GCC 4.2.1 doesn't have remove-outfile spec
+  patch -p0 << 'EOF'
+--- app-tools/specs-compile_or_ferment.orig
++++ app-tools/specs-compile_or_ferment
+@@ -21,7 +21,7 @@
+ -L/home/source/rumprun-cc08a77067ddc1599badd76c15e7327bacd58721/./rumprun/lib
+ 
+ *link:
+-%{m64:-m elf_x86_64;mx32:-m elf32_x86_64;m32:-m elf_i386} %:remove-outfile(-lstdc++) %{rdynamic:}
++%{m64:-m elf_x86_64;mx32:-m elf32_x86_64;m32:-m elf_i386} %:replace-outfile(-lstdc++ "") %{rdynamic:}
+ 
+ %rename link_libgcc old_link_libgcc
+ 
+EOF
+
   (unset CFLAGS CPPFLAGS LDFLAGS INSTALL_DIR; ./build-rr.sh hw)
 }
 

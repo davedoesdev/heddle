@@ -188,3 +188,24 @@ patch -p0 << 'EOF'
    cc = getenv("CCWRAP_CC");
    if (!cc) cc = "rawcc";
 EOF
+
+# Add env var (CCWRAP_PASSTHRU) to make ccwrap pass args through unchanged
+patch -p0 << 'EOF'
+--- sources/toys/ccwrap.c.orig3	2015-10-17 20:23:53.503000770 +0100
++++ sources/toys/ccwrap.c	2015-10-17 20:47:06.200903574 +0100
+@@ -276,6 +276,14 @@
+   cc = getenv("CCWRAP_CC");
+   if (!cc) cc = "rawcc";
+ 
++  // Pass through arguments if required
++  if (getenv("CCWRAP_PASSTHRU")) {
++    argv[0] = cc;
++    execvp(*argv, argv);
++    fprintf(stderr, "%s: %s\n", *argv, strerror(errno));
++    exit(1);
++  }
++
+   // Does toolchain have a shared libcc?
+   temp = xmprintf("%s/lib/libgcc_s.so", topdir);
+   if (is_file(temp, 0)) SET_FLAG(Clibccso);
+EOF
