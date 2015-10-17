@@ -167,3 +167,24 @@ patch -p0 << 'EOF'
      }
    }
 EOF
+
+# Add support for --sysroot to ccwrap
+patch -p0 << 'EOF'
+--- sources/toys/ccwrap.c.orig2	2015-10-15 21:31:25.361957394 +0100
++++ sources/toys/ccwrap.c	2015-10-16 07:00:44.543547413 +0100
+@@ -264,6 +264,14 @@
+     topdir = temp;
+   }
+ 
++  // Override header/library search path with sysroot?
++  for (i=1; i<argc; i++) {
++    if (!strncmp(argv[i], "--sysroot=", 10)) {
++      topdir = xmprintf("%s/usr", &argv[i][10]);
++      break;
++    }
++  }
++
+   // Name of the C compiler we're wrapping.
+   cc = getenv("CCWRAP_CC");
+   if (!cc) cc = "rawcc";
+EOF

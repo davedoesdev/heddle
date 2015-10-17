@@ -1569,6 +1569,134 @@ PST_CAPSTAN() {
   export CAPSTAN_QEMU_PATH="$INSTALL_DIR/bin/qemu-system-$heddle_arch"
 }
 
+VER_UNAME_P="0.0.1"
+DIR_UNAME_P="uname_p-$VER_UNAME_P"
+SRC_UNAME_P="$DIR_UNAME_P.tar.gz"
+GET_UNAME_P() {
+  mkdir "$DIR_UNAME_P"
+  cat > "$DIR_UNAME_P/uname" << 'EOF'
+#!/bin/bash
+while getopts :p opt; do
+  case $opt in
+    p) echo "$heddle_arch"; exit;;
+  esac
+done
+exec /usr/bin/uname "$@"
+EOF
+  chmod +x "$DIR_UNAME_P/uname"
+  tar -zc "$DIR_UNAME_P"
+}
+BLD_UNAME_P() {
+  cp uname "$INSTALL_DIR/bin"
+}
+
+VER_RUMPRUN="cc08a77067ddc1599badd76c15e7327bacd58721"
+RPO_RUMPRUN="https://github.com/rumpkernel/rumprun.git"
+DIR_RUMPRUN="rumprun-$VER_RUMPRUN"
+SRC_RUMPRUN="$DIR_RUMPRUN.tar.gz"
+GET_RUMPRUN() {
+  git clone "$RPO_RUMPRUN" "$DIR_RUMPRUN"
+  cd "$DIR_RUMPRUN"
+  git checkout "$VER_RUMPRUN"
+  git submodule update --init 1>&2
+  tar -C .. -zc "$DIR_RUMPRUN"
+}
+BLD_RUMPRUN() {
+  # GCC 4.2.1 doesn't support AVX instructions
+  ./src-netbsd/crypto/external/bsd/openssl/dist/crypto/sha/asm/sha1-x86_64.pl > ./src-netbsd/crypto/external/bsd/openssl/lib/libcrypto/arch/x86_64/sha1-x86_64.S
+
+  # GCC 4.2.1 doesn't like source without newlines
+  # toybox env command doesn't like empty definitions
+  patch -p0 << 'EOF'
+--- buildrump.sh/buildrump.sh.orig
++++ buildrump.sh/buildrump.sh
+@@ -233,7 +233,7 @@
+ 	shift
+ 
+ 	warnflags="-Wmissing-prototypes -Wstrict-prototypes -Wimplicit -Werror"
+-	printf "${theprog}" \
++	printf "${theprog}\n" \
+ 	    | ${CC} ${warnflags} ${EXTRA_LDFLAGS} ${EXTRA_CFLAGS}	\
+ 		-x c - -o /dev/null $* > /dev/null 2>&1
+ }
+@@ -247,7 +247,7 @@
+ 	theprog="${1}"
+ 	shift
+ 
+-	printf "${theprog}" \
++	printf "${theprog}\n" \
+ 	    | ${CXX} -Werror ${EXTRA_LDFLAGS} ${EXTRA_CFLAGS}	\
+ 		-x c++ - -o /dev/null $* > /dev/null 2>&1
+ }
+@@ -677,7 +677,7 @@
+ 	stage=$2
+ 	cmd=$3
+ 
+-	env CFLAGS= HOST_LDFLAGS=-L${OBJDIR} ./build.sh \
++	CFLAGS= HOST_LDFLAGS=-L${OBJDIR} ./build.sh \
+ 	    -m ${MACHINE} -u \
+ 	    -D ${stage} -w ${wrapper} \
+ 	    -T ${BRTOOLDIR} -j ${JNUM} \
+--- src-netbsd/build.sh.orig
++++ src-netbsd/build.sh
+@@ -1596,7 +1596,7 @@
+ 	if ${do_rebuildmake}; then
+ 		statusmsg "Bootstrapping ${toolprefix}make"
+ 		${runcmd} cd "${tmpdir}"
+-		${runcmd} env CC="${HOST_CC-cc}" CPPFLAGS="${HOST_CPPFLAGS}" \
++		CC="${HOST_CC-cc}" CPPFLAGS="${HOST_CPPFLAGS}" \
+ 			CFLAGS="${HOST_CFLAGS--O}" LDFLAGS="${HOST_LDFLAGS}" \
+ 			${HOST_SH} "${TOP}/tools/make/configure" ||
+ 		    ( cp ${tmpdir}/config.log ${tmpdir}-config.log
+EOF
+
+  # GCC 4.2.1 doesn't have __INTx_TYPE__ predefined
+  patch -p0 << 'EOF'
+--- include/bmk-core/types.h.orig
++++ include/bmk-core/types.h
+@@ -26,17 +26,8 @@
+ #ifndef _BMK_CORE_TYPES_H_
+ #define _BMK_CORE_TYPES_H_
+ 
+-typedef __INT64_TYPE__		int64_t;
+-typedef __UINT64_TYPE__		uint64_t;
+-typedef __INT32_TYPE__		int32_t;
+-typedef __UINT32_TYPE__		uint32_t;
+-typedef __INT16_TYPE__		int16_t;
+-typedef __UINT16_TYPE__		uint16_t;
+-typedef __INT8_TYPE__		int8_t;
+-typedef __UINT8_TYPE__		uint8_t;
+-typedef __INTPTR_TYPE__		intptr_t;
+-typedef __UINTPTR_TYPE__	uintptr_t;
+-
+-typedef __INT64_TYPE__		bmk_time_t;
++#include <stdint.h>  
++#undef __UNCONST
++typedef int64_t bmk_time_t;
+ 
+ #endif /* _BMK_CORE_TYPES_H_ */
+--- include/bmk-rumpuser/core_types.h.orig
++++ include/bmk-rumpuser/core_types.h
+@@ -29,13 +29,7 @@
+  * in a can of worms, we define just those constructs here.
+  */
+ 
+-#ifdef _LP64
+-typedef long int64_t;
+-typedef unsigned long uint64_t;
+-#else
+-typedef long long int64_t;
+-typedef unsigned long long uint64_t;
+-#endif /* _LP64 */
++#include <stdint.h>
+ 
+ typedef int pid_t;
+ typedef unsigned long size_t;
+EOF
+
+  (unset CFLAGS CPPFLAGS LDFLAGS INSTALL_DIR; ./build-rr.sh hw)
+}
+
 DIR_KMOD="kmod-19"
 SRC_KMOD="$DIR_KMOD.tar.xz"
 URL_KMOD="https://www.kernel.org/pub/linux/utils/kernel/kmod/$SRC_KMOD"
@@ -1804,6 +1932,8 @@ PACKAGES=(LIBICONV
           QEMU
           QBOOT
           CAPSTAN
+          UNAME_P
+          RUMPRUN
           KMOD
           NATSORT
           PCIUTILS
