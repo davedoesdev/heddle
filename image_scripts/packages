@@ -1590,6 +1590,94 @@ BLD_UNAME_P() {
   cp uname "$INSTALL_DIR/bin"
 }
 
+VER_BMAKE="20151010"
+DIR_BMAKE="bmake"
+SRC_BMAKE="$DIR_BMAKE-$VER_BMAKE.tar.gz"
+URL_BMAKE="http://www.crufty.net/ftp/pub/sjg/$SRC_BMAKE"
+CHK_BMAKE="1d28ca04148b0b99c4692fec32f2c9f072157693"
+SUM_BMAKE="sha1"
+BLD_BMAKE() {
+  patch -p0 << 'EOF'
+--- unit-tests/dotwait.exp.orig
++++ unit-tests/dotwait.exp
+@@ -22,9 +22,9 @@
+ shared.2.1
+ shared.2.99
+ shared.2.99
++cycle.1.99
+ make: Graph cycles through `cycle.2.99'
+ make: Graph cycles through `cycle.2.98'
+ make: Graph cycles through `cycle.2.97'
+-cycle.1.99
+ cycle.1.99
+ exit status 0
+EOF
+  ./configure "--prefix=$INSTALL_DIR"
+  prefix="$INSTALL_DIR" make
+  make INSTALL=install install
+}
+
+VER_QUASAR_M4="2"
+DIR_QUASAR_M4="m4-$VER_QUASAR_M4"
+SRC_QUASAR_M4="$DIR_QUASAR_M4.tar.bz2"
+URL_QUASAR_M4="http://haddonthethird.net/m4/$SRC_QUASAR_M4"
+CHK_QUASAR_M4="e4315fef49b08912b1d1db3774dd98f971397b2751c648512b6c8d852590dc50"
+SUM_QUASAR_M4="sha256"
+BLD_QUASAR_M4() {
+  make
+  make "PREFIX=$INSTALL_DIR"
+}
+
+VER_NROFF="150406"
+DIR_NROFF="heirloom-doctools-$VER_NROFF"
+SRC_NROFF="$DIR_NROFF.tar.bz2"
+URL_NROFF="https://github.com/n-t-roff/heirloom-doctools/releases/download/$VER_NROFF/$SRC_NROFF"
+CHK_NROFF="2a347b9460af4dd3093d031abfed492e10202217"
+SUM_NROFF="sha1"
+BLD_NROFF() {
+  patch -p0 < 'EOF'
+--- troff/tdef.h.orig
++++ troff/tdef.h
+@@ -48,6 +48,7 @@
+  * contributors.
+  */
+ 
++#include <stddef.h>
+ #include "global.h"
+ 
+ /* starting values for typesetting parameters: */
+EOF
+  (cd troff/libhnj; make -f Makefile.mk RANLIB=ranlib)
+  (cd troff/nroff.d; make -f Makefile.mk SYSTEM=linux "TABDIR=$INSTALL_DIR/share/nterm" "MACDIR=$INSTALL_DIR/share/tmac"; make -f Makefile.mk install INSTALL=install "ROOT=$INSTALL_DIR/" BINDIR=bin MANDIR=man STRIP=strip)
+  (cd troff/nroff.d/terms.d; make -f Makefile.mk; make -f Makefile.mk install INSTALL=install "ROOT=$INSTALL_DIR/" TABDIR=share/nterm)
+  (cd troff/troff.d/tmac.d; make -f Makefile.mk "MACDIR=$INSTALL_DIR/share/tmac" "LIBDIR=$INSTALL_DIR/lib"; make -f Makefile.mk install INSTALL=install "ROOT=$INSTALL_DIR/" MACDIR=share/tmac MANDIR=man
+}
+
+VER_ELFTOOLCHAIN="0.6.1"
+DIR_ELFTOOLCHAIN="elftoolchain-$VER_ELFTOOLCHAIN"
+SRC_ELFTOOLCHAIN="$DIR_ELFTOOLCHAIN.tgz"
+URL_ELFTOOLCHAIN="http://downloads.sourceforge.net/project/elftoolchain/Sources/elftoolchain-$VER_ELFTOOLCHAIN/$SRC_ELFTOOLCHAIN"
+CHK_ELFTOOLCHAIN="f4dc6e2a820f146658d6b5f9a062a2e676d0715aca654f55866c60e0025561eb"
+SUM_ELFTOOLCHAIN="sha256"
+BLD_ELFTOOLCHAIN() {
+  # toybox mktemp doesn't have -u
+  patch -p0 << 'EOF'
+--- common/native-elf-format.orig
++++ common/native-elf-format
+@@ -9,7 +9,7 @@
+ # information statically at compile time.
+ 
+ program=`basename $0`
+-tmp_c=`mktemp -u nefXXXXXX`.c
++tmp_c=`mktemp nefXXXXXX`.c
+ tmp_o=`echo ${tmp_c} | sed -e 's/.c$/.o/'`
+ 
+ trap "rm -f ${tmp_c} ${tmp_o}"	0 1 2 3 15
+EOF
+  ./common/native-elf-format > common/native-elf-format.h
+  bmake OS_HOST=FreeBSD MANDOC=mandoc
+}
+
 VER_RUMPRUN="cc08a77067ddc1599badd76c15e7327bacd58721"
 RPO_RUMPRUN="https://github.com/rumpkernel/rumprun.git"
 DIR_RUMPRUN="rumprun-$VER_RUMPRUN"
@@ -1948,6 +2036,10 @@ PACKAGES=(LIBICONV
           QBOOT
           CAPSTAN
           UNAME_P
+          BMAKE
+          QUASAR_M4
+          NROFF
+          ELFTOOLCHAIN
           RUMPRUN
           KMOD
           NATSORT
