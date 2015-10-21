@@ -18,7 +18,7 @@ echo +downloads:
 ls "$SEMAPHORE_CACHE_DIR"
 
 ver_abo=1.4.1
-ver_bat=4.0.4
+ver_bat=4.0.6
 
 abo_base="$SEMAPHORE_CACHE_DIR/aboriginal-$ver_abo"
 abo_seal="$abo_base.seal"
