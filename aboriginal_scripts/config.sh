@@ -117,12 +117,12 @@ patch -p0 << 'EOF'
  
  enum {
    Clibccso, Clink, Cprofile, Cshared, Cstart, Cstatic, Cstdinc, Cstdlib,
--  Cverbose, Cx, Cdashdash,
-+  Cverbose, Cx, Cdashdash, Cpie,
+-  Cverbose, Cx, Cdashdash, Cmelf,
++  Cverbose, Cx, Cdashdash, Cmelf, Cpie,
  
    CPctordtor, CP, CPstdinc
  };
-@@ -382,6 +383,10 @@
+@@ -389,6 +390,10 @@
  
          return 0;
        } else if (!strcmp(c, "pg")) SET_FLAG(Cprofile);
@@ -133,7 +133,7 @@ patch -p0 << 'EOF'
      } else if (*c == 's') {
        keepc--;
        if (!strcmp(c, "shared")) {
-@@ -440,6 +445,7 @@
+@@ -448,6 +453,7 @@
      outv[outc++] = "-nostdlib";
      outv[outc++] = GET_FLAG(Cstatic) ? "-static" : dynlink;
      if (GET_FLAG(Cshared)) outv[outc++] = "-shared";
@@ -141,7 +141,7 @@ patch -p0 << 'EOF'
  
      // Copy libraries to output (first move fallback to end, break circle)
      libs = libs->next->next;
-@@ -452,11 +458,12 @@
+@@ -460,11 +466,12 @@
      if (GET_FLAG(CPctordtor)) {
        outv[outc++] = xmprintf("%s/lib/crti.o", topdir);
        outv[outc++] = find_TSpath("%s/cc/lib/crtbegin%s", topdir,
@@ -156,7 +156,7 @@ patch -p0 << 'EOF'
    }
  
    // Copy unclaimed arguments
-@@ -482,7 +489,8 @@
+@@ -490,7 +497,8 @@
      }
      if (GET_FLAG(CPctordtor)) {
        outv[outc++] = find_TSpath("%s/cc/lib/crtend%s", topdir,
@@ -165,7 +165,7 @@ patch -p0 << 'EOF'
 +                                 GET_FLAG(Cpie));
        outv[outc++] = xmprintf("%s/lib/crtn.o", topdir);
      }
-   }
+ #ifdef ELF2FLT
 EOF
 
 # Add support for --sysroot to ccwrap

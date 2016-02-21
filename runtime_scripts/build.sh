@@ -1,5 +1,4 @@
 #!/bin/bash
-# build enough to get docker and capstan working
 set -e
 
 cleanup() {
@@ -71,6 +70,8 @@ for pkg in "${PACKAGES[@]}"; do
       tar -C "$INSTALL_DIR" -Jxf "$binf"
     else
       rm -rf "${!vdir}"
+      mkdir "${!vdir}"
+      pushd "${!vdir}"
       case "${!vsrc}" in
         *.zip)
           miniunz "$HERE/download/${!vsrc}"
@@ -79,7 +80,12 @@ for pkg in "${PACKAGES[@]}"; do
           tar -xf "$HERE/download/${!vsrc}"
           ;;
       esac
-      tar -xf "$HERE/supplemental.tar.gz" "./$pkg" "./${!vdir}" >& /dev/null || true
+      # assume one directory has been extracted
+      mv * _heddle_build_xyz_
+      mv _heddle_build_xyz_/* .
+      rm -rf _heddle_build_xyz_
+      popd
+      tar -xvf "$HERE/supplemental.tar.gz" "./$pkg" "./${!vdir}" 2> /dev/null || true
       extraf="$HERE/host/${!vsrc}-$heddle_arch-extra.tar.xz"
       [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
       extraf="$HERE/host/${!vsrc}-any-extra.tar.xz"
@@ -101,5 +107,5 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 if [ -n "$interactive" -o -n "$Interactive" ]; then
-  chroot "$CHROOT_DIR" ash
+  chroot "$CHROOT_DIR" hush
 fi

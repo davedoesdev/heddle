@@ -137,7 +137,7 @@ e2ls -l "$IMG_BUILD:download" | awk '{if (NF > 0) print $NF}' | while read f; do
   fi
 done
 
-e2ls -l "$IMG_BUILD:host" | awk '{if (NF > 0) print $NF}' | while read f; do
+e2ls -l "$IMG_BUILD:host" | grep -v 'No files found!' | awk '{if (NF > 0) print $NF}' | while read f; do
   found=0
   for pkg in "${PACKAGES[@]}"; do
     vsrc="SRC_$pkg"
