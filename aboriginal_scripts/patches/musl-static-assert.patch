@@ -1,0 +1,13 @@
+--- a/include/assert.h	2016-02-08 09:33:38.930439002 +0000
++++ b/include/assert.h	2016-02-08 09:33:53.426480774 +0000
+@@ -8,10 +8,6 @@
+ #define assert(x) ((void)((x) || (__assert_fail(#x, __FILE__, __LINE__, __func__),0)))
+ #endif
+ 
+-#ifndef __cplusplus
+-#define static_assert _Static_assert
+-#endif
+-
+ #ifdef __cplusplus
+ extern "C" {
+ #endif

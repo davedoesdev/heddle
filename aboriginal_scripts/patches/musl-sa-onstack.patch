@@ -1,0 +1,33 @@
+--- a/src/thread/synccall.c	2016-02-10 23:01:12.050851740 +0000
++++ b/src/thread/synccall.c	2016-02-10 23:02:07.146958651 +0000
+@@ -50,7 +50,7 @@
+ 	int cs, i, r, pid, self;;
+ 	DIR dir = {0};
+ 	struct dirent *de;
+-	struct sigaction sa = { .sa_flags = 0, .sa_handler = handler };
++	struct sigaction sa = { .sa_flags = SA_ONSTACK, .sa_handler = handler };
+ 	struct chain *cp, *next;
+ 	struct timespec ts;
+ 
+--- a/src/thread/pthread_cancel.c	2016-02-10 23:05:26.103378394 +0000
++++ b/src/thread/pthread_cancel.c	2016-02-10 23:05:54.803442561 +0000
+@@ -86,7 +86,7 @@
+ static void init_cancellation()
+ {
+ 	struct sigaction sa = {
+-		.sa_flags = SA_SIGINFO | SA_RESTART,
++		.sa_flags = SA_SIGINFO | SA_RESTART | SA_ONSTACK,
+ 		.sa_sigaction = cancel_handler
+ 	};
+ 	memset(&sa.sa_mask, -1, _NSIG/8);
+--- a/src/time/timer_create.c	2016-02-10 23:08:58.359869452 +0000
++++ b/src/time/timer_create.c	2016-02-10 23:10:05.728032099 +0000
+@@ -52,7 +52,7 @@
+ {
+ 	struct sigaction sa = {
+ 		.sa_sigaction = timer_handler,
+-		.sa_flags = SA_SIGINFO | SA_RESTART
++		.sa_flags = SA_SIGINFO | SA_RESTART | SA_ONSTACK
+ 	};
+ 	__libc_sigaction(SIGTIMER, &sa, 0);
+ }

@@ -1,0 +1,11 @@
+--- a/include/string
++++ b/include/string
+@@ -226,7 +226,7 @@
+ 	template<class InputIterator> _UCXXEXPORT basic_string& assign(InputIterator first, InputIterator last){
+ 		vector<Ch, A>::resize(0, Ch());
+ 		while (first != last){
+-			append(*first);
++			append(1, *first);
+ 			++first;
+ 		}
+ 		return *this;
