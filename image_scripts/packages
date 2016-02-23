@@ -888,6 +888,7 @@ EOF
 EOF
 
   # Our patch only supports unified diffs so need to convert one
+  # (I used filterdiff to do the conversion)
   cat > doc/articles/wiki/final-test.patch << 'EOF'
 --- final.go	2015-06-14 23:59:22.000000000 +0200
 +++ final-test.go	2015-06-15 00:15:41.000000000 +0200
@@ -1484,11 +1485,11 @@ EOF
   make install
 }
 
-VER_DOCKER="1.6.0"
+VER_DOCKER="1.10.1"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
 URL_DOCKER="https://github.com/docker/docker/archive/v$VER_DOCKER.tar.gz"
-CHK_DOCKER="8ba01d3ae2c6db8532fef56dbbe16719baf4d08d66fa0f35550e98db6784df0e"
+CHK_DOCKER="9b65cb23efc6dfab963041af617a32dff650217e571fc41daa970afd305ec864"
 SUM_DOCKER="sha256"
 BLD_DOCKER() {
   # We have bash v2 without '+=', pipefail, BASH_SOURCE and 'declare -A':
@@ -1505,19 +1506,19 @@ source() {\
   sed -i -E -e 's/declare -A//g' -e 's/([a-z]+)\+=\(/\1=( "${\1[@]}" /g' contrib/check-config.sh
   # Allow scratch import from prepare_docker service
   patch -p0 << 'EOF'
---- graph/tags.go.orig
-+++ graph/tags.go
-@@ -344,7 +344,7 @@
+--- distribution/pull.go.orig	2016-02-21 22:48:32.906637914 +0000
++++ distribution/pull.go	2016-02-21 22:49:19.881125984 +0000
+@@ -183,7 +183,7 @@
  	if name == "" {
  		return fmt.Errorf("Repository name can't be empty")
  	}
--	if name == "scratch" {
-+	if os.Getenv("DOCKER_ALLOW_SCRATCH") != "1" && name == "scratch" {
- 		return fmt.Errorf("'scratch' is a reserved name")
+-	if name == api.NoBaseImageSpecifier {
++	if os.Getenv("DOCKER_ALLOW_SCRATCH") != "1" && name == api.NoBaseImageSpecifier {
+ 		return fmt.Errorf("'%s' is a reserved name", api.NoBaseImageSpecifier)
  	}
  	return nil
 EOF
-  AUTO_GOPATH=1 DOCKER_GITCOMMIT=4749651 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
+  AUTO_GOPATH=1 DOCKER_GITCOMMIT=9e83765 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }
@@ -1533,7 +1534,7 @@ BLD_RUNIT() {
   sed -i -r 's/^(here=).*/\1"$PWD"/' package/{compile,upgrade}
   sed -i -r -e 's/^.*(ctmp=)/\1/' -e 's/(cat) -v/\1/' src/check-local
   sed -i -e 's/0644/0640/g' -e 's/0744/0740/g' src/svlogd.c
-  chroot "$CHROOT_DIR" ash <<EOF
+  chroot "$CHROOT_DIR" hush <<EOF
   rm -rf "/package/admin/$(basename "$PWD")"
   mkdir -p /package/admin
   cp -af "$PWD" /package/admin
@@ -1554,10 +1555,10 @@ BLD_SHUTDOWN() {
   cp * "$INSTALL_DIR/sbin"
 }
 
-DIR_CURL="curl-7.42.1"
+DIR_CURL="curl-7.47.1"
 SRC_CURL="$DIR_CURL.tar.bz2"
 URL_CURL="http://curl.haxx.se/download/$SRC_CURL"
-CHK_CURL="e2905973391ec2dfd7743a8034ad10eeb58dab8b3a297e7892a41a7999cac887"
+CHK_CURL="ddc643ab9382e24bbe4747d43df189a0a6ce38fcb33df041b9cb0b3cd47ae98f"
 SUM_CURL="sha256"
 BLD_CURL() {
   ./configure "--prefix=$INSTALL_DIR" --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt --with-ca-path=/etc/ssl/certs
@@ -1582,14 +1583,14 @@ BLD_SHADOW() {
  INACTIVE=-1
  EXPIRE=
 -SHELL=/bin/bash
-+SHELL=/bin/ash
++SHELL=/bin/hush
  SKEL=/etc/skel
 -CREATE_MAIL_SPOOL=yes
 +CREATE_MAIL_SPOOL=no
 EOF
   ./configure "--prefix=$INSTALL_DIR" --sysconfdir=/etc
   make
-  chroot "$CHROOT_DIR" ash <<EOF
+  chroot "$CHROOT_DIR" hush <<EOF
   cp /etc/login.defs /etc/login.defs.save
   cd "$PWD"
   make install
@@ -1604,8 +1605,21 @@ URL_SQUASHFS_TOOLS="https://github.com/plougher/squashfs-tools/archive/$VER_SQUA
 CHK_SQUASHFS_TOOLS="4294b3f9be9163bc0c610cf2894e6e0833b23d529296ea3dcb50bfb5ba04739f"
 SUM_SQUASHFS_TOOLS="sha256"
 BLD_SQUASHFS_TOOLS() {
+  # musl is stricter on include locations
+  patch -p0 << 'EOF'
+--- squashfs-tools/pseudo.c.orig
++++ squashfs-tools/pseudo.c
+@@ -32,6 +32,7 @@
+ #include <stdlib.h>
+ #include <sys/types.h>
+ #include <sys/wait.h>
++#include <sys/stat.h>
+ #include <ctype.h>
+ 
+ #include "pseudo.h"
+EOF
   cd squashfs-tools
-  make
+  make CPPFLAGS="$CPPFLAGS -DFNM_EXTMATCH=0"
   make INSTALL_DIR="$INSTALL_DIR/bin" install
 }
 
@@ -1615,7 +1629,23 @@ URL_PARTED="http://ftp.gnu.org/gnu/parted/$SRC_PARTED"
 CHK_PARTED="858b589c22297cacdf437f3baff6f04b333087521ab274f7ab677cb8c6bb78e4"
 SUM_PARTED="sha256"
 BLD_PARTED() {
-  ./configure "--prefix=$INSTALL_DIR" --without-readline
+  # Need _GNU_SOURCE for loff_t in fcntl.h
+  patch -p0 << 'EOF'
+--- libparted/fs/xfs/xfs.c.orig
++++ libparted/fs/xfs/xfs.c
+@@ -18,6 +18,10 @@
+ 
+ #include <config.h>
+ 
++#define _GNU_SOURCE
++#include <fcntl.h>
++#undef _GNU_SOURCE
++
+ #include <parted/parted.h>
+ #include <parted/endian.h>
+ 
+EOF
+  LIBS=-lintl ./configure "--prefix=$INSTALL_DIR" --without-readline
   make
   make install
 }
@@ -1631,36 +1661,36 @@ BLD_POPT() {
   make install
 }
 
-VER_GPTFDISK="0.8.10"
+VER_GPTFDISK="1.0.1"
 DIR_GPTFDISK="gptfdisk-$VER_GPTFDISK"
 SRC_GPTFDISK="$DIR_GPTFDISK.tar.gz"
 URL_GPTFDISK="http://downloads.sourceforge.net/project/gptfdisk/gptfdisk/$VER_GPTFDISK/$SRC_GPTFDISK"
-CHK_GPTFDISK="73e64151203ae0c347c488358e71ca582bb7fb7f0d66df86b71c42050390eb9b"
+CHK_GPTFDISK="864c8aee2efdda50346804d7e6230407d5f42a8ae754df70404dd8b2fdfaeac7"
 SUM_GPTFDISK="sha256"
 BLD_GPTFDISK() {
-  LDFLAGS="$LDFLAGS -lm" make sgdisk
+  make sgdisk
   cp sgdisk "$INSTALL_DIR/sbin"
 }
 
-DIR_DHCPCD="dhcpcd-6.6.7"
-SRC_DHCPCD="$DIR_DHCPCD.tar.bz2"
+DIR_DHCPCD="dhcpcd-6.10.1"
+SRC_DHCPCD="$DIR_DHCPCD.tar.xz"
 URL_DHCPCD="http://roy.marples.name/downloads/dhcpcd/$SRC_DHCPCD"
-CHK_DHCPCD="43f93a0a536b93e26e4c7733582df7595d73aff9acfef298323e59dd8db8cdab"
+CHK_DHCPCD="284abf8c3be0580bbac5eaca95359346ab0d78d4072317b6ce87cc68f2e8ae7b"
 SUM_DHCPCD="sha256"
 BLD_DHCPCD() {
-  CPPFLAGS="$CPPFLAGS -D_BSD_SOURCE -D_GNU_SOURCE -D_IPV6_H" ./configure "--prefix=$INSTALL_DIR" "--build=$heddle_arch-unknown-$(uname -s | tr A-Z a-z)"
+  ./configure "--prefix=$INSTALL_DIR" "--build=$heddle_arch-unknown-$(uname -s | tr A-Z a-z)"
   make
-  chroot "$CHROOT_DIR" ash <<EOF
+  chroot "$CHROOT_DIR" hush <<EOF
   cd "$PWD"
   make install
 EOF
 }
 
-VER_GLIB="2.42.1"
+VER_GLIB="2.46.2"
 DIR_GLIB="glib-$VER_GLIB"
 SRC_GLIB="$DIR_GLIB.tar.xz"
 URL_GLIB="http://ftp.gnome.org/pub/gnome/sources/glib/$(echo "$VER_GLIB" | sed -r 's/([0-9]+\.[0-9]+).*/\1/')/$SRC_GLIB"
-CHK_GLIB="8f3f0865280e45b8ce840e176ef83bcfd511148918cc8d39df2ee89b67dcf89a"
+CHK_GLIB="5031722e37036719c1a09163cc6cf7c326e4c4f1f1e074b433c156862bd733db"
 SUM_GLIB="sha256"
 BLD_GLIB() {
   ./configure "--prefix=$INSTALL_DIR"
@@ -1668,10 +1698,10 @@ BLD_GLIB() {
   make install
 }
 
-DIR_PIXMAN="pixman-0.32.6"
+DIR_PIXMAN="pixman-0.34.0"
 SRC_PIXMAN="$DIR_PIXMAN.tar.gz"
 URL_PIXMAN="http://cairographics.org/releases/$SRC_PIXMAN"
-CHK_PIXMAN="8791343cbf6d99451f4d08e8209d6ac11bf96df2"
+CHK_PIXMAN="a1b1683c1a55acce9d928fea1ab6ceb79142ddc7"
 SUM_PIXMAN="sha1"
 BLD_PIXMAN() {
   ./configure "--prefix=$INSTALL_DIR"
@@ -1679,166 +1709,31 @@ BLD_PIXMAN() {
   make install
 }
 
-DIR_QEMU="qemu-2.3.0"
+DIR_QEMU="qemu-2.5.0"
 SRC_QEMU="$DIR_QEMU.tar.bz2"
 URL_QEMU="http://wiki.qemu-project.org/download/$SRC_QEMU"
-CHK_QEMU="b6bab7f763d5be73e7cb5ee7d4c8365b7a8df2972c52fa5ded18893bd8281588"
+CHK_QEMU="3443887401619fe33bfa5d900a4f2d6a79425ae2b7e43d5b8c36eb7a683772d4"
 SUM_QEMU="sha256"
 BLD_QEMU() {
-  # Adapt for reflex/byacc
+  # We're not building guest agent so don't test it
   patch -p0 << 'EOF'
---- dtc/srcpos.h.orig
-+++ dtc/srcpos.h
-@@ -83,4 +83,38 @@
- extern void srcpos_warn(struct srcpos *pos, char const *, ...)
-      __attribute__((format(printf, 2, 3)));
+--- tests/Makefile.orig
++++ tests/Makefile
+@@ -82,7 +82,6 @@
+ check-unit-y += tests/test-crypto-cipher$(EXESUF)
+ check-unit-$(CONFIG_GNUTLS) += tests/test-crypto-tlscredsx509$(EXESUF)
+ check-unit-$(CONFIG_GNUTLS) += tests/test-crypto-tlssession$(EXESUF)
+-check-unit-$(CONFIG_LINUX) += tests/test-qga$(EXESUF)
+ check-unit-y += tests/test-timed-average$(EXESUF)
  
-+#define YYRHSLOC(Rhs, K) ((Rhs)[K])
-+#ifdef YY_BUFFER_NEW
-+#include "util.h"
-+
-+static struct buffer_stack
-+{
-+	YY_BUFFER_STATE buffer;
-+	struct buffer_stack *prev;
-+} *current_buffer = NULL;
-+
-+void yypush_buffer_state(YY_BUFFER_STATE new_buffer)
-+{
-+	struct buffer_stack *bs = xmalloc(sizeof(struct buffer_stack));
-+
-+	bs->buffer = yy_current_buffer;
-+	bs->prev = current_buffer;
-+
-+	current_buffer = bs;
-+
-+	yy_switch_to_buffer(new_buffer);
-+}
-+
-+void yypop_buffer_state(void)
-+{
-+	if (current_buffer)
-+	{
-+		struct buffer_stack *prev = current_buffer->prev;
-+		yy_switch_to_buffer(current_buffer->buffer);
-+		free(current_buffer);
-+		current_buffer = prev;
-+	}
-+}
-+
-+#endif
- #endif /* _SRCPOS_H_ */
+ check-block-$(CONFIG_POSIX) += tests/qemu-iotests-quick.sh
 EOF
-  # On ARM, the constant -32.12313 is -32.123130000000005 at runtime.
-  # This could be a bug in GCC, ARM floating point handling or QEMU
-  # (every floating point number seems to get rounded to .000000000000005).
-  patch -p0 << 'EOF'
---- tests/check-qjson.c.orig
-+++ tests/check-qjson.c
-@@ -936,7 +936,7 @@
-     } test_cases[] = {
-         { "32.43", 32.43 },
-         { "0.222", 0.222 },
--        { "-32.12313", -32.12313 },
-+        { "-32.123131", -32.123131 },
-         { "-32.20e-10", -32.20e-10, .skip = 1 },
-         { },
-     };
-EOF
-  # On ARM, strtod on DBL_MAX doesn't return exactly DBL_MAX (returns 8 less).
-  # Test with FLT_MAX instead.
-  patch -p0 << 'EOF'
---- tests/test-visitor-serialization.c.orig
-+++ tests/test-visitor-serialization.c
-@@ -852,7 +852,11 @@
-     {
-         .description = "number_max",
-         .type = PTYPE_NUMBER,
-+#ifdef __ARM_EABI__
-+        .value.number = FLT_MAX,
-+#else
-         .value.number = DBL_MAX,
-+#endif
-     },
-     /* integer tests (int64) */
-     {
-EOF
-  # GCC 4.2.1 on ARM has problems with 64 bit final vararg parameters:
-  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=34281
-  # GPLv3 patch is here:
-  # https://gcc.gnu.org/viewcvs/gcc/trunk/gcc/config/arm/arm.c?r1=131196&r2=131195&pathrev=131196
-  # Rather than apply that patch, work around it here. If other packages also
-  # need it then we'll have to consider taking it. In future, use clang/llvm.
-  patch -p0 << 'EOF'
---- include/hw/sysbus.h.orig
-+++ include/hw/sysbus.h
-@@ -83,10 +83,14 @@
- void foreach_dynamic_sysbus_device(FindSysbusDeviceFunc *func, void *opaque);
- 
- /* Legacy helper function for creating devices.  */
--DeviceState *sysbus_create_varargs(const char *name,
--                                 hwaddr addr, ...);
--DeviceState *sysbus_try_create_varargs(const char *name,
--                                       hwaddr addr, ...);
-+DeviceState *sysbus_create_varargs2(const char *name,
-+                                 hwaddr addr, void *dummy, ...);
-+DeviceState *sysbus_try_create_varargs2(const char *name,
-+                                       hwaddr addr, void *dummy, ...);
-+#define sysbus_create_varargs(name, addr, ...) \
-+    sysbus_create_varargs2(name, addr, NULL, __VA_ARGS__)
-+#define sysbus_try_create_varargs(name, addr, ...) \
-+    sysbus_try_create_varargs2(name, addr, NULL, __VA_ARGS__)
- static inline DeviceState *sysbus_create_simple(const char *name,
-                                               hwaddr addr,
-                                               qemu_irq irq)
---- hw/core/sysbus.c.orig
-+++ hw/core/sysbus.c
-@@ -202,8 +202,8 @@
-     return sbc->init(sd);
- }
- 
--DeviceState *sysbus_create_varargs(const char *name,
--                                   hwaddr addr, ...)
-+DeviceState *sysbus_create_varargs2(const char *name,
-+                                   hwaddr addr, void *dummy, ...)
- {
-     DeviceState *dev;
-     SysBusDevice *s;
-@@ -217,7 +217,7 @@
-     if (addr != (hwaddr)-1) {
-         sysbus_mmio_map(s, 0, addr);
-     }
--    va_start(va, addr);
-+    va_start(va, dummy);
-     n = 0;
-     while (1) {
-         irq = va_arg(va, qemu_irq);
-@@ -231,8 +231,8 @@
-     return dev;
- }
- 
--DeviceState *sysbus_try_create_varargs(const char *name,
--                                       hwaddr addr, ...)
-+DeviceState *sysbus_try_create_varargs2(const char *name,
-+                                       hwaddr addr, void *dummy, ...)
- {
-     DeviceState *dev;
-     SysBusDevice *s;
-@@ -249,7 +249,7 @@
-     if (addr != (hwaddr)-1) {
-         sysbus_mmio_map(s, 0, addr);
-     }
--    va_start(va, addr);
-+    va_start(va, dummy);
-     n = 0;
-     while (1) {
-         irq = va_arg(va, qemu_irq);
-EOF
+
   # ide-test fails when VNC is disabled unless we remove -vnc argument:
   patch -p0 << 'EOF'
 --- tests/ide-test.c.orig
 +++ tests/ide-test.c
-@@ -525,7 +525,6 @@
+@@ -546,7 +546,6 @@
      prepare_blkdebug_script(debug_path, "flush_to_disk");
  
      ide_test_start(
@@ -1847,37 +1742,52 @@ EOF
          "rerror=stop,werror=stop",
          debug_path, tmp_path);
 EOF
-  patch -p1 < CVE-2015-3456.patch
-  qemu_target=x86_64
-  if [ "$heddle_arch" = armv6l ]; then
-    qemu_target=arm
-    patch_armv6l_sync_builtins util/sync-builtins.c
-    cat >> util/Makefile.objs << 'EOF'
-util-obj-$(CONFIG_POSIX) += sync-builtins.o
+
+  # Fix integer overflow (when cur is INT64_MAX and then incremented)
+  patch -p0 << 'EOF'
+--- qapi/string-input-visitor.c.orig
++++ qapi/string-input-visitor.c
+@@ -28,7 +28,7 @@
+ 
+     GList *ranges;
+     GList *cur_range;
+-    int64_t cur;
++    __int128_t cur;
+ 
+     const char *string;
+ };
 EOF
-  fi
+
+  qemu_target=x86_64
+#  if [ "$heddle_arch" = armv6l ]; then
+#    qemu_target=arm
+#    patch_armv6l_sync_builtins util/sync-builtins.c
+#    cat >> util/Makefile.objs << 'EOF'
+#util-obj-$(CONFIG_POSIX) += sync-builtins.o
+#EOF
+#  fi
+
+  # Disable what we don't need and compile with flags according to
+  # http://docs.openstack.org/security-guide/compute/hardening-the-virtualization-layers.html
   ./configure \
       "--prefix=$INSTALL_DIR" \
-      "--extra-cflags=$CPPFLAGS -D__builtin___clear_cache=__clear_cache" \
-      "--extra-ldflags=$LDFLAGS" \
+      "--extra-cflags=$CPPFLAGS -fstack-protector-all -Wstack-protector --param ssp-buffer-size=4 -pie -fPIE -ftrapv -D_FORTIFY_SOURCE=2" \
+      "--extra-ldflags=$LDFLAGS -Wl,-z,relro,-z,now" \
       "--target-list=$qemu_target-softmmu" \
-      --with-system-pixman \
-      --disable-libssh2 --disable-glusterfs \
-      --disable-seccomp --disable-{bzip2,snappy,lzo} --disable-usb-redir \
-      --disable-libusb --disable-smartcard-nss --disable-libnfs  \
-      --disable-libiscsi --disable-rbd --disable-spice --disable-attr \
-      --disable-cap-ng --disable-linux-aio --disable-uuid --disable-brlapi \
-      --disable-vnc-{jpeg,tls,sasl,png,ws} --disable-rdma --disable-bluez \
-      --disable-fdt --disable-curl --disable-curses --disable-sdl \
-      --disable-gtk --disable-tpm --disable-vte --disable-vnc  \
-      --disable-xen --disable-opengl
-      # --disable-tcmalloc
-  make 'BISON=byacc -b $*'
-  make 'BISON=byacc -b $*' WARNINGS= V=1 check
-  make install
+      --disable-guest-agent --disable-sdl --disable-gtk --disable-vte \
+      --disable-curses --disable-vnc --disable-xen --disable-brlapi \
+      --disable-curl --disable-fdt --disable-bluez --disable-rdma \
+      --disable-uuid --disable-vde --disable-netmap --disable-linux-aio \
+      --disable-cap-ng --disable-attr --disable-spice --disable-rbd \
+      --disable-libiscsi --disable-libnfs --disable-smartcard --disable-libusb \
+      --disable-usb-redir --disable-lzo --disable-snappy --disable-bzip2 \
+      --disable-glusterfs --disable-archipelago --disable-tpm \
+      --disable-libssh2 --disable-vhdx --disable-opengl
+  make
+  make V=1 check
+#  make install
 }
-XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c
-          any 'http://git.qemu.org/?p=qemu.git;a=blobdiff_plain;f=hw/block/fdc.c;h=d8a8edd936f42d4b1d801c996932668e456b5896;hp=f72a39216347e722496797555db9f208b0c5b4b2;hb=e907746266721f305d67bc0718795fedee2e824c;hpb=968bb75c348a401b85e08d5eb1887a3e6c3185f5' 31a298ba228cb1433f6b39f6efb47c9fae082a3e12875530f5d3f99530d04d58 sha256 CVE-2015-3456.patch)
+#XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c)
 
 VER_UNAME_P="0.0.1"
 DIR_UNAME_P="uname_p-$VER_UNAME_P"
@@ -1939,14 +1849,13 @@ BLD_READELF_P() {
   cp readelf "$INSTALL_DIR/bin"
 }
 
-DIR_KMOD="kmod-19"
+DIR_KMOD="kmod-22"
 SRC_KMOD="$DIR_KMOD.tar.xz"
 URL_KMOD="https://www.kernel.org/pub/linux/utils/kernel/kmod/$SRC_KMOD"
-CHK_KMOD="3e7fee6eeff5435848b2dcc852bc8959066478d687d232284d67300c071e7b14"
+CHK_KMOD="ba3b1ddea33228b473189fcb05b809024a3b86e9a7cf37d420cae06beb749f82"
 SUM_KMOD="sha256"
 BLD_KMOD() {
-  # gcc 4.2.1 (-O2) optimizes out the loop at libkmod/libkmod-index.c:696-7
-  CFLAGS='-g -O1' ./configure "--prefix=$INSTALL_DIR" --disable-manpages
+  ./configure "--prefix=$INSTALL_DIR" --disable-manpages
   make
   make install
   for f in depmod insmod modinfo modprobe rmmod lsmod; do
@@ -1954,28 +1863,21 @@ BLD_KMOD() {
   done
 }
 
-DIR_NATSORT="natsort"
+VER_NATSORT="4c8723dea88f5417735b5d43f43e76efddeece0d"
+DIR_NATSORT="natsort-$VER_SQUASHFS_TOOLS"
 SRC_NATSORT="$DIR_NATSORT.tar.gz"
-GET_NATSORT() {
-  mkdir "$DIR_NATSORT"
-  for f in strnatcmp.{c,h} natsort.c; do
-    wget -P "$DIR_NATSORT" "http://sourcefrog.net/projects/natsort/$f"
-  done
-  sha256sum -c --quiet <<EOF
-ec5af448936983188902ba264dc27caa6e64356d6b6909fa6ea5e1c399c9745e  natsort/natsort.c
-cdc409eb3e343324bac208b3a24112da1cf637f905b3b2e79fbc01d9739c5037  natsort/strnatcmp.c
-fc119e7c3e5535cd9f80b9410660c13aa698608dd8c2bb3aa9432bcd0cb37066  natsort/strnatcmp.h
-EOF
-  tar -zc "$DIR_NATSORT"
-}
+URL_NATSORT="https://github.com/sourcefrog/natsort/archive/$VER_NATSORT.tar.gz"
+CHK_NATSORT="5f6b93da0729aaf5ce667c448a9dd78f4f7e91b2c8eb4943f1272272449aeb41"
+SUM_NATSORT="sha256"
 BLD_NATSORT() {
-  gcc -o "$INSTALL_DIR/bin/natsort" *.c
+  make
+  cp natsort "$INSTALL_DIR/bin"
 }
 
-DIR_PCIUTILS="pciutils-3.3.0"
+DIR_PCIUTILS="pciutils-3.4.1"
 SRC_PCIUTILS="$DIR_PCIUTILS.tar.gz"
 URL_PCIUTILS="ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/$SRC_PCIUTILS"
-CHK_PCIUTILS="4b576a1c2570046fda83fa2c5488661de698874ab04fd8e06eef4b6ab806d58a"
+CHK_PCIUTILS="0196624282c33a9bcd4bd097d4100271c82af47797ecd7488ef2711fa5f043b2"
 SUM_PCIUTILS="sha256"
 BLD_PCIUTILS() {
   gunzip -f pci.ids.gz
@@ -2161,24 +2063,24 @@ PACKAGES=(PKGCONFIG
           LIBPCAP
           LIBNFTNL
           IPTABLES
-          DOCKER)
-#          RUNIT
-#          SHUTDOWN
-#          CURL
-#          SHADOW
-#          SQUASHFS_TOOLS
-#          PARTED
-#          POPT
-#          GPTFDISK
-#          DHCPCD
-#          GLIB
-#          PIXMAN
-#          QEMU
-#          UNAME_P
-#          READELF_P
-#          KMOD
-#          NATSORT
-#          PCIUTILS
+          DOCKER
+          RUNIT
+          SHUTDOWN
+          CURL
+          SHADOW
+          SQUASHFS_TOOLS
+          PARTED
+          POPT
+          GPTFDISK
+          DHCPCD
+          GLIB
+          PIXMAN
+          QEMU
+          UNAME_P
+          READELF_P
+          KMOD
+          NATSORT
+          PCIUTILS)
 #          KEXEC_TOOLS
 #          UBOOT
 #          STRACE

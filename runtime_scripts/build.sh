@@ -70,7 +70,7 @@ for pkg in "${PACKAGES[@]}"; do
       tar -C "$INSTALL_DIR" -Jxf "$binf"
     else
       rm -rf "${!vdir}"
-      mkdir "${!vdir}"
+      mkdir -p "${!vdir}"
       pushd "${!vdir}"
       case "${!vsrc}" in
         *.zip)
@@ -81,9 +81,11 @@ for pkg in "${PACKAGES[@]}"; do
           ;;
       esac
       # assume one directory has been extracted
-      mv * _heddle_build_xyz_
+      shopt -s dotglob
+      mv $(echo "${!vdir}" | sed -E 's:[^/]+:*:g') _heddle_build_xyz_
       mv _heddle_build_xyz_/* .
-      rm -rf _heddle_build_xyz_
+      shopt -u dotglob
+      rmdir _heddle_build_xyz_
       popd
       tar -xvf "$HERE/supplemental.tar.gz" "./$pkg" "./${!vdir}" 2> /dev/null || true
       extraf="$HERE/host/${!vsrc}-$heddle_arch-extra.tar.xz"
