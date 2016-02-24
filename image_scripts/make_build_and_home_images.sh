@@ -102,7 +102,7 @@ for pkg in "${PACKAGES[@]}"; do
           sum="${xtr2[$((i+2))]}"
           file="${xtr2[$((i+3))]}"
           echo "downloading $url"
-          if curl -f -o "$tmpd/$file" --create-dirs "$url"; then
+          if curl -L -f -o "$tmpd/$file" --create-dirs "$url"; then
             if [ -n "$chk" -a -n "$sum" ]; then
               csum="$("${sum}sum" "$tmpd/$file" | awk '{print $1}')"
               if [ "$csum" != "$chk" ]; then

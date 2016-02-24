@@ -665,17 +665,17 @@ EOF
 }
 #XTR_GO_BOOTSTRAP=("${armv6l_sync_builtins[@]}" misc/cgo/test/sync_builtins.c)
 
-DIR_GO="go1.5.3"
+DIR_GO="go1.6"
 SRC_GO="$DIR_GO.src.tar.gz"
 URL_GO="https://storage.googleapis.com/golang/$SRC_GO"
-CHK_GO="754e06dab1c31ab168fc9db9e32596734015ea9e24bc44cae7f237f417ce4efe"
+CHK_GO="a96cce8ce43a9bf9b2a4c7d470bc7ee0cb00410da815980681c8353218dcf146"
 SUM_GO="sha256"
 BLD_GO() {
   # We have gcc v4.2 which doesn't support --build-id
   patch -p0 << 'EOF'
 --- src/cmd/go/build.go.orig
 +++ src/cmd/go/build.go
-@@ -3303,7 +3303,6 @@
+@@ -3455,7 +3455,6 @@
  func (b *builder) disableBuildID(ldflags []string) []string {
  	switch goos {
  	case "android", "dragonfly", "linux", "netbsd":
@@ -685,88 +685,11 @@ BLD_GO() {
  }
 EOF
 
-  # We disable networking when not bulding in chroot in order to detect when
-  # we're missing a dependency. This causes multicast test to fail.
+  # musl's signal numbers are different to glibc's (fixes misc/cgo/test hang)
   patch -p0 << 'EOF'
---- src/net/listen_test.go.orig
-+++ src/net/listen_test.go
-@@ -527,6 +527,9 @@
- 	case "solaris":
- 		t.Skipf("not supported on solaris, see golang.org/issue/7399")
- 	}
-+	if os.Getenv("IN_CHROOT") != "1" {
-+		t.Skip("only supported in chroot")
-+	}
- 
- 	closer := func(cs []*UDPConn) {
- 		for _, c := range cs {
-EOF
-
-  # https://github.com/golang/go/commit/cb867d2fd64adc851f82be3c6eb6e38ec008930b
-  # This should be in Go 1.6: https://github.com/golang/go/issues/11319
-  patch -p0 << 'EOF'
---- src/os/user/lookup_unix.go
-+++ src/os/user/lookup_unix.go
-@@ -9,7 +9,6 @@ package user
- 
- import (
- 	"fmt"
--	"runtime"
- 	"strconv"
- 	"strings"
- 	"syscall"
-@@ -55,17 +54,15 @@ func lookupUnix(uid int, username string, lookupByName bool) (*User, error) {
- 	var pwd C.struct_passwd
- 	var result *C.struct_passwd
- 
--	var bufSize C.long
--	if runtime.GOOS == "dragonfly" || runtime.GOOS == "freebsd" {
--		// DragonFly and FreeBSD do not have _SC_GETPW_R_SIZE_MAX
--		// and just return -1.  So just use the same
--		// size that Linux returns.
-+	bufSize := C.sysconf(C._SC_GETPW_R_SIZE_MAX)
-+	if bufSize == -1 {
-+		// DragonFly and FreeBSD do not have _SC_GETPW_R_SIZE_MAX.
-+		// Additionally, not all Linux systems have it, either. For
-+		// example, the musl libc returns -1.
- 		bufSize = 1024
--	} else {
--		bufSize = C.sysconf(C._SC_GETPW_R_SIZE_MAX)
--		if bufSize <= 0 || bufSize > 1<<20 {
--			return nil, fmt.Errorf("user: unreasonable _SC_GETPW_R_SIZE_MAX of %d", bufSize)
--		}
-+	}
-+	if bufSize <= 0 || bufSize > 1<<20 {
-+		return nil, fmt.Errorf("user: unreasonable _SC_GETPW_R_SIZE_MAX of %d", bufSize)
- 	}
- 	buf := C.malloc(C.size_t(bufSize))
- 	defer C.free(buf)
-EOF
-
-  # Can't do user ns stuff inside chroot. See unshare(2):
-  # EPERM (since Linux 3.9)
-  #        CLONE_NEWUSER was specified in flags and the caller is in a
-  #        chroot environment (i.e., the caller's root directory does not
-  #        match the root directory of the mount namespace in which it
-  #        resides).
-  patch -p0 << 'EOF'
---- src/syscall/exec_linux_test.go.orig
-+++ src/syscall/exec_linux_test.go
-@@ -39,6 +39,7 @@
- }
- 
- func testNEWUSERRemap(t *testing.T, uid, gid int, setgroups bool) {
-+	t.Skip("not allowed in chroot")
- 	cmd := whoamiCmd(t, uid, gid, setgroups)
- 	out, err := cmd.CombinedOutput()
- 	if err != nil {
-EOF
-
-  # musl's signal numbers are different to glibc's
-  patch -p0 << 'EOF'
---- src/runtime/signal_linux.go.orig
-+++ src/runtime/signal_linux.go
-@@ -44,9 +44,9 @@
+--- src/runtime/sigtab_linux_generic.go.orig
++++ src/runtime/sigtab_linux_generic.go
+@@ -46,9 +46,9 @@
  	/* 29 */ {_SigNotify, "SIGIO: i/o now possible"},
  	/* 30 */ {_SigNotify, "SIGPWR: power failure restart"},
  	/* 31 */ {_SigNotify, "SIGSYS: bad system call"},
@@ -785,13 +708,31 @@ EOF
   # being compiled with -fPIC rather than -fPIE. Not sure how it works in any
   # environment. See this issue for PIE support:
   # https://github.com/golang/go/issues/6940
+  # Also, remove shared library tests which also SEGV.
   patch -p0 << 'EOF'
---- src/cmd/dist/test.go.orig
-+++ src/cmd/dist/test.go
-@@ -694,31 +694,6 @@
- 				}
+--- src/cmd/dist/test.go.orig	2016-02-23 23:26:17.576351295 +0000
++++ src/cmd/dist/test.go	2016-02-24 07:34:55.035887648 +0000
+@@ -482,15 +482,6 @@
+ 				},
+ 			})
+ 		}
+-		if t.supportedBuildmode("c-archive") {
+-			t.registerTest("testcarchive", "../misc/cgo/testcarchive", "./test.bash")
+-		}
+-		if t.supportedBuildmode("c-shared") {
+-			t.registerTest("testcshared", "../misc/cgo/testcshared", "./test.bash")
+-		}
+-		if t.supportedBuildmode("shared") {
+-			t.registerTest("testshared", "../misc/cgo/testshared", "go", "test")
+-		}
+ 		if t.gohostos == "linux" && t.goarch == "amd64" {
+ 			t.registerTest("testasan", "../misc/cgo/testasan", "go", "run", "main.go")
+ 		}
+@@ -753,26 +744,6 @@
+ 				cmd = t.addCmd(dt, "misc/cgo/nocgo", "go", "test", "-ldflags", `-linkmode=external -extldflags "-static -pthread"`)
+ 				cmd.Env = env
  			}
- 
+-
 -			if pair != "freebsd-amd64" { // clang -pie fails to link misc/cgo/test
 -				cmd := t.dirCmd("misc/cgo/test",
 -					cc, "-xc", "-o", "/dev/null", "-pie", "-")
@@ -800,21 +741,15 @@ EOF
 -				if err := cmd.Run(); err != nil {
 -					fmt.Println("No support for -pie found, skip cgo PIE test.")
 -				} else {
--					cmd = t.dirCmd("misc/cgo/test", "go", "test", "-ldflags", `-linkmode=external -extldflags "-pie"`)
+-					cmd = t.addCmd(dt, "misc/cgo/test", "go", "test", "-ldflags", `-linkmode=external -extldflags "-pie"`)
 -					cmd.Env = env
--					if err := cmd.Run(); err != nil {
--						return fmt.Errorf("pie cgo/test: %v", err)
--					}
--					cmd = t.dirCmd("misc/cgo/testtls", "go", "test", "-ldflags", `-linkmode=external -extldflags "-pie"`)
+-
+-					cmd = t.addCmd(dt, "misc/cgo/testtls", "go", "test", "-ldflags", `-linkmode=external -extldflags "-pie"`)
 -					cmd.Env = env
--					if err := cmd.Run(); err != nil {
--						return fmt.Errorf("pie cgo/testtls: %v", err)
--					}
--					cmd = t.dirCmd("misc/cgo/nocgo", "go", "test", "-ldflags", `-linkmode=external -extldflags "-pie"`)
+-
+-					cmd = t.addCmd(dt, "misc/cgo/nocgo", "go", "test", "-ldflags", `-linkmode=external -extldflags "-pie"`)
 -					cmd.Env = env
--					if err := cmd.Run(); err != nil {
--						return fmt.Errorf("pie cgo/nocgo: %v", err)
--					}
+-
 -				}
 -			}
  		}
@@ -848,76 +783,6 @@ EOF
 +
 +func test12030(t *testing.T) {
 +}
-EOF
-
-  # These tests just fail
-  patch -p0 << 'EOF'
---- src/cmd/dist/test.go.orig
-+++ src/cmd/dist/test.go
-@@ -426,15 +426,6 @@
- 				},
- 			})
- 		}
--		if t.supportedBuildmode("c-archive") {
--			t.registerTest("testcarchive", "../misc/cgo/testcarchive", "./test.bash")
--		}
--		if t.supportedBuildmode("c-shared") {
--			t.registerTest("testcshared", "../misc/cgo/testcshared", "./test.bash")
--		}
--		if t.supportedBuildmode("shared") {
--			t.registerTest("testshared", "../misc/cgo/testshared", "go", "test")
--		}
- 		if t.gohostos == "linux" && t.goarch == "amd64" {
- 			t.registerTest("testasan", "../misc/cgo/testasan", "go", "run", "main.go")
- 		}
-EOF
-
-  # Our patch only reads from stdin
-  patch -p0 << 'EOF'
---- doc/articles/wiki/test.bash.orig
-+++ doc/articles/wiki/test.bash
-@@ -29,7 +29,7 @@
- 
- go build -o get.bin get.go
- cp final.go final-test.go
--patch final-test.go final-test.patch > /dev/null
-+patch < final-test.patch
- go build -o final-test.bin final-test.go
- ./final-test.bin &
- wiki_pid=$!
-EOF
-
-  # Our patch only supports unified diffs so need to convert one
-  # (I used filterdiff to do the conversion)
-  cat > doc/articles/wiki/final-test.patch << 'EOF'
---- final.go	2015-06-14 23:59:22.000000000 +0200
-+++ final-test.go	2015-06-15 00:15:41.000000000 +0200
-@@ -7,6 +7,8 @@
- import (
- 	"html/template"
- 	"io/ioutil"
-+	"log"
-+	"net"
- 	"net/http"
- 	"regexp"
- )
-@@ -85,5 +87,15 @@
- 	http.HandleFunc("/edit/", makeHandler(editHandler))
- 	http.HandleFunc("/save/", makeHandler(saveHandler))
- 
--	http.ListenAndServe(":8080", nil)
-+	l, err := net.Listen("tcp", "127.0.0.1:0")
-+	if err != nil {
-+		log.Fatal(err)
-+	}
-+	err = ioutil.WriteFile("final-test-port.txt", []byte(l.Addr().String()), 0644)
-+	if err != nil {
-+		log.Fatal(err)
-+	}
-+	s := &http.Server{}
-+	s.Serve(l)
-+	return
- }
 EOF
 
   # We have gcc v4.2 which doesn't support --build-id
@@ -1886,10 +1751,10 @@ BLD_PCIUTILS() {
 }
 XTR_PCIUTILS=(any "https://pci-ids.ucw.cz/v2.2/pci.ids.gz" "" "" pci.ids.gz)
 
-DIR_KEXEC_TOOLS="kexec-tools-2.0.8"
+DIR_KEXEC_TOOLS="kexec-tools-2.0.11"
 SRC_KEXEC_TOOLS="$DIR_KEXEC_TOOLS.tar.xz"
 URL_KEXEC_TOOLS="https://kernel.org/pub/linux/utils/kernel/kexec/$SRC_KEXEC_TOOLS"
-CHK_KEXEC_TOOLS="f3abe96fa0793e63936725a4471429f070039a1e81e605deb378747194a50c47"
+CHK_KEXEC_TOOLS="b1097986ffdb928cf41a94e8a5dfddc981a8fa710cccf13298e7f8dd939a2ee3"
 SUM_KEXEC_TOOLS="sha256"
 BLD_KEXEC_TOOLS() {
   LDFLAGS=-static ./configure
@@ -1903,17 +1768,17 @@ BLD_KEXEC_TOOLS() {
 # So build x86_64 version on host (assume same architecture).
 HST_KEXEC_TOOLS=(x86_64)
 
-DIR_UBOOT="u-boot-2015.01"
+DIR_UBOOT="u-boot-2016.01"
 SRC_UBOOT="$DIR_UBOOT.tar.bz2"
 URL_UBOOT="ftp://ftp.denx.de/pub/u-boot/$SRC_UBOOT"
-CHK_UBOOT="383051a656ebe11757b17d38a3326387e4a1b0949ca8a9e8ee506bf71dac9fde"
+CHK_UBOOT="e5792fba9399d9804aa2ef667f14ff771e2cdece72367d340250265bf095a5d5"
 SUM_UBOOT="sha256"
 BLD_UBOOT() {
   # We don't have bc
   patch -p0 << 'EOF'
 --- Makefile.orig
 +++ Makefile
-@@ -806,9 +806,8 @@
+@@ -858,9 +858,8 @@
  binary_size_check: u-boot.bin FORCE
  	@file_size=$(shell wc -c u-boot.bin | awk '{print $$1}') ; \
  	map_size=$(shell cat u-boot.map | \
@@ -1928,6 +1793,8 @@ BLD_UBOOT() {
 EOF
 }
 BLD_UBOOT_armv6l() {
+  # NOTE: versatile target is no more! Need to use something else -
+  # governed by what Aboriginal supports. Ideally Raspberry Pi.
   # Change boot args, add initrd support and increase RAM to 256Mb
   patch -p0 << 'EOF'
 --- include/configs/versatile.h.orig
@@ -1961,13 +1828,15 @@ EOF
   make versatileqemu_config all
 }
 
-VER_STRACE="4.10"
+VER_STRACE="4.11"
 DIR_STRACE="strace-$VER_STRACE"
 SRC_STRACE="$DIR_STRACE.tar.xz"
 URL_STRACE="http://downloads.sourceforge.net/project/strace/strace/$VER_STRACE/$SRC_STRACE"
-CHK_STRACE="e6180d866ef9e76586b96e2ece2bfeeb3aa23f5cc88153f76e9caedd65e40ee2"
+CHK_STRACE="e86a5f6cd8f941f67f3e4b28f4e60f3d9185c951cf266404533210a2e5cd8152"
 SUM_STRACE="sha256"
 BLD_STRACE() {
+  # busybox and toybox don't support \+ in regular expressions
+  sed -i '/sed .*/s/\\+/\\{1,\\}/g' Makefile.in mpers.sh
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
@@ -2080,11 +1949,11 @@ PACKAGES=(PKGCONFIG
           READELF_P
           KMOD
           NATSORT
-          PCIUTILS)
-#          KEXEC_TOOLS
-#          UBOOT
-#          STRACE
-#          EXTRACT_NSS_ROOT_CERTS
-#          HEDDLE_RECV
-#          SENDER
-#          SMARTMONTOOLS)
+          PCIUTILS
+          KEXEC_TOOLS
+          UBOOT
+          STRACE
+          EXTRACT_NSS_ROOT_CERTS
+          HEDDLE_RECV
+          SENDER
+          SMARTMONTOOLS)
