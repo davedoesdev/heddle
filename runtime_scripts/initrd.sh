@@ -147,10 +147,4 @@ echo "boot: $boot"
 
 toybox umount /proc /sys
 
-# toybox switch_root doesn't chroot
-toybox cat > /newroot/init <<EOF
-#!/newroot/$boot/bash
-exec "/newroot/$boot/toybox" chroot /newroot "/$boot/init.sh"
-EOF
-toybox chmod +x /newroot/init
-exec toybox switch_root /newroot init
+exec toybox switch_root /newroot "/$boot/init.sh"

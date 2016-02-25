@@ -16,4 +16,4 @@ rm -f /var/run/docker.pid
 # set cgroup options
 echo -n 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 # run docker
-exec unshare -m docker -d -g /extra/docker #--storage-opt dm.override_udev_sync_check=true
+exec unshare -m docker daemon -g /extra/docker --storage-opt dm.override_udev_sync_check=true

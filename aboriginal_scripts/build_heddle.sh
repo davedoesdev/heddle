@@ -113,7 +113,7 @@ if [ -n "$chroot_build" ]; then
   sudo mount -o rbind /proc /tmp/chroot/proc
   sudo mount -o rbind /sys /tmp/chroot/sys
   sudo mount -o rbind /dev /tmp/chroot/dev
-  sudo chroot /tmp/chroot /bin/ash << EOF
+  sudo chroot /tmp/chroot /bin/hush << EOF
 set -e
 export heddle_arch="$ARCH"
 export PATH
@@ -125,7 +125,7 @@ elif [ -n "$uml_build" ]; then
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
   mksquashfs "$ROOT_DIR" root.sqf -noappend -all-root
   cat > "$ROOT_DIR/init.uml" << EOF
-#!/bin/ash
+#!/bin/hush
 mount -t proc proc /proc
 mount -t tmpfs tmp /dev
 

@@ -16,7 +16,7 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 - Currently supported architectures: x86_64 and armv6l (ARM Versatile). Other ARM targets should now be possible.
 
-- [uClibc](http://www.uclibc.org/)/[uClibc++](http://cxx.uclibc.org/) used throughout. No glibc.
+- [musl](http://www.musl-libc.org/) and [uClibc++](http://cxx.uclibc.org/) used throughout. No glibc.
 
 - Easily customizable using configuration scripts, for example to build additional kernel drivers.
 
@@ -93,7 +93,7 @@ When building GPT images, the Heddle build scripts automatically fetch the
 
 ### Get the source
 
-First get the Aboriginal Linux source code. Heddle requires [Aboriginal Linux 1.4.1](http://landley.net/aboriginal/downloads/aboriginal-1.4.1.tar.gz). Untar the archive to create an `aboriginal-1.4.1` directory.
+First get the Aboriginal Linux source code. Heddle requires [Aboriginal Linux 1.4.5](http://landley.net/aboriginal/downloads/aboriginal-1.4.5.tar.gz). Untar the archive to create an `aboriginal-1.4.5` directory.
 
 Then fetch the Heddle source:
 
@@ -101,12 +101,12 @@ Then fetch the Heddle source:
 git clone https://github.com/davedoesdev/heddle.git
 ```
 
-You should have a `heddle` directory alongside the `aboriginal-1.4.1` directory (although the two don't have to live in the same place).
+You should have a `heddle` directory alongside the `aboriginal-1.4.5` directory (although the two don't have to live in the same place).
 
 ### Build Aboriginal Linux
 
 ```shell
-cd aboriginal-1.4.1
+cd aboriginal-1.4.5
 ../heddle/aboriginal_scripts/config.sh
 ./build.sh x86_64
 ```
@@ -142,7 +142,7 @@ You're now in a position to run Heddle in KVM. First you need to run:
 
 This creates two more disk images, `../heddle/gen/x86_64/images/run.img` and `../heddle/gen/x86_64/images/extra.img`. `run.img` contains scripts for running Heddle once the kernel has booted. `extra.img` is a large (sparse) disk image which is available for storing data (e.g. Docker images).
 
-By default, `extra.img` uses GPT paritioning and is formatted with Btrfs. Supply `-m` for MSDOS paritions and `-e` for an Ext4 filesystem.
+By default, `extra.img` uses GPT partitioning and is formatted with Btrfs. Supply `-m` for MSDOS paritions and `-e` for an Ext4 filesystem.
 
 Next you need to run:
 
@@ -173,7 +173,7 @@ The first command creates the distribution image (`../heddle/gen/x86_64/images/h
 
 The second command runs KVM, mounts `heddle.img` and `dist.img` and runs the scripts on `dist.img`. When this command finishes, `heddle.img` will be bootable and ready for use.
 
-You'll also find files for [upgrading existing Heddle installations](#updating-heddle) in `../heddle/gen/x86_64/dist/update`. The `dist` folder there is what gets archived when producing the [pre-built images](#pre-built-images) (it contains a symbolic link to `heddle.img` too).
+You'll also find files for [upgrading existing Heddle installations](#updating-heddle) in `../heddle/gen/x86_64/dist/update`. The `dist` folder there gets archived when producing the [pre-built images](#pre-built-images) (it contains a symbolic link to `heddle.img` as well).
 
 ### Booting the image
 
@@ -206,7 +206,7 @@ By default, Heddle is built for the `x86_64` architecture. To build for a differ
 Most of the build scripts take an optional architecture argument which defaults to `x86_64`. So to build for `armv6l` you'd do the following:
 
 1. Build Aboriginal Linux. You can re-use your existing Aboriginal Linux source directory.
-  1. `cd aboriginal-1.4.1`
+  1. `cd aboriginal-1.4.5`
   2. `./build.sh armv6l`
 2. Build Heddle. You can re-use your existing Heddle source directory - the new images will be written to `gen/armv6l/images`.
   1. `../heddle/image_scripts/make_build_and_home_images.sh armv6l`

@@ -29,7 +29,7 @@ if [ ! -d /home/root ]; then
   mkdir /home/root
 fi
 
-if [ ! -f "$CHROOT_DIR/etc/profile" ]; then
+if [ ! -s "$CHROOT_DIR/etc/profile" ]; then
   cat > "$CHROOT_DIR/etc/profile" << 'EOF'
 if [ -n "$THE_PATH" ]; then
   export PATH="$THE_PATH"

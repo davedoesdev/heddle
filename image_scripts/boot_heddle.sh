@@ -9,16 +9,12 @@ fi
 
 img_file=heddle.img
 img_specified=0
-append=
 hostname=
-while getopts qa:i:h: opt
+while getopts qi:h: opt
 do
   case $opt in
     q)
       img_file=heddle.qcow2
-      ;;
-    a)
-      append="$OPTARG"
       ;;
     i)
       img_file="$OPTARG"

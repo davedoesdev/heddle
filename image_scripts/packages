@@ -914,7 +914,7 @@ URL_LVM="ftp://sources.redhat.com/pub/lvm2/$SRC_LVM"
 CHK_LVM="6299e0905dd60755c5e11c80145fe29dad2c01d51b25136f8e4015cb63b388f5"
 SUM_LVM="sha256"
 BLD_LVM() {
-  ./configure "--prefix=$INSTALL_DIR" --with-lvm1=none --without-systemdsystemunitdir --disable-udev-systemd-background-jobs
+  ./configure "--prefix=$INSTALL_DIR" --with-lvm1=none --without-systemdsystemunitdir --disable-udev-systemd-background-jobs --enable-static_link
   sed -ri 's/autoconf\/(install-sh)/\1/g' make.tmpl
   rm -f "$INSTALL_DIR"/include/libdevmapper.h "$INSTALL_DIR"/lib/libdevmapper.* "$INSTALL_DIR"/sbin/{dmsetup,blddeactivate}
   mkdir -p sys; touch sys/cdefs.h
@@ -1350,15 +1350,15 @@ EOF
   make install
 }
 
-VER_DOCKER="1.10.1"
+VER_DOCKER="1.10.2"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
 URL_DOCKER="https://github.com/docker/docker/archive/v$VER_DOCKER.tar.gz"
-CHK_DOCKER="9b65cb23efc6dfab963041af617a32dff650217e571fc41daa970afd305ec864"
+CHK_DOCKER="1326a74fd052db16f1032239fbe48585060acbc0312b8f986974ca993c8ad85c"
 SUM_DOCKER="sha256"
 BLD_DOCKER() {
   # We have bash v2 without '+=', pipefail, BASH_SOURCE and 'declare -A':
-  sed -i -E 's/([A-Z]+)\+=/\1="$\1"/g' hack/make.sh
+  sed -i -E 's/([A-Z_]+)\+=/\1="$\1"/g' hack/make.sh
   sed -i 's/set -o pipefail//g' hack/make.sh
   sed -i 's/set -e/\0\
 BASH_SOURCE="$0"\
@@ -1369,6 +1369,8 @@ source() {\
   BASH_SOURCE=("${BASH_SOURCE_SAVE[@]}")\
 }/g' hack/make.sh
   sed -i -E -e 's/declare -A//g' -e 's/([a-z]+)\+=\(/\1=( "${\1[@]}" /g' contrib/check-config.sh
+  # make.sh doesn't pass on flags when detecting
+  sed -i 's/gcc -/gcc $CPPFLAGS $LDFLAGS -/g' hack/make.sh
   # Allow scratch import from prepare_docker service
   patch -p0 << 'EOF'
 --- distribution/pull.go.orig	2016-02-21 22:48:32.906637914 +0000
@@ -1383,7 +1385,7 @@ source() {\
  	}
  	return nil
 EOF
-  AUTO_GOPATH=1 DOCKER_GITCOMMIT=9e83765 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
+  AUTO_GOPATH=1 DOCKER_GITCOMMIT=c3959b1 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }

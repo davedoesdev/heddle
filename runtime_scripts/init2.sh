@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/hush
 
 # Populate /dev
 mountpoint -q proc || mount -t proc proc proc
@@ -11,7 +11,7 @@ mountpoint -q dev/pts || mount -t devpts dev/pts dev/pts
 
 # Make sure $PATH is exported, even if not set on kernel command line.
 # (The shell gives us a default, but it's local, not exported.)
-export PATH
+export PATH=/bin:/sbin
 
 mount -t tmpfs /tmp /tmp
 

@@ -38,11 +38,11 @@ part_name() {
 }
 
 # Treat rEFInd as a host tool and download it if required
-VER_REFIND="0.8.7"
+VER_REFIND="0.10.2"
 DIR_REFIND="refind-bin-$VER_REFIND"
 SRC_REFIND="$DIR_REFIND.zip"
 URL_REFIND="http://downloads.sourceforge.net/project/refind/$VER_REFIND/$SRC_REFIND"
-CHK_REFIND="a5caefac0ba1691a5c958a4d8fdb9d3e14e223acd3b1605a5b0e58860d9d76b4"
+CHK_REFIND="d3de1ff3a007a4cacd47bfc7ba93ef328732832afc1f80639534937a6e4d3322"
 SUM_REFIND="sha256"
 
 if [ "$ARCH" = x86_64 -a \
@@ -89,8 +89,8 @@ if [ "$ARCH" = x86_64 ]; then
   mkfs.vfat -F 32 "$tmp"
   if [ $part_type = gpt ]; then
     mcopy -i "$tmp" -s "$HERE/../boot/$DIR_REFIND/refind" ::
-    mdel -i "$tmp" ::/refind/{refind_ia32.efi,refind.conf-sample}
-    mdeltree -i "$tmp" ::/refind/{drivers_{ia32,x64},tools_{ia32,x64}}
+    mdel -i "$tmp" ::/refind/refind{{_ia32,_aa64}.efi,.conf-sample}
+    mdeltree -i "$tmp" ::/refind/{drivers_{ia32,x64,aa64},tools_{ia32,x64,aa64}}
     if [ -n "$HEDDLE_EXT_DIR" -a -e "$HEDDLE_EXT_DIR/boot/refind.conf" ]; then
       mcopy -i "$tmp" "$HEDDLE_EXT_DIR/boot/refind.conf" ::/refind
     else
