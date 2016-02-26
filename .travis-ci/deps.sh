@@ -5,8 +5,8 @@ mkdir -p downloads
 echo +downloads:
 ls downloads
 
-ver_abo=1.4.1
-ver_bat=4.0.7
+ver_abo=1.4.5
+ver_bat=5.0.5
 
 abo_base="downloads/aboriginal-$ver_abo"
 abo_seal="$abo_base.seal"
