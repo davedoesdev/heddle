@@ -43,6 +43,9 @@ done
 if [ ! -e "$EXTRA_DIR/home/chroot/etc/issue" ]; then
   ln -s "$INSTALL_DIR/dist/issue" "$EXTRA_DIR/home/chroot/etc"
 fi
+if grep -qF 'ID=aboriginal' "$EXTRA_DIR/home/chroot/etc/os-release"; then
+  ln -sf "$INSTALL_DIR/dist/os-release" "$EXTRA_DIR/home/chroot/etc"
+fi
 
 rm -rf "$EXTRA_DIR"/{root,dev}
 mkdir -p "$EXTRA_DIR"/{root,dev}
@@ -62,11 +65,23 @@ else
   mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M
   project="$(grep -oE 'heddle_project=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_project=//')"
   version="$(grep -oE 'heddle_version=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_version=//')"
+  url="$(grep -oE 'heddle_url=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_url=//')"
   echo "project: $project"
   echo "version: $version"
+  echo "url: $url"
   mkdir -p /tmp/install/dist
   echo -e "$project $version \\\\l\n" > /tmp/install/dist/issue
   echo "$heddle_arch" > /tmp/install/dist/arch
+  Project="$(echo "$project" | awk '{$0=toupper(substr($0,1,1)) substr($0, 2)}1')"
+  cat > /tmp/install/dist/os-release << EOF
+NAME="$Project"
+VERSION="$version"
+ID="$(echo "$project" | sed 's/[^0-9a-zA-Z._-]/_/g')"
+ID_LIKE="aboriginal heddle"
+VERSION_ID="$(echo "$version" | sed 's/[^0-9a-zA-Z._-]/_/g')"
+PRETTY_NAME="$Project $version"
+HOME_URL="$url"
+EOF
   mksquashfs /tmp/install "$DIST_DIR/install.sqf" -all-root -mem 512M
   cp "$DIST_DIR/install.sqf" "$here/gen"
 fi

@@ -1,12 +1,12 @@
 [![Build Status](https://circleci.com/gh/davedoesdev/heddle.svg?style=svg)](https://circleci.com/gh/davedoesdev/heddle) [![Successful builds with links to disk images](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/builds.svg)](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/.circle-ci/builds.html)
 
-Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and [Capstan](http://osv.io/capstan/) applications.
+Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and [QEMU/KVM](http://www.qemu.org).
 
 - Built from scratch using [Aboriginal Linux](http://landley.net/aboriginal/) to bootstrap the build.
 
 - Completely automated build. Build Heddle images locally or on [Travis CI](https://travis-ci.org/davedoesdev/build-aboriginal-travis), [Semaphore CI](https://semaphoreci.com/davedoesdev/heddle) and [CircleCI](https://circleci.com/gh/davedoesdev/heddle).
 
-- Builds only those packages necessary in order to get Docker and Capstan up and running.
+- Builds only those packages necessary in order to get Docker and KVM up and running.
 
 - Supports in-place, atomic update of the entire base operating system and all the packages. No dynamic package management required.
 
@@ -224,8 +224,6 @@ This will generate `../heddle/gen/armv6l/images/heddle.img` and `../heddle/gen/a
 
 Of course, if the Heddle source lives somewhere else (e.g. you're [building an extension](#extending-heddle)) then replace `../heddle` with its location.
 
-Please note that Capstan currently only supports `x86_64`.
-
 ## RAID (Btrfs only)
 
 Heddle can configure a RAID array automatically when it boots. Just write the same `heddle.img` to each disk in your computer and boot from one of them.
@@ -368,7 +366,7 @@ Out of the box, Heddle has a single user account: `root` (password `root`). You 
 
 You can create new users using `useradd`. The default `umask` for non-`root` users is `0027`. A group with the same name as the user will be created and set as the user's primary group.
 
-Users must be in the (builtin) `kvm` group to run `capstan` images and in the (builtin) `docker` group to run `docker`. However, be aware that the `docker` group [is root-equivalent](https://docs.docker.com/articles/security/#docker-daemon-attack-surface) so only add trusted users to it.
+Users must be in the (builtin) `kvm` group to run KVM and in the (builtin) `docker` group to run Docker. However, be aware that the `docker` group [is root-equivalent](https://docs.docker.com/articles/security/#docker-daemon-attack-surface) so only add trusted users to it.
 
 There is no `sudo`. The following services run as `root` on boot:
 
@@ -381,11 +379,11 @@ There is no `sudo`. The following services run as `root` on boot:
 - `prepare` - Waits for all `prepare_*` services to finish (only runs for `run_heddle.sh -p)`
 - `prepare_docker` - Creates the Docker `scratch` image (`run_heddle.sh -p` only)
 
-You should prefer to run additional services using [`docker`](https://www.docker.com/) or [`capstan`](http://osv.io/capstan/).
+You should prefer to run additional services using Docker or KVM.
 
-There are no certificate authority (CA) certificates in Heddle images by default (the Heddle build and prepare stages don't need access to HTTPS sites). If you need CA certificates, it's up to you to manage them yourself. Make sure you have a strategy in place for updating certificates once they're in place and for handling subsequent revocations. It's also up to you to manage any certificates you put into Docker or Capstan images.
+There are no certificate authority (CA) certificates in Heddle images by default (the Heddle build and prepare stages don't need access to HTTPS sites). If you need CA certificates, it's up to you to manage them yourself. Make sure you have a strategy in place for updating certificates once they're in place and for handling subsequent revocations. It's also up to you to manage any certificates you put into Docker or KVM images.
 
-Docker, Capstan and cURL are configured to look for a CA certificate bundle file at `/etc/ssl/certs/ca-certificates.crt`. Heddle has the [`extract-nss-root-certs`](https://github.com/agl/extract-nss-root-certs) tool installed to help with generating a bundle file given the list maintained by Mozilla as input. The Mozilla list should be downloaded over HTTPS and then transferred into your Heddle image or onto a machine running Heddle. For example:
+Docker and cURL are configured to look for a CA certificate bundle file at `/etc/ssl/certs/ca-certificates.crt`. Heddle has the [`extract-nss-root-certs`](https://github.com/agl/extract-nss-root-certs) tool installed to help with generating a bundle file given the list maintained by Mozilla as input. The Mozilla list should be downloaded over HTTPS and then transferred into your Heddle image or onto a machine running Heddle. For example:
 
 ```shell
 (
@@ -403,7 +401,7 @@ echo rm -f /tmp/certdata.txt
 
 Alternatively you could copy the CA certificate bundle from another Linux distribution.
 
-Note that without CA certificates, `docker search`, `docker pull` etc will fail. If you don't want to manage CA certificates, an alternative approach is to `docker pull` the Docker image on some other machine, export it to a file using `docker save`, transfer it to your Heddle machine or Heddle image and then `docker load` it. You could put the Docker image into your Heddle image using [`in_heddle.sh` with a disk image](#run-time-customisation) or if you're [extending Heddle](#extending-heddle) then you could do it as part of your build - see Dobby's [`packages`](https://github.com/davedoesdev/dobby/blob/master/image_scripts/packages) and [`prepare_weave`](https://github.com/davedoesdev/dobby/blob/master/chroot/service/prepare_weave/run) service files for an example. You can follow the same process for Capstan.
+Note that without CA certificates, `docker search`, `docker pull` etc will fail. If you don't want to manage CA certificates, an alternative approach is to `docker pull` the Docker image on some other machine, export it to a file using `docker save`, transfer it to your Heddle machine or Heddle image and then `docker load` it. You could put the Docker image into your Heddle image using [`in_heddle.sh` with a disk image](#run-time-customisation) or if you're [extending Heddle](#extending-heddle) then you could do it as part of your build - see Dobby's [`packages`](https://github.com/davedoesdev/dobby/blob/master/image_scripts/packages) and [`prepare_weave`](https://github.com/davedoesdev/dobby/blob/master/chroot/service/prepare_weave/run) service files for an example.
 
 ## Extending Heddle
 
