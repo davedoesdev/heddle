@@ -1652,7 +1652,7 @@ EOF
       --disable-libssh2 --disable-vhdx --disable-opengl
   make
   make V=1 check
-#  make install
+  make install
 }
 #XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c)
 
