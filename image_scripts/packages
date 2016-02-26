@@ -908,15 +908,15 @@ EOF
   make install
 }
 
-DIR_LVM="LVM2.2.02.141"
+DIR_LVM="LVM2.2.02.143"
 SRC_LVM="$DIR_LVM.tgz"
 URL_LVM="ftp://sources.redhat.com/pub/lvm2/$SRC_LVM"
-CHK_LVM="6299e0905dd60755c5e11c80145fe29dad2c01d51b25136f8e4015cb63b388f5"
+CHK_LVM="88f2c5a9b9d42609bf35bdb0877919f23c652ba0036d2dd2acf6e939c7b2315b"
 SUM_LVM="sha256"
 BLD_LVM() {
   ./configure "--prefix=$INSTALL_DIR" --with-lvm1=none --without-systemdsystemunitdir --disable-udev-systemd-background-jobs --enable-static_link
   sed -ri 's/autoconf\/(install-sh)/\1/g' make.tmpl
-  rm -f "$INSTALL_DIR"/include/libdevmapper.h "$INSTALL_DIR"/lib/libdevmapper.* "$INSTALL_DIR"/sbin/{dmsetup,blddeactivate}
+  rm -f "$INSTALL_DIR"/include/libdevmapper.h "$INSTALL_DIR"/lib/libdevmapper.* "$INSTALL_DIR"/sbin/{dmsetup{,.static},blkdeactivate}
   mkdir -p sys; touch sys/cdefs.h
   gcc -I. '-D__FBSDID(x)=' -DSIZE_T_MAX=-1 -o autoconf/fmt autoconf/fmt.c
   PATH="$PATH:$PWD/autoconf" make device-mapper
