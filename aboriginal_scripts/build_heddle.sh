@@ -116,7 +116,7 @@ if [ -n "$chroot_build" ]; then
   sudo chroot /tmp/chroot /bin/hush << EOF
 set -e
 export heddle_arch="$ARCH"
-export PATH
+export PATH=/bin:/sbin
 touch /tmp/in_chroot
 exec /mnt/init $interactive $Interactive
 EOF

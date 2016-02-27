@@ -538,33 +538,6 @@ EOF
  		t.FailNow()
 EOF
 
-  # pthread_cancel/join test fails in chroot - probably because it's compiled
-  # against a different kernel than is running
-  patch -p0 << 'EOF'
---- misc/cgo/test/issue6997_linux.go.orig
-+++ misc/cgo/test/issue6997_linux.go
-@@ -17,6 +17,7 @@
- 
- import "testing"
- import "time"
-+import "os"
- 
- func test6997(t *testing.T) {
- 	r := C.StartThread()
-@@ -35,6 +36,10 @@
- 			t.Error("pthread finished but wasn't cancelled??")
- 		}
- 	case <-time.After(30 * time.Second):
--		t.Error("hung in pthread_cancel/pthread_join")
-+		if os.Getenv("IN_CHROOT") == "1" {
-+			t.Skip("ignore hang in pthread_cancel/pthread_join")
-+		} else {
-+			t.Error("hung in pthread_cancel/pthread_join")
-+		}
- 	}
- }
-EOF
-
   # Linux 3.19 is more restricted in what can be sent so disable sending
   # corrupted ICMP packet. See # https://github.com/golang/go/issues/10730 and
   # https://github.com/golang/go/commit/f97f876125f72f543a14f57fb6570dee6bfa2c6f
@@ -623,7 +596,7 @@ EOF
  	defer C.free(buf)
 EOF
 
-  # We disable networking when not bulding in chroot in order to detect when
+  # We disable networking when not building in chroot in order to detect when
   # we're missing a dependency. This causes multicast test to fail.
   patch -p0 << 'EOF'
 --- src/net/multicast_test.go.orig
@@ -807,12 +780,6 @@ EOF
   export GOROOT_BOOTSTRAP="$SOURCE_DIR/$DIR_GO_BOOTSTRAP"
 
   chroot "$CHROOT_DIR" hush <<EOF
-  if [ -b /dev/ubdb ]; then
-    export IN_UML=1
-  fi
-  if [ -f /tmp/in_chroot ]; then
-    export IN_CHROOT=1
-  fi
   cd "$PWD/src"
   GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
 EOF
