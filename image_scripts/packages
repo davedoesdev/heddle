@@ -1849,8 +1849,8 @@ PACKAGES=(PKGCONFIG
           CONNTRACK_TOOLS
           IPROUTE2
           LIBPCAP
-          LIBNFTNL)
-#          IPTABLES
+          LIBNFTNL
+          IPTABLES)
 #          DOCKER
 #          RUNIT
 #          SHUTDOWN
