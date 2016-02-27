@@ -1850,8 +1850,8 @@ PACKAGES=(PKGCONFIG
           IPROUTE2
           LIBPCAP
           LIBNFTNL
-          IPTABLES)
-#          DOCKER
+          IPTABLES
+          DOCKER)
 #          RUNIT
 #          SHUTDOWN
 #          CURL
