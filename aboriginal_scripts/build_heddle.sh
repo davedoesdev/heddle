@@ -2,7 +2,6 @@
 set -e
 
 chroot_build=
-uml_build=
 interactive=
 Interactive=
 while getopts cuiI opt
@@ -11,9 +10,6 @@ do
     c)
       chroot_build=1
       ;; 
-    u)
-      uml_build=1
-      ;;
     i)
       interactive=-i
       ;;
@@ -120,44 +116,6 @@ export PATH=/bin:/sbin
 touch /tmp/in_chroot
 exec /mnt/init $interactive $Interactive
 EOF
-elif [ -n "$uml_build" ]; then
-  echo "uml build" | tee /dev/tty
-  cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
-  mksquashfs "$ROOT_DIR" root.sqf -noappend -all-root
-  cat > "$ROOT_DIR/init.uml" << EOF
-#!/bin/hush
-mount -t proc proc /proc
-mount -t tmpfs tmp /dev
-
-mknod /dev/random c 1 8
-mknod /dev/urandom c 1 9
-mknod /dev/null c 1 3
-mknod /dev/hda b 98 0
-mknod /dev/hdb b 98 16
-mknod /dev/hdc b 98 32
-ln -s hda /dev/ubda
-ln -s hdb /dev/ubdb
-ln -s hdc /dev/ubdc
-
-mount -o ro /dev/hda /root
-mount /dev/hdb /root/home
-mount -o ro /dev/hdc /root/mnt
-mount -o bind /dev /root/dev
-mount -o bind /proc /root/proc
-mount -t tmpfs tmp /root/tmp
-mount -t sysfs sys /root/sys
-mount
-
-ifconfig eth0 10.0.2.15 up
-route add default dev eth0
-ifconfig
-
-export PATH
-
-exec /usr/sbin/chroot /root /mnt/init $interactive $Interactive
-EOF
-  chmod +x "$ROOT_DIR/init.uml"
-  exec linux.uml "ubd0=root.sqf" "ubd1=$HDB" "ubd2=$HDC" "hostfs=$ROOT_DIR" rootfstype=hostfs init=/init.uml mem="${BUILD_MEM}M" "heddle_arch=$ARCH"
 else
   echo "qemu/kvm build" | tee /dev/tty
   # disable networking to make sure we have all the dependencies up front

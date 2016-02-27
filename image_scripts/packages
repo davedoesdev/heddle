@@ -441,18 +441,6 @@ EOF
   sed -i 's/-Wno-unknown-warning-option//g' buildgo.sh
   sed -i 's/-std=c++11//g' buildgo.sh
   sed -i 's/-ffreestanding/-fno-strict-aliasing -D__libc_malloc=malloc -D__libc_free=free -Dnullptr=0 -Dfinal= -Doverride= -Dconstexpr=/g' buildgo.sh
-  # Ignore test failure for thread sanitizer (TSAN) on User-mode Linux because
-  # TSAN uses very high virtual memory addresses (0x600000000000) with
-  # mmap(MAP_FIXED). UML only has 3 page table levels (up to 39-bit adddresses)
-  # so it fails mmap for these very high addresses. Remove this patch if
-  # UML gets 4 levels (you'll notice the absence of a test failure if it does).
-  # A related issue is: https://github.com/golang/go/issues/6787 - same failure
-  # but for a different reason (reduced virtual memory size due to a security
-  # system reducing the virtual address space). So it might get fixed as part
-  # of solving that issue.
-  if [ -b /dev/ubdb ]; then
-    sed -i 's/^GORACE=.*/\0 || true/' buildgo.sh
-  fi
   if [ "$heddle_arch" = x86_64 ]; then
     ./buildgo.sh
   fi
@@ -464,21 +452,12 @@ URL_GO_BOOTSTRAP="https://storage.googleapis.com/golang/$SRC_GO_BOOTSTRAP"
 CHK_GO_BOOTSTRAP="486db10dc571a55c8d795365070f66d343458c48"
 SUM_GO_BOOTSTRAP="sha1"
 BLD_GO_BOOTSTRAP() {
-  # Race detector fails under User-mode Linux due to lack of 4 level page
-  # table support (see comment in BLD_LLVM_COMPILER_RT above).
-  # Go also fails to find symbols for the race detector, so the test fails
-  # when checking for expected output. Works on 1.5 though!
+  # Go fails to find symbols for the race detector, so the test fails when
+  # checking for expected output. Works on bootstrapped versions (>= 1.5).
   patch -p0 << 'EOF'
---- src/run.bash.orig
-+++ src/run.bash
-@@ -162,12 +162,12 @@
- # Race detector only supported on Linux, FreeBSD and OS X,
- # and only on amd64, and only when cgo is enabled.
- # Delayed until here so we know whether to try external linking.
--case "$GOHOSTOS-$GOOS-$GOARCH-$CGO_ENABLED" in
--linux-linux-amd64-1 | freebsd-freebsd-amd64-1 | darwin-darwin-amd64-1)
-+case "$GOHOSTOS-$GOOS-$GOARCH-$CGO_ENABLED-$IN_UML" in
-+linux-linux-amd64-1- | freebsd-freebsd-amd64-1- | darwin-darwin-amd64-1-)
+--- src/run.bash.orig	2016-02-27 08:01:12.702481889 +0000
++++ src/run.bash	2016-02-27 08:01:40.690317444 +0000
+@@ -167,7 +167,7 @@
  	echo
  	echo '# Testing race detector.'
  	go test -race -i runtime/race flag os/exec
@@ -510,32 +489,6 @@ EOF
  	}
  
  	if err := b.gccld(p, ofile, ldflags, gccObjs); err != nil {
-EOF
-
-  # pprof test fails in UML - expected, it fails in QEMU too:
-  # https://go.googlesource.com/go/+/dc72db90ea880267ef4b8e3db71da410030fc1b5%5E!/
-  patch -p0 << 'EOF'
---- src/runtime/pprof/pprof_test.go.orig
-+++ src/runtime/pprof/pprof_test.go
-@@ -10,6 +10,7 @@
- 	"bytes"
- 	"fmt"
- 	"math/big"
-+	"os"
- 	"os/exec"
- 	"regexp"
- 	"runtime"
-@@ -183,6 +184,10 @@
- 	if !ok {
- 		if badOS[runtime.GOOS] {
- 			t.Skipf("ignoring failure on %s; see golang.org/issue/6047", runtime.GOOS)
-+			return
-+		}
-+		if os.Getenv("IN_UML") == "1" {
-+			t.Skip("ignore the failure in UML")
- 			return
- 		}
- 		t.FailNow()
 EOF
 
   # Linux 3.19 is more restricted in what can be sent so disable sending
@@ -626,9 +579,6 @@ EOF
 #  fi
 
   chroot "$CHROOT_DIR" hush <<EOF
-  if [ -b /dev/ubdb ]; then
-    export IN_UML=1
-  fi
   if [ -f /tmp/in_chroot ]; then
     export IN_CHROOT=1
   fi
@@ -681,7 +631,7 @@ EOF
   # being compiled with -fPIC rather than -fPIE. Not sure how it works in any
   # environment. See this issue for PIE support:
   # https://github.com/golang/go/issues/6940
-  # Also, remove shared library tests which also SEGV.
+  # Also, remove shared library tests which SEGV.
   patch -p0 << 'EOF'
 --- src/cmd/dist/test.go.orig	2016-02-23 23:26:17.576351295 +0000
 +++ src/cmd/dist/test.go	2016-02-24 07:34:55.035887648 +0000
