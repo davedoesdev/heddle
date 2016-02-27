@@ -1848,8 +1848,8 @@ PACKAGES=(PKGCONFIG
           LIBTIRPC
           CONNTRACK_TOOLS
           IPROUTE2
-          LIBPCAP)
-#          LIBNFTNL
+          LIBPCAP
+          LIBNFTNL)
 #          IPTABLES
 #          DOCKER
 #          RUNIT
