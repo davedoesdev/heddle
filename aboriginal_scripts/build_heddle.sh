@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 
 chroot_build=
 interactive=
