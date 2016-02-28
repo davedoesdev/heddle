@@ -1,11 +1,6 @@
 test:
   override:
     - .circle-ci/build.sh
-general:
-  artifacts:
-    - "/heddle-*.tar.xz"
-    - "/heddle-*-log-*.txt.xz"
-    - "/heddle-*-src-*.tar"
 machine:
   node:
     version: "4.3.0"

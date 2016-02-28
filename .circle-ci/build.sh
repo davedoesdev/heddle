@@ -7,8 +7,6 @@ if [ "$version" = master -o "$version" = HEAD ]; then
 fi
 echo "version: $version"
 
-sudo ln -sf /bin/true /sbin/udevadm
-
 cd aboriginal-*
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &
@@ -35,22 +33,22 @@ e2extract() {
   done
 }
 srcp="heddle-$version-src-x86_64"
-srcf="/$srcp.tar"
+srcf="$CIRCLE_ARTIFACTS/$srcp.tar"
 
 cd ../downloads
-sudo bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
+bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
 
 cd ..
 git archive -o heddle.tar.gz HEAD
-sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" heddle.tar.gz
+bsdtar -s "@^@$srcp/@" -rf "$srcf" heddle.tar.gz
 rm -f heddle.tar.gz
 
 tmpd="$(mktemp -d)"
 e2extract gen/build.img "$tmpd"
 cd "$tmpd/download"
-sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" *
+bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 cd ../host
-sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" *
+bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 rm -rf "$tmpd"
 )
 
@@ -105,8 +103,8 @@ fi
 
 logf="heddle-$version-log-x86_64.txt"
 # If $home isn't for this version, it won't contain $logf
-sudo tar -zxf "$homef" -C / "$logf"
-sudo xz "/$logf"
+tar -zxf "$homef" -C $CIRCLE_ARTIFACTS "$logf"
+xz "$CIRCLE_ARTIFACTS/$logf"
 
 e2cp -P 400 -O 0 -G 0 "$homef" ../gen/x86_64/images/home.img:home.tar.gz
 rm -f "$homef"
@@ -119,7 +117,7 @@ prepare_and_dist() {
   ../aboriginal_scripts/run_heddle.sh -p -q          || return 1
   ../image_scripts/make_dist_and_heddle_images.sh -l || return 1
   ../aboriginal_scripts/dist_heddle.sh -q -r         || return 1
-  sudo bsdtar -C .. -s "/^\./$prefix/" -JLcf "/$prefix.tar.xz" ./gen/x86_64/dist
+  bsdtar -C .. -s "/^\./$prefix/" -JLcf "$CIRCLE_ARTIFACTS/$prefix.tar.xz" ./gen/x86_64/dist
 }
 prepare_and_dist gpt-btrfs
 prepare_and_dist gpt-ext4 -e
