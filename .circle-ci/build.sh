@@ -7,6 +7,9 @@ if [ "$version" = master -o "$version" = HEAD ]; then
 fi
 echo "version: $version"
 
+# Prevent parted waiting for udevadm settle
+sudo ln -sf /bin/true /sbin/udevadm
+
 cd aboriginal-*
 sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ( while true; do echo keep alive!; sleep 60; done ) &

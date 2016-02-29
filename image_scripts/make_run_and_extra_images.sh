@@ -6,7 +6,6 @@ HERE="$(dirname "$0")"
 SWAP_GB=4
 
 part_type=gpt
-primary=
 fs_type=btrfs
 fs_opts=
 while getopts me opt
@@ -14,7 +13,6 @@ do
   case $opt in
     m)
       part_type=msdos
-      primary=primary
       ;;
     e)
       fs_type=ext4
