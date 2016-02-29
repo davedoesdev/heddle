@@ -38,19 +38,19 @@ srcp="heddle-$version-src-x86_64"
 srcf="/dist/$srcp.tar"
 
 cd ../downloads
-bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
+sudo bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
 
 cd ..
 git archive -o heddle.tar.gz HEAD
-bsdtar -s "@^@$srcp/@" -rf "$srcf" heddle.tar.gz
+sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" heddle.tar.gz
 rm -f heddle.tar.gz
 
 tmpd="$(mktemp -d)"
 e2extract gen/build.img "$tmpd"
 cd "$tmpd/download"
-bsdtar -s "@^@$srcp/@" -rf "$srcf" *
+sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 cd ../host
-bsdtar -s "@^@$srcp/@" -rf "$srcf" *
+sudo bsdtar -s "@^@$srcp/@" -rf "$srcf" *
 rm -rf "$tmpd"
 )
 
@@ -105,8 +105,8 @@ fi
 
 logf="heddle-$version-log-x86_64.txt"
 # If $home isn't for this version, it won't contain $logf
-tar -zxf "$homef" -C /dist "$logf"
-xz "/dist/$logf"
+sudo tar -zxf "$homef" -C /dist "$logf"
+sudo xz "/dist/$logf"
 
 e2cp -P 400 -O 0 -G 0 "$homef" ../gen/x86_64/images/home.img:home.tar.gz
 rm -f "$homef"
@@ -119,7 +119,7 @@ prepare_and_dist() {
   ../aboriginal_scripts/run_heddle.sh -p -q          || return 1
   ../image_scripts/make_dist_and_heddle_images.sh -l || return 1
   ../aboriginal_scripts/dist_heddle.sh -q -r         || return 1
-  bsdtar -C .. -s "/^\./$prefix/" -JLcf "/dist/$prefix.tar.xz" ./gen/x86_64/dist
+  sudo bsdtar -C .. -s "/^\./$prefix/" -JLcf "/dist/$prefix.tar.xz" ./gen/x86_64/dist
 }
 prepare_and_dist gpt-btrfs
 prepare_and_dist gpt-ext4 -e
