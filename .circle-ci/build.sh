@@ -14,6 +14,8 @@ sed -i -e 's/-enable-kvm//' build/system-image-x86_64/run-emulator.sh
 ../image_scripts/make_build_and_home_images.sh
 
 (
+sudo mkdir /dist
+
 e2extract() {
   e2ls -l "$1:$3" | while read -r l; do
     if [ -n "$l" ]; then
@@ -33,7 +35,7 @@ e2extract() {
   done
 }
 srcp="heddle-$version-src-x86_64"
-srcf="$CIRCLE_ARTIFACTS/$srcp.tar"
+srcf="/dist/$srcp.tar"
 
 cd ../downloads
 bsdtar -s "@^@$srcp/@" -cf "$srcf" aboriginal-*.tar.gz
@@ -103,8 +105,8 @@ fi
 
 logf="heddle-$version-log-x86_64.txt"
 # If $home isn't for this version, it won't contain $logf
-tar -zxf "$homef" -C $CIRCLE_ARTIFACTS "$logf"
-xz "$CIRCLE_ARTIFACTS/$logf"
+tar -zxf "$homef" -C /dist "$logf"
+xz "/dist/$logf"
 
 e2cp -P 400 -O 0 -G 0 "$homef" ../gen/x86_64/images/home.img:home.tar.gz
 rm -f "$homef"
@@ -117,7 +119,7 @@ prepare_and_dist() {
   ../aboriginal_scripts/run_heddle.sh -p -q          || return 1
   ../image_scripts/make_dist_and_heddle_images.sh -l || return 1
   ../aboriginal_scripts/dist_heddle.sh -q -r         || return 1
-  bsdtar -C .. -s "/^\./$prefix/" -JLcf "$CIRCLE_ARTIFACTS/$prefix.tar.xz" ./gen/x86_64/dist
+  bsdtar -C .. -s "/^\./$prefix/" -JLcf "/dist/$prefix.tar.xz" ./gen/x86_64/dist
 }
 prepare_and_dist gpt-btrfs
 prepare_and_dist gpt-ext4 -e

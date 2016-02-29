@@ -9,3 +9,6 @@ dependencies:
     - downloads
   pre:
     - .circle-ci/deps.sh
+general:
+  artifacts:
+    - "/dist"
