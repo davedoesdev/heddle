@@ -4,7 +4,7 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 - Built from scratch using [Aboriginal Linux](http://landley.net/aboriginal/) to bootstrap the build.
 
-- Completely automated build. Build Heddle images locally or on [Travis CI](https://travis-ci.org/davedoesdev/build-aboriginal-travis), [Semaphore CI](https://semaphoreci.com/davedoesdev/heddle) and [CircleCI](https://circleci.com/gh/davedoesdev/heddle).
+- Completely automated build. Build Heddle images locally or on [Travis CI](https://travis-ci.org/davedoesdev/build-aboriginal-travis) and [CircleCI](https://circleci.com/gh/davedoesdev/heddle).
 
 - Builds only those packages necessary in order to get Docker and KVM up and running.
 
@@ -24,24 +24,32 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 ### Pre-built images
 
-First you need a Heddle image. Every time a commit is made to this repository, Heddle is built on SemaphoreCI and CircleCI. Successful builds are listed [here](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/.circle-ci/builds.html). For each build, you can download the following artifacts:
+First you need a Heddle image. Every time a commit is made to this repository, Heddle is built on Travis CI and Circle CI. Successful builds are listed [here](http://rawgit.davedoesdev.com/davedoesdev/heddle/master/.circle-ci/builds.html). For each build, you can download the following artifacts:
 
-- Build output archives
+- Image archives
   - `heddle-[commitid]-gpt-btrfs-x86_64.tar.xz`
   - `heddle-[commitid]-gpt-ext4-x86_64.tar.xz`
   - `heddle-[commitid]-mbr-btrfs-x86_64.tar.xz`
   - `heddle-[commitid]-mbr-ext4-x86_64.tar.xz`
+- Update archives
+  - `heddle-[commitid]-gpt-btrfs-x86_64-update.tar.xz`
+  - `heddle-[commitid]-gpt-ext4-x86_64-update.tar.xz`
+  - `heddle-[commitid]-mbr-btrfs-x86_64-update.tar.xz`
+  - `heddle-[commitid]-mbr-ext4-x86_64-update.tar.xz`
 - Build log
   - `heddle-[commitid]-log-x86_64.txt.xz`
 - Source archive
   - `heddle-[commitid]-src-x86_64.tar`
 
-Each build output archive contains the following files:
+Each image archive contains the following files:
 
 - `gen/x86_64/dist/heddle.img` - Raw bootable disk image, partitioned with GPT or MBR and using a Btrfs or Ext4 filesystem. GPT images require EFI to boot.
 - `gen/x86_64/dist/boot_heddle.sh` - Shell script to boot the disk image in KVM.
 - `gen/x86_64/dist/in_heddle.sh` - Shell script for automating customisation of the disk image.
-- `gen/x86_64/dist/update` - Directory containing files necessary to [update an existing Heddle installation](#updating-heddle) to this build.
+
+Each update archive contains files necessary to [update an existing Heddle installation](#updating-heddle) to this build.
+
+### Writing images to disk
 
 `heddle.img` is a sparse file so you should extract the archive using a version of tar which supports sparse files, for example `bsdtar` or recent versions of GNU tar.
 
@@ -56,6 +64,8 @@ Don't worry that `heddle.img` doesn't fill the entire disk. Heddle detects this 
 Once you've written `heddle.img` onto a disk, put the disk into a computer and boot it. You should see the normal Linux kernel boot messages and then a login prompt. There is one user account: `root` (password `root`). There are also two virtual terminals if you want two logon sessions.
 
 The `shutdown` command stops all services, calls `sync`, remounts all filesystems read-only and then calls `poweroff`. To reboot instead, use `-r`. It waits for 7 seconds for services to exit. Use `-t` to change this timeout.
+
+### Running images in KVM
 
 Alternatively, run `boot_heddle.sh` to run the image in KVM first. You'll get a login prompt and two virtual terminals like when booting on real hardware.
 
