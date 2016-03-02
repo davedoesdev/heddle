@@ -352,7 +352,7 @@ EOF
 
 If you're building Heddle yourself, you can also customise Heddle in these places:
 
-- `aboriginal_scripts/config/` - Configuration files for the kernel, busybox and uClibc.
+- `aboriginal_scripts/config/` - Configuration files for the kernel, busybox and musl.
 - `image_scripts/packages` - Details of packages to build. To add a package `FOO`, you should define the following variables:
   - `URL_FOO`: Location of the source archive for `FOO`.
   - `SRC_FOO`: What to save the source archive as locally when it's downloaded.
@@ -421,7 +421,7 @@ Heddle scripts check whether the environment variable `HEDDLE_EXT_DIR` is set. T
 
 If `HEDDLE_EXT_DIR` is set then Heddle scripts look for files in the extension directory in addition to files in the Heddle source code directory. Here's where you can put files in your extension directory so the Heddle scripts pick them up:
 
-- `aboriginal_scripts/config/` - BusyBox, uClibc and Linux kernel configuration files
+- `aboriginal_scripts/config/` - BusyBox, musl and Linux kernel configuration files
 - `image_scripts/packages` - package definitions
 - `chroot/` - files to add to the root filesystem, including services in `chroot/service`
 - `boot/` - boot loader configuration files (`refind.conf`, `syslinux.cfg`)

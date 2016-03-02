@@ -122,7 +122,7 @@ prepare_and_dist() {
   ../aboriginal_scripts/run_heddle.sh -p -q          || return 1
   ../image_scripts/make_dist_and_heddle_images.sh -l || return 1
   ../aboriginal_scripts/dist_heddle.sh -q -r         || return 1
-  sudo bsdtar -C .. -s "/^\./$prefix/" -JLcf "/dist/$prefix.tar.xz" ./gen/x86_64/dist --exclude update
+  sudo bsdtar -C .. -s "/^\./$prefix/" --exclude update -JLcf "/dist/$prefix.tar.xz" ./gen/x86_64/dist
   sudo bsdtar -C .. -s "/^\./$prefix/" -JLcf "/dist/$prefix-update.tar.xz" ./gen/x86_64/dist/update
 }
 prepare_and_dist gpt-btrfs

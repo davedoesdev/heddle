@@ -569,6 +569,25 @@ EOF
  				closer(cs)
 EOF
 
+  # musl's signal numbers are different to glibc's
+  patch -p0 << 'EOF'
+--- src/runtime/signals_linux.h.orig
++++ src/runtime/signals_linux.h
+@@ -44,9 +44,9 @@
+ 	/* 29 */	N, "SIGIO: i/o now possible",
+ 	/* 30 */	N, "SIGPWR: power failure restart",
+ 	/* 31 */	N, "SIGSYS: bad system call",
+-	/* 32 */	0, "signal 32", /* SIGCANCEL; see issue 6997 */
+-	/* 33 */	0, "signal 33", /* SIGSETXID; see issue 3871 */
+-	/* 34 */	N, "signal 34",
++	/* 32 */	0, "signal 32", /* SIGTIMER */
++	/* 33 */	0, "signal 33", /* SIGCANCEL; see issue 6997 */
++	/* 34 */	0, "signal 34", /* SIGSYNCCALL; see issue 3871 */
+ 	/* 35 */	N, "signal 35",
+ 	/* 36 */	N, "signal 36",
+ 	/* 37 */	N, "signal 37",
+EOF
+
   # Copy race detector we built from source
   if [ "$heddle_arch" = x86_64 ]; then
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
@@ -727,11 +746,9 @@ EOF
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
   fi
 
-  export GOROOT_BOOTSTRAP="$SOURCE_DIR/$DIR_GO_BOOTSTRAP"
-
   chroot "$CHROOT_DIR" hush <<EOF
   cd "$PWD/src"
-  GOROOT_FINAL="$INSTALL_DIR/go" ./all.bash
+  GOROOT_BOOTSTRAP="$SOURCE_DIR/$DIR_GO_BOOTSTRAP" GOROOT_FINAL="$INSTALL_DIR/go" GO_TEST_TIMEOUT_SCALE=5 ./all.bash
 EOF
   rm -rf "$INSTALL_DIR"/{go,gopath}
   cp -a "$PWD" "$INSTALL_DIR/go"
