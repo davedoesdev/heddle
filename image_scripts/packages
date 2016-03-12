@@ -1607,7 +1607,7 @@ EOF
   ./configure \
       "--prefix=$INSTALL_DIR" \
       "--extra-cflags=$CPPFLAGS -ftrapv" \
-      --target-list=x86_64 \
+      --target-list=x86_64-softmmu \
       --disable-guest-agent --disable-sdl --disable-gtk --disable-vte \
       --disable-curses --disable-vnc --disable-xen --disable-brlapi \
       --disable-curl --disable-bluez --disable-rdma --disable-uuid \
