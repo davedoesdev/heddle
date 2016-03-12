@@ -1890,6 +1890,18 @@ BLD_SMARTMONTOOLS() {
 XTR_SMARTMONTOOLS=(any "http://sourceforge.net/p/smartmontools/code/HEAD/tree/branches/RELEASE_$(echo "$VER_SMARTMONTOOLS" | tr . _)_DRIVEDB/smartmontools/drivedb.h?format=raw" "" "" drivedb.h
                    any "http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/drivedb.h?format=raw" "" "" drivedb.h)
 
+VER_PYTHON_DTUF="1.0.0"
+DIR_PYTHON_DTUF="python-dtuf-$VER_PYTHON_DTUF"
+SRC_PYTHON_DTUF="$DIR_PYTHON_DTUF.tar.gz"
+GET_PYTHON_DTUF() {
+  mkdir "$DIR_PYTHON_DTUF"
+  pip install --download "$DIR_PYTHON_DTUF" "python-dtuf==$VER_PYTHON_DTUF" 1>&2
+  tar -zc "$DIR_PYTHON_DTUF"
+}
+BLD_PYTHON_DTUF() {
+  pip install --no-index --find-links=. python-dtuf
+}
+
 PACKAGES=(PKGCONFIG
           LIBFFI
           BZIP2
@@ -1953,4 +1965,5 @@ PACKAGES=(PKGCONFIG
           EXTRACT_NSS_ROOT_CERTS
           HEDDLE_RECV
           SENDER
-          SMARTMONTOOLS)
+          SMARTMONTOOLS
+          PYTHON_DTUF)
