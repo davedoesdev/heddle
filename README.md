@@ -14,7 +14,7 @@ Heddle is a Linux distribution for running [Docker](https://www.docker.com/) and
 
 - Simple init system based on [runit](http://smarden.org/runit/). Heddle is a systemd-free zone!
 
-- Currently supported architectures: x86_64 and armv6l (ARM Versatile). Other ARM targets should now be possible.
+- Currently supported architectures: `x86_64` and `armv6l-vb2` (ARMv6 little-endian on the ARM Versatile board). Other ARM targets should now be possible.
 
 - [musl](http://www.musl-libc.org/) and [uClibc++](http://cxx.uclibc.org/) used throughout. No glibc.
 
@@ -201,35 +201,42 @@ You can also test it in KVM by running the following command:
 
 ## Building for different architectures
 
-By default, Heddle is built for the `x86_64` architecture. To build for a different architecture, you must:
+### Prepare a target
 
-- Create an Aboriginal Linux target for the architecture. Each target is a separate file in the `sources/targets` directory of the Aboriginal Linux source code. I have successfully built using the existing `armv6l` target (ARM Versatile board).
+By default, Heddle is built for the `x86_64` architecture. To prepare for a different architecture, you must:
 
-- Create a kernel configuration file for your architecture in the `aboriginal_scripts/config` directory. The name of this file should begin with `linux-` and end with the architecture name (the `armv6l` one is called `linux-armv6l`).
+1. Create an Aboriginal Linux target for the architecture. Each target is a separate file in the `sources/targets` directory of the Aboriginal Linux source code. You have two choices for creating target files:
 
-- Run `gen/new_arch.sh` and pass it the name of your architecture as an argument. This creates a directory structure under `gen` for your architecture.
+  - Use an existing target. Put a file containing any extra kernel configuration you need in the `aboriginal_scripts/config` directory. The name of the file should begin with `linux-` and end with the target name (e.g. the `x86_64` one is named `linux-x86_64`).
 
-- In `image_scripts/packages`, make any adaptations you need when building Heddle packages. Usually the easiest way to do this is build without any adaptations for your architecture and fix it up as things break. Search for `armv6l` in this file to see the adaptations I had to make.
+  - Create a new target. Put a file containing instructions for the new target in the `aboriginal_scripts/config` directory. The name of the file should begin with `target-` and end with the target name (e.g. the `armv6l` one for the Versatile board is named `target-armv6l-vb2`).
 
-- Find a suitable bootloader for your architecture. For `armv6l` I chose [U-Boot](http://www.denx.de/wiki/U-Boot), which is in `image_scripts/packages` but currently built on `armv6l` only. You can also see special instructions for `armv6l` in `aboriginal_scripts/dist_heddle.sh` and `runtime_scripts/dist.sh` to copy `u-boot.bin` out of `home.img` and make a `boot.kbin` image suitable for booting on QEMU. 
+2. Run `gen/new_arch.sh` and pass it the name of your architecture as an argument (e.g. `gen/new_arch.sh armv6l-vb2`). This creates a directory structure under `gen` for your architecture.
 
-Most of the build scripts take an optional architecture argument which defaults to `x86_64`. So to build for `armv6l` you'd do the following:
+3. In `image_scripts/packages`, make any adaptations you need when building Heddle packages. Usually the easiest way to do this is build without any adaptations for your architecture and fix it up as things break. Search for `armv6l-vb2` in this file to see the adaptations I had to make.
+
+4. Find a suitable bootloader for your target. For `armv6l-vb2` I chose [U-Boot](http://www.denx.de/wiki/U-Boot), which is in `image_scripts/packages` but currently built on `armv6l-vb2` only. You can also see special instructions for `armv6l-vb2` in `aboriginal_scripts/dist_heddle.sh` and `runtime_scripts/dist.sh` to copy `u-boot.bin` out of `home.img` and make a `boot.kbin` image suitable for booting on QEMU. 
+
+### Build the target
+
+Most of the build scripts take an optional architecture argument which defaults to `x86_64`. So to build for `armv6l-vb2` you'd do the following:
 
 1. Build Aboriginal Linux. You can re-use your existing Aboriginal Linux source directory.
   1. `cd aboriginal-1.4.5`
-  2. `./build.sh armv6l`
-2. Build Heddle. You can re-use your existing Heddle source directory - the new images will be written to `gen/armv6l/images`.
-  1. `../heddle/image_scripts/make_build_and_home_images.sh armv6l`
-  2. `../heddle/aboriginal_scripts/build_heddle.sh armv6l` (this will take many hours because it uses QEMU emulation)
-  3. `../heddle/image_scripts/make_run_and_extra_images.sh armv6l`
-  4. `../heddle/aboriginal_scripts/run_heddle.sh -p armv6l`
-  5. `../heddle/image_scripts/make_dist_and_heddle_images.sh armv6l`
-  6. `../heddle/aboriginal_scripts/dist_heddle.sh armv6l`
+  2. `../heddle/aboriginal_scripts/config.sh`
+  3. `./build.sh armv6l-vb2`
+2. Build Heddle. You can re-use your existing Heddle source directory - the new images will be written to `gen/armv6l-vb2/images`.
+  1. `../heddle/image_scripts/make_build_and_home_images.sh armv6l-vb2`
+  2. `../heddle/aboriginal_scripts/build_heddle.sh armv6l-vb2` (this will take many hours because it uses QEMU emulation)
+  3. `../heddle/image_scripts/make_run_and_extra_images.sh armv6l-vb2`
+  4. `../heddle/aboriginal_scripts/run_heddle.sh -p armv6l-vb2`
+  5. `../heddle/image_scripts/make_dist_and_heddle_images.sh armv6l-vb2`
+  6. `../heddle/aboriginal_scripts/dist_heddle.sh armv6l-vb2`
 
-This will generate `../heddle/gen/armv6l/images/heddle.img` and `../heddle/gen/armv6l/images/boot.kbin` which you can then write to disk or boot using:
+This will generate `../heddle/gen/armv6l-vb2/images/heddle.img` and `../heddle/gen/armv6l-vb2/images/boot.kbin` which you can then write to disk or boot using:
 
 ```shell
-../heddle/image_scripts/boot_heddle.sh armv6l
+../heddle/image_scripts/boot_heddle.sh armv6l-vb2
 ```
 
 Of course, if the Heddle source lives somewhere else (e.g. you're [building an extension](#extending-heddle)) then replace `../heddle` with its location.

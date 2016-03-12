@@ -63,7 +63,9 @@ copy "$HERE/../runtime_scripts/dist.sh" init
 copy "$IMG_DIR/run.img"
 copy "$SQF_ROOT"
 copy "$SQF_MODULES"
-copy "$SQF_FIRMWARE"
+if [ -e "$SQF_FIRMWARE" ]; then
+  copy "$SQF_FIRMWARE"
+fi
 copy "$HERE/../runtime_scripts/init.sh"
 copy "$HERE/../runtime_scripts/init2.sh"
 copy "$HERE/../runtime_scripts/initrd.sh"

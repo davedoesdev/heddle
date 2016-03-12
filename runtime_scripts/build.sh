@@ -54,7 +54,6 @@ else
 fi
 for pkg in "${pkgs[@]}"; do
   declare "BLD_$pkg"=1
-  
 done
 for pkg in "${PACKAGES[@]}"; do
   vdir="DIR_$pkg"
@@ -65,7 +64,7 @@ for pkg in "${PACKAGES[@]}"; do
     binf="$HERE/host/${!vsrc}-$heddle_arch.tar.xz"
     if [ -f "$binf" ]; then
       tar -C "$INSTALL_DIR" -Jxf "$binf"
-    else
+    elif [ "$(type -t "BLD_$pkg")" = function -o "$(type -t "BLD_${pkg}_$heddle_arch")" = function ]; then
       rm -rf "${!vdir}"
       mkdir -p "${!vdir}"
       pushd "${!vdir}"
@@ -91,7 +90,9 @@ for pkg in "${PACKAGES[@]}"; do
       [ -f "$extraf" ] && tar -C "${!vdir}" -xf "$extraf"
       chown -R root:root "${!vdir}"
       pushd "${!vdir}"
-      BLD_$pkg
+      if [ "$(type -t "BLD_$pkg")" = function ]; then
+        BLD_$pkg
+      fi
       if [ "$(type -t "BLD_${pkg}_$heddle_arch")" = function ]; then
         BLD_${pkg}_$heddle_arch
       fi

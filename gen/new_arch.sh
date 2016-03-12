@@ -17,6 +17,7 @@ mkdir -p "$ARCH"{,/images,/dist{,/update}}
 cat > "$ARCH/images/.gitignore" << 'EOF'
 *.img
 *.qcow2
+*.kbin
 EOF
 ln -sf "$IMAGE_SCRIPTS_DIR/boot_heddle.sh" "$ARCH/dist/boot_$PROJECT.sh"
 ln -sf "$IMAGE_SCRIPTS_DIR/in_heddle.sh" "$ARCH/dist/in_$PROJECT.sh"

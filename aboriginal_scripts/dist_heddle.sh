@@ -39,7 +39,8 @@ shift $((OPTIND-1))
 
 ARCH="${1:-x86_64}"
 IMG_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images"
-UPDATE_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/dist/update"
+DIST_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/dist"
+UPDATE_DIR="$DIST_DIR/update"
 export HDB="$IMG_DIR/home.img"
 export HDC="$IMG_DIR/dist.img"
 export QEMU_EXTRA="-hdd $IMG_DIR/heddle.img -net user,hostname=${hostname:-$project} -net nic"
@@ -54,7 +55,7 @@ cd "build/system-image-$ARCH"
 ./dev-environment.sh 
 ln -sf "$PWD/linux" "$UPDATE_DIR"
 e2cp "$HDC:gen"/{initrd.img,install.sqf,run.sqf} "$UPDATE_DIR"
-if [ "$ARCH" = armv6l ]; then
+if [ "$ARCH" = "armv6l-vb2" ]; then
   # Make boot.kbin from u-boot.bin, kernel and initrd. Use modified version of:
   # https://balau82.wordpress.com/2010/04/12/booting-linux-with-u-boot-on-qemu-arm/
   #            | QEMU start | U-Boot reloc  | U-Boot bootm
@@ -70,6 +71,7 @@ if [ "$ARCH" = armv6l ]; then
   # 0x02010000 | Ramdisk    | Ramdisk       |
   bootf="$IMG_DIR/boot.kbin"
   e2cp "$HDC:gen/u-boot.bin" "$bootf"
+  ln -s ../images/boot.kbin "$DIST_DIR"
   tmp="$(mktemp)"
   mkimage -A arm -C none -O linux -T kernel -d linux -a 0x00010000 -e 0x00010000 "$tmp"
   dd "if=$tmp" "of=$bootf" bs=1024 conv=notrunc "seek=$((2 * 1024))"

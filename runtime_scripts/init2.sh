@@ -1,18 +1,13 @@
 #!/bin/hush
 
-# Populate /dev
+export PATH=/bin:/sbin
+
+# Mount filesystems
 mountpoint -q proc || mount -t proc proc proc
 mountpoint -q sys || mount -t sysfs sys sys
 mountpoint -q dev || mount -t devtmpfs dev dev
 mkdir -p dev/pts
 mountpoint -q dev/pts || mount -t devpts dev/pts dev/pts
-
-#export PS1='$HOST \w \$ '
-
-# Make sure $PATH is exported, even if not set on kernel command line.
-# (The shell gives us a default, but it's local, not exported.)
-export PATH=/bin:/sbin
-
 mount -t tmpfs /tmp /tmp
 
 [ -z "$CONSOLE" ] &&

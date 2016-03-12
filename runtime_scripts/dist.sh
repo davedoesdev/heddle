@@ -50,7 +50,10 @@ fi
 rm -rf "$EXTRA_DIR"/{root,dev}
 mkdir -p "$EXTRA_DIR"/{root,dev}
 
-cp -a "$here"/{root,modules,firmware}.sqf "$DIST_DIR"
+cp -a "$here"/{root,modules}.sqf "$DIST_DIR"
+if [ -e "$here/firmware.sqf" ]; then
+  cp -a "$here/firmware.sqf" "$DIST_DIR"
+fi
 
 reuse=
 if grep -q 'heddle_dist_reuse=1' /proc/cmdline; then
@@ -62,7 +65,7 @@ mount -o remount,rw /dev/hdc /mnt
 if [ -n "$reuse" -a -f "$here/gen/install.sqf" ]; then
   cp "$here/gen/install.sqf" "$DIST_DIR"
 else
-  mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root -mem 512M
+  mksquashfs "$INSTALL_DIR" "$DIST_DIR/install.sqf" -noappend -all-root
   project="$(grep -oE 'heddle_project=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_project=//')"
   version="$(grep -oE 'heddle_version=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_version=//')"
   url="$(grep -oE 'heddle_url=[^ ]+' /proc/cmdline | head -n 1 | sed 's/heddle_url=//')"
@@ -82,16 +85,16 @@ VERSION_ID="$(echo "$version" | sed 's/[^0-9a-zA-Z._-]/_/g')"
 PRETTY_NAME="$Project $version"
 HOME_URL="$url"
 EOF
-  mksquashfs /tmp/install "$DIST_DIR/install.sqf" -all-root -mem 512M
+  mksquashfs /tmp/install "$DIST_DIR/install.sqf" -all-root
   cp "$DIST_DIR/install.sqf" "$here/gen"
 fi
 if [ -n "$reuse" -a -f "$here/gen/run.sqf" ]; then
   cp "$here/gen/run.sqf" "$DIST_DIR"
 else
-  mksquashfs /rmnt "$DIST_DIR/run.sqf" -noappend -all-root -mem 512M
+  mksquashfs /rmnt "$DIST_DIR/run.sqf" -noappend -all-root
   cp "$DIST_DIR/run.sqf" "$here/gen"
 fi
-if [ "$heddle_arch" = armv6l -a \
+if [ "$heddle_arch" = "armv6l-vb2" -a \
      \( -z "$reuse" -o ! -f "$here/gen/u-boot.bin" \) ]; then
   cp /home/source/u-boot-*/u-boot.bin "$here/gen"
 fi

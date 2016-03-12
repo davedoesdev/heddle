@@ -1,0 +1,60 @@
+DESCRIPTION="
+ARM v6, little endian, EABI with vector floating point (vfp).
+
+The Pentium II of the ARM world: this architecture was introduced in 2001
+and actually shipped silicon around 2003.  This hardware can still run v4
+and v5 instruction sets, but recompiling for armv6 should provide a
+slight performance boost (and thus better battery life).
+"
+
+KARCH=arm
+KERNEL_PATH=arch/${KARCH}/boot/zImage
+GCC_FLAGS="--with-march=armv6 --with-mfloat-abi=soft --with-mfp=vfp" 
+BINUTILS_FLAGS=
+QEMU_TEST=$KARCH
+
+CROSS_TARGET="armv6l-unknown-linux-gnueabi"
+
+CONSOLE=ttyAMA0
+
+LINUX_CONFIG="
+
+# Processor config
+
+CONFIG_CPU_V6=y
+CONFIG_MMU=y
+CONFIG_ARM_THUMB=y
+CONFIG_AEABI=y
+CONFIG_VFP=y
+
+# Versatile board
+
+CONFIG_ARCH_VERSATILE=y
+CONFIG_ARCH_VERSATILE_PB=y
+CONFIG_PCI_LEGACY=y
+CONFIG_SERIAL_NONSTANDARD=y
+CONFIG_SERIAL_AMBA_PL011=y
+CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+CONFIG_RTC_DRV_PL031=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
+CONFIG_SCSI_SYM53C8XX_MMIO=y
+
+# Work around random breakage in the 3.11 kernel
+CONFIG_KUSER_HELPERS=y
+
+# Large file support
+CONFIG_LBDAF=y
+# Framebuffer
+CONFIG_FB_ARMCLCD=y
+# Keyboard
+CONFIG_SERIO_AMBAKMI=y
+# Network
+CONFIG_NET_VENDOR_SMSC=y
+CONFIG_SMC91X=y
+"
+
+emulator_command()
+{
+  echo qemu-system-arm -M versatilepb $(qemu_defaults "$@")
+}

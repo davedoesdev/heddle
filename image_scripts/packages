@@ -8,7 +8,7 @@
 # - They are linked with the main QEMU code.
 # - We only fetch the file and use it for armv6l builds.
 armv6l_sync_builtins=(
-  armv6l
+  armv6l-vb2
   'https://raw.githubusercontent.com/golang/gofrontend/291a692449bed1b5f2d4e7fb9c1ebd494bf23c3f/libgo/runtime/thread.c'
   1af60318f33b58608b84d0b54c4acc954fe84af0c3f179827de457ec2898b2b4
   sha256)
@@ -266,44 +266,28 @@ URL_PERL="http://www.cpan.org/src/5.0/$SRC_PERL"
 CHK_PERL="2b475d0849d54c4250e9cba4241b7b7291cffb45dfd083b677ca7b5d38118f27"
 SUM_PERL="sha256"
 BLD_PERL() {
-#  if [ "$heddle_arch" = armv6l ]; then
-#    # Work around SEGV on ARM
-#    patch -p0 << 'EOF'
-#--- Makefile.SH.orig
-#+++ Makefile.SH
-#@@ -1006,7 +1006,7 @@
-# # But also this ensures that all extensions are built before we try to scan
-# # them, which picks up Devel::PPPort's documentation.
-# pod/perltoc.pod: $(perltoc_pod_prereqs)  $(PERL_EXE) $(ext) pod/buildtoc
-#-	$(RUN_PERL) -f pod/buildtoc -q
-#+	$(MINIPERL) -f pod/buildtoc -q
-# 
-# pod/perlapi.pod: pod/perlintern.pod
-# 
-#@@ -1064,8 +1064,7 @@
-#         $spitshell >>$Makefile <<EOT
-# 
-# install_$name install-$name: \$(INSTALL_DEPENDENCE) installperl all installman
-#-	\$(RUN_PERL) installperl --destdir=\$(DESTDIR) $flags \$(INSTALLFLAGS) \$(STRIPFLAGS)
-#-	\$(RUN_PERL) installman --destdir=\$(DESTDIR) $flags
-#+	\$(MINIPERL) installperl --destdir=\$(DESTDIR) $flags \$(INSTALLFLAGS) \$(STRIPFLAGS)
-# EOT
-#     fi
-# 
-#EOF
-#  fi
-  ./Configure -de "-Dprefix=$INSTALL_DIR" -Dusenm=n -A ccflags=-fPIC < /dev/null
+  if [ "$heddle_arch" = armv6l-vb2 ]; then
+    # Perl SEGVs with stack protector on ARM
+    ./Configure -de "-Dprefix=$INSTALL_DIR" -A ccflags=-fno-stack-protector < /dev/null
+  else
+    ./Configure -de "-Dprefix=$INSTALL_DIR" < /dev/null
+  fi
   make
   make install
 }
 
-DIR_OPENSSL="openssl-1.0.2f"
+DIR_OPENSSL="openssl-1.0.2g"
 SRC_OPENSSL="$DIR_OPENSSL.tar.gz"
 URL_OPENSSL="https://www.openssl.org/source/$SRC_OPENSSL"
-CHK_OPENSSL="932b4ee4def2b434f85435d9e3e19ca8ba99ce9a065a61524b429a9d5e9b2e9c"
+CHK_OPENSSL="b784b1b3907ce39abf4098702dade6365522a253ad1552e267a9a0e89594aa33"
 SUM_OPENSSL="sha256"
 BLD_OPENSSL() {
-  ./config "--openssldir=$INSTALL_DIR/ssl" shared no-ssl2 no-ssl3
+  if [ "$heddle_arch" = armv6l-vb2 ]; then
+    # ARM asm assumes vfp registers are available
+    ./config "--openssldir=$INSTALL_DIR/ssl" shared no-ssl2 no-ssl3 no-asm
+  else
+    ./config "--openssldir=$INSTALL_DIR/ssl" shared no-ssl2 no-ssl3
+  fi
   make depend
   make
   make install
@@ -335,19 +319,6 @@ URL_PYTHON="http://www.python.org/ftp/python/$VER_PYTHON/$SRC_PYTHON"
 CHK_PYTHON="6b6076ec9e93f05dd63e47eb9c15728b"
 SUM_PYTHON="md5"
 BLD_PYTHON() {
-#  patch -p0 << 'EOF'
-#--- Lib/ctypes/util.py.orig	2015-09-14 09:39:55.301188888 +0100
-#+++ Lib/ctypes/util.py	2015-09-14 09:40:18.181296170 +0100
-#@@ -93,7 +93,7 @@
-#         fdout, ccout = tempfile.mkstemp()
-#         os.close(fdout)
-#         cmd = 'if type gcc >/dev/null 2>&1; then CC=gcc; elif type cc >/dev/null 2>&1; then CC=cc;else exit 10; fi;' \
-#-              'LANG=C LC_ALL=C $CC -Wl,-t -o ' + ccout + ' 2>&1 -l' + name
-#+              'LANG=C LC_ALL=C $CC -Wl,-t -o ' + ccout + ' 2>/dev/null -l' + name
-#         try:
-#             f = os.popen(cmd)
-#             try:
-#EOF
   ./configure "--prefix=$INSTALL_DIR" --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi --with-system-expat --with-ensurepip=install
   make
   make install
@@ -372,7 +343,7 @@ SRC_LLVM_COMPILER_RT="$DIR_LLVM_COMPILER_RT.tar.xz"
 URL_LLVM_COMPILER_RT="http://llvm.org/releases/$VER_LLVM_COMPILER_RT/$SRC_LLVM_COMPILER_RT"
 CHK_LLVM_COMPILER_RT="9d4769e4a927d3824bcb7a9c82b01e307c68588e6de4e7f04ab82d82c5af8181"
 SUM_LLVM_COMPILER_RT="sha256"
-BLD_LLVM_COMPILER_RT() {
+BLD_LLVM_COMPILER_RT_x86_64() {
   patch -p0 << 'EOF'
 --- lib/sanitizer_common/sanitizer_linux.cc.orig
 +++ lib/sanitizer_common/sanitizer_linux.cc
@@ -441,9 +412,7 @@ EOF
   sed -i 's/-Wno-unknown-warning-option//g' buildgo.sh
   sed -i 's/-std=c++11//g' buildgo.sh
   sed -i 's/-ffreestanding/-fno-strict-aliasing -D__libc_malloc=malloc -D__libc_free=free -Dnullptr=0 -Dfinal= -Doverride= -Dconstexpr=/g' buildgo.sh
-  if [ "$heddle_arch" = x86_64 ]; then
-    ./buildgo.sh
-  fi
+  ./buildgo.sh
 }
 
 DIR_GO_BOOTSTRAP="go1.4.3"
@@ -593,9 +562,9 @@ EOF
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
   fi
 
-#  if [ "$heddle_arch" = armv6l ]; then
-#    patch_armv6l_sync_builtins misc/cgo/test/sync_builtins.c
-#  fi
+  if [ "$heddle_arch" = armv6l-vb2 ]; then
+    patch_armv6l_sync_builtins misc/cgo/test/sync_builtins.c
+  fi
 
   chroot "$CHROOT_DIR" hush <<EOF
   if [ -f /tmp/in_chroot ]; then
@@ -605,7 +574,7 @@ EOF
   ./all.bash
 EOF
 }
-#XTR_GO_BOOTSTRAP=("${armv6l_sync_builtins[@]}" misc/cgo/test/sync_builtins.c)
+XTR_GO_BOOTSTRAP=("${armv6l_sync_builtins[@]}" misc/cgo/test/sync_builtins.c)
 
 DIR_GO="go1.6"
 SRC_GO="$DIR_GO.src.tar.gz"
@@ -746,6 +715,10 @@ EOF
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
   fi
 
+  if [ "$heddle_arch" = armv6l-vb2 ]; then
+    patch_armv6l_sync_builtins misc/cgo/test/sync_builtins.c
+  fi
+
   chroot "$CHROOT_DIR" hush <<EOF
   cd "$PWD/src"
   GOROOT_BOOTSTRAP="$SOURCE_DIR/$DIR_GO_BOOTSTRAP" GOROOT_FINAL="$INSTALL_DIR/go" GO_TEST_TIMEOUT_SCALE=5 ./all.bash
@@ -758,6 +731,7 @@ PST_GO() {
   export GOPATH="$INSTALL_DIR/gopath"
   PATH="$PATH:$INSTALL_DIR/go/bin:$GOPATH/bin"
 }
+XTR_GO=("${armv6l_sync_builtins[@]}" misc/cgo/test/sync_builtins.c)
 
 DIR_LIBAIO="libaio-0.3.110-1"
 SRC_LIBAIO="$DIR_LIBAIO.tar.gz"
@@ -1319,7 +1293,12 @@ source() {\
  	}
  	return nil
 EOF
-  AUTO_GOPATH=1 DOCKER_GITCOMMIT=c3959b1 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
+  heddle_tmpdir=/tmp
+  if [ "$heddle_arch" = armv6l-vb2 ]; then
+    mkdir -p heddle_tmp
+    heddle_tmpdir="$PWD/heddle_tmp"
+  fi
+  TMPDIR="$heddle_tmpdir" AUTO_GOPATH=1 DOCKER_GITCOMMIT=c3959b1 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }
@@ -1469,6 +1448,38 @@ URL_GPTFDISK="http://downloads.sourceforge.net/project/gptfdisk/gptfdisk/$VER_GP
 CHK_GPTFDISK="864c8aee2efdda50346804d7e6230407d5f42a8ae754df70404dd8b2fdfaeac7"
 SUM_GPTFDISK="sha256"
 BLD_GPTFDISK() {
+  # musl defines max values without ull so on 32-bit ARM we get a warning.
+  # gptfdisk is compiled with -Wall so we can't ignore it.
+  # In a simple test app, the correct value is assigned so other pacakges
+  # should be OK.
+  if [ "$heddle_arch" = armv6l-vb2 ]; then
+    patch -p0 << 'EOF'
+--- support.cc.orig
++++ support.cc
+@@ -22,6 +22,9 @@
+ 
+ #include <sys/types.h>
+ 
++#undef UINT64_MAX
++#define UINT64_MAX (0xffffffffffffffffull)
++
+ // As of 1/2010, BLKPBSZGET is very new, so I'm explicitly defining it if
+ // it's not already defined. This should become unnecessary in the future.
+ // Note that this is a Linux-only ioctl....
+--- gpt.cc.orig
++++ gpt.cc
+@@ -28,6 +28,9 @@
+ #include "attributes.h"
+ #include "diskio.h"
+ 
++#undef UINT64_MAX
++#define UINT64_MAX (0xffffffffffffffffull)
++
+ using namespace std;
+ 
+ #ifdef __FreeBSD__
+EOF
+  fi
   make sgdisk
   cp sgdisk "$INSTALL_DIR/sbin"
 }
@@ -1479,7 +1490,7 @@ URL_DHCPCD="http://roy.marples.name/downloads/dhcpcd/$SRC_DHCPCD"
 CHK_DHCPCD="284abf8c3be0580bbac5eaca95359346ab0d78d4072317b6ce87cc68f2e8ae7b"
 SUM_DHCPCD="sha256"
 BLD_DHCPCD() {
-  ./configure "--prefix=$INSTALL_DIR" "--build=$heddle_arch-unknown-$(uname -s | tr A-Z a-z)"
+  ./configure "--prefix=$INSTALL_DIR" "--build=$(echo "$heddle_arch" | cut -d '-' -f 1)-unknown-$(uname -s | tr A-Z a-z)"
   make
   chroot "$CHROOT_DIR" hush <<EOF
   cd "$PWD"
@@ -1505,6 +1516,24 @@ URL_PIXMAN="http://cairographics.org/releases/$SRC_PIXMAN"
 CHK_PIXMAN="a1b1683c1a55acce9d928fea1ab6ceb79142ddc7"
 SUM_PIXMAN="sha1"
 BLD_PIXMAN() {
+  patch -p0 << 'EOF'
+--- pixman/pixman-private.h.orig
++++ pixman/pixman-private.h
+@@ -1,5 +1,3 @@
+-#include <float.h>
+-
+ #ifndef PIXMAN_PRIVATE_H
+ #define PIXMAN_PRIVATE_H
+ 
+@@ -30,6 +28,7 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <stddef.h>
++#include <float.h>
+ 
+ #include "pixman-compiler.h"
+
+EOF
   ./configure "--prefix=$INSTALL_DIR"
   make
   make install
@@ -1544,6 +1573,21 @@ EOF
          debug_path, tmp_path);
 EOF
 
+  # byacc uses y prefix by default
+  patch -p0 << 'EOF'
+--- dtc/Makefile.orig
++++ dtc/Makefile
+@@ -258,6 +258,6 @@
+ 
+ %.tab.c %.tab.h %.output: %.y
+ 	@$(VECHO) BISON $@
+-	$(BISON) -d $<
++	$(BISON) -b $* -d $<
+ 
+ FORCE:
+EOF
+}
+BLD_QEMU_x86_64() {
   # Fix integer overflow (when cur is INT64_MAX and then incremented)
   patch -p0 << 'EOF'
 --- qapi/string-input-visitor.c.orig
@@ -1559,36 +1603,25 @@ EOF
  };
 EOF
 
-  qemu_target=x86_64
-#  if [ "$heddle_arch" = armv6l ]; then
-#    qemu_target=arm
-#    patch_armv6l_sync_builtins util/sync-builtins.c
-#    cat >> util/Makefile.objs << 'EOF'
-#util-obj-$(CONFIG_POSIX) += sync-builtins.o
-#EOF
-#  fi
-
-  # Disable what we don't need and compile with flags according to
-  # http://docs.openstack.org/security-guide/compute/hardening-the-virtualization-layers.html
+  # Disable what we don't need
   ./configure \
       "--prefix=$INSTALL_DIR" \
-      "--extra-cflags=$CPPFLAGS -fstack-protector-all -Wstack-protector --param ssp-buffer-size=4 -pie -fPIE -ftrapv -D_FORTIFY_SOURCE=2" \
-      "--extra-ldflags=$LDFLAGS -Wl,-z,relro,-z,now" \
-      "--target-list=$qemu_target-softmmu" \
+      "--extra-cflags=$CPPFLAGS -ftrapv" \
+      --target-list=x86_64 \
       --disable-guest-agent --disable-sdl --disable-gtk --disable-vte \
       --disable-curses --disable-vnc --disable-xen --disable-brlapi \
-      --disable-curl --disable-fdt --disable-bluez --disable-rdma \
-      --disable-uuid --disable-vde --disable-netmap --disable-linux-aio \
-      --disable-cap-ng --disable-attr --disable-spice --disable-rbd \
-      --disable-libiscsi --disable-libnfs --disable-smartcard --disable-libusb \
-      --disable-usb-redir --disable-lzo --disable-snappy --disable-bzip2 \
-      --disable-glusterfs --disable-archipelago --disable-tpm \
-      --disable-libssh2 --disable-vhdx --disable-opengl
-  make
-  make V=1 check
+      --disable-curl --disable-bluez --disable-rdma --disable-uuid \
+      --disable-vde --disable-netmap --disable-cap-ng --disable-attr \
+      --disable-spice --disable-rbd --disable-libiscsi --disable-libnfs \
+      --disable-smartcard --disable-libusb --disable-usb-redir --disable-lzo \
+      --disable-snappy --disable-bzip2 --disable-glusterfs \
+      --disable-archipelago --disable-tpm --disable-libssh2 --disable-vhdx \
+      --disable-opengl --disable-fdt
+
+  make BISON=byacc LEX=reflex
+  make V=1 BISON=byacc LEX=reflex check
   make install
 }
-#XTR_QEMU=("${armv6l_sync_builtins[@]}" util/sync-builtins.c)
 
 VER_UNAME_P="0.0.1"
 DIR_UNAME_P="uname_p-$VER_UNAME_P"
@@ -1693,6 +1726,22 @@ URL_KEXEC_TOOLS="https://kernel.org/pub/linux/utils/kernel/kexec/$SRC_KEXEC_TOOL
 CHK_KEXEC_TOOLS="b1097986ffdb928cf41a94e8a5dfddc981a8fa710cccf13298e7f8dd939a2ee3"
 SUM_KEXEC_TOOLS="sha256"
 BLD_KEXEC_TOOLS() {
+  # Need _GNU_SOURCE for loff_t in fcntl.h
+  patch -p0 << 'EOF'
+--- vmcore-dmesg/vmcore-dmesg.c.orig
++++ vmcore-dmesg/vmcore-dmesg.c
+@@ -12,7 +12,9 @@
+ #include <limits.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#define _GNU_SOURCE
+ #include <fcntl.h>
++#undef _GNU_SOURCE
+ #include <elf.h>
+ #include <stdbool.h>
+ #include <inttypes.h>
+EOF
+
   LDFLAGS=-static ./configure
   make
   mkdir -p "$INSTALL_DIR/sbin"
@@ -1704,10 +1753,10 @@ BLD_KEXEC_TOOLS() {
 # So build x86_64 version on host (assume same architecture).
 HST_KEXEC_TOOLS=(x86_64)
 
-DIR_UBOOT="u-boot-2016.01"
+DIR_UBOOT="u-boot-2015.01"
 SRC_UBOOT="$DIR_UBOOT.tar.bz2"
 URL_UBOOT="ftp://ftp.denx.de/pub/u-boot/$SRC_UBOOT"
-CHK_UBOOT="e5792fba9399d9804aa2ef667f14ff771e2cdece72367d340250265bf095a5d5"
+CHK_UBOOT="383051a656ebe11757b17d38a3326387e4a1b0949ca8a9e8ee506bf71dac9fde"
 SUM_UBOOT="sha256"
 BLD_UBOOT() {
   # We don't have bc
@@ -1727,10 +1776,22 @@ BLD_UBOOT() {
  		if test $$map_size -ne $$file_size; then \
  			echo "u-boot.map shows a binary size of $$map_size" >&2 ; \
 EOF
+
+  # ulong is in sys/types.h
+  patch -p0 << 'EOF'
+--- include/compiler.h.orig
++++ include/compiler.h
+@@ -17,6 +17,7 @@
+ # include <inttypes.h>
+ #elif defined(__linux__) || defined(__WIN32__) || defined(__MINGW32__)
+ # include <stdint.h>
++# include <sys/types.h>
+ #endif
+ 
+ #include <errno.h>
+EOF
 }
-BLD_UBOOT_armv6l() {
-  # NOTE: versatile target is no more! Need to use something else -
-  # governed by what Aboriginal supports. Ideally Raspberry Pi.
+BLD_UBOOT_armv6l-vb2() {
   # Change boot args, add initrd support and increase RAM to 256Mb
   patch -p0 << 'EOF'
 --- include/configs/versatile.h.orig

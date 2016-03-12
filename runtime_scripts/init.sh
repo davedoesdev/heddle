@@ -8,7 +8,9 @@ busybox mount -o loop,ro -t squashfs "$HERE/root.sqf" /root
 busybox mount -o bind /home /root/home
 busybox mount -o loop,ro -t squashfs "$HERE/install.sqf" /root/home/install
 busybox mount -o loop,ro -t squashfs "$HERE/modules.sqf" /root/lib/modules
-busybox mount -o loop,ro -t squashfs "$HERE/firmware.sqf" /root/lib/firmware
+if [ -e "$HERE/firmware.sqf" ]; then
+  busybox mount -o loop,ro -t squashfs "$HERE/firmware.sqf" /root/lib/firmware
+fi
 /root/bin/mkdir -p /docker
 busybox mount -o bind /docker /root/home/chroot/extra/docker
 busybox mount -o bind /updates /root/home/chroot/updates

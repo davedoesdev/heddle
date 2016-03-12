@@ -2,6 +2,19 @@
 set -e
 HERE="$(dirname "$0")"
 
+# New targets
+for f in "$HERE"/config/target-* ${HEDDLE_EXT_DIR:+"$HEDDLE_EXT_DIR"/aboriginal_scripts/config/target-*}; do
+  if [ -e "$f" ]; then
+    arch="$(basename "$f")"
+    arch="${arch#target-}"
+    cp "$f" "sources/targets/$arch"
+  fi
+done
+
+if [ -e .heddle_configured ]; then
+  exit
+fi
+
 # uClibc
 echo >> sources/baseconfig-uClibc
 cat "$HERE/config/uClibc" >> sources/baseconfig-uClibc
@@ -59,10 +72,6 @@ done
 
 # x86_64: Make sure old threads aren't used and enable KVM by default
 sed -i -e '/LINUXTHREADS_OLD=y/d' -e 's/qemu-system-x86_64/\0 -enable-kvm/' sources/targets/x86_64
-
-# armv6l: Aboriginal 1.4.1 stopped using ARM1136-R2 in kernel but forgot to
-# remove from QEMU command line
-sed -i -e 's/-cpu arm1136-r2//' sources/targets/armv6l
 
 # Add module and firmware directories to root filesystem and point some utils to
 # BusyBox for the time being
@@ -209,3 +218,5 @@ patch -p0 << 'EOF'
    temp = xmprintf("%s/lib/libgcc_s.so", topdir);
    if (is_file(temp, 0)) SET_FLAG(Clibccso);
 EOF
+
+touch .heddle_configured
