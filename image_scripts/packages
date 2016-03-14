@@ -730,6 +730,8 @@ EOF
 PST_GO() {
   export GOPATH="$INSTALL_DIR/gopath"
   PATH="$PATH:$INSTALL_DIR/go/bin:$GOPATH/bin"
+  export CGO_CPPFLAGS="$CPPFLAGS"
+  export CGO_LDFLAGS="$LDFLAGS"
 }
 XTR_GO=("${armv6l_sync_builtins[@]}" misc/cgo/test/sync_builtins.c)
 
@@ -1258,7 +1260,7 @@ EOF
   make install
 }
 
-VER_DOCKER="1.10.2"
+export VER_DOCKER="1.10.2"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
 URL_DOCKER="https://github.com/docker/docker/archive/v$VER_DOCKER.tar.gz"
@@ -1298,7 +1300,7 @@ EOF
     mkdir -p heddle_tmp
     heddle_tmpdir="$PWD/heddle_tmp"
   fi
-  TMPDIR="$heddle_tmpdir" AUTO_GOPATH=1 DOCKER_GITCOMMIT=c3959b1 CGO_CPPFLAGS="$CPPFLAGS" CGO_LDFLAGS="$LDFLAGS" ./hack/make.sh binary
+  TMPDIR="$heddle_tmpdir" AUTO_GOPATH=1 DOCKER_GITCOMMIT=c3959b1 BUILDTIME="$(date -u)" ./hack/make.sh binary
   rm -f "$INSTALL_DIR/bin/docker"{,-$VER_DOCKER}
   cp -a "bundles/$VER_DOCKER/binary/docker"{,-$VER_DOCKER} "$INSTALL_DIR/bin"
 }
