@@ -1,0 +1,26 @@
+--- a/include/algorithm	2016-03-16 23:17:13.602016821 +0000
++++ b/include/algorithm	2016-03-16 23:26:33.214088789 +0000
+@@ -1075,19 +1075,18 @@
+ 			middle = first;
+ 			advance(middle, distance(first, last)/2 );
+ 
+-			if( comp(*middle, value ) == true){
++			if( comp(*middle, value) ){
+ 				first = middle;
+-			}else{
++			}else if( comp(value, *middle) ){
+ 				last = middle;
++			}else{
++				return true;
+ 			}
+ 		}
+ 
+ 		if( !comp(*first, value) && !comp(value, *first) ){
+ 			return true;
+ 		}
+-		if( !comp(*last, value) && !comp(value, *last) ){
+-			return true;
+-		}
+ 
+ 		return false;
+ 	}

@@ -1,0 +1,22 @@
+--- a/include/iterator_base	2016-03-16 21:58:27.306993365 +0000
++++ b/include/iterator_base	2016-03-16 22:00:32.138995781 +0000
+@@ -37,9 +37,16 @@
+ 	struct _UCXXEXPORT random_access_iterator_tag: public bidirectional_iterator_tag {};
+ 
+ 	template <class InputIterator, class Distance> _UCXXEXPORT void advance(InputIterator& i, Distance n){
+-		while(n > 0){
+-			--n;
+-			++i;
++		if(n > 0){
++			while(n > 0){
++				--n;
++				++i;
++			}
++		} else {
++			while (n < 0){
++				++n;
++				--i;
++			}
+ 		}
+ 	}
+ 
