@@ -1,5 +1,5 @@
 #!/bin/bash
-# copy files from /etc in home.img to chroot
+# copy files from /etc in home.img to xroot
 set -e
 HERE="$(cd "$(dirname "$0")"; echo "$PWD")"
 
@@ -10,7 +10,7 @@ if [ $# -ge 1 ]; then
 fi
 
 IMG_HOME="${HEDDLE_EXT_DIR:-"$HERE/.."}/gen/$ARCH/images/home.img"
-DEST_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/chroot/etc"
+DEST_DIR="${HEDDLE_EXT_DIR:-"$HERE/.."}/xroot/etc"
 mkdir -p "$DEST_DIR"
 
 if [ $# -eq 0 ]; then
@@ -20,7 +20,7 @@ else
 fi
 
 for f in "${files[@]}"; do
-  src="$IMG_HOME:chroot/etc/$f"
+  src="$IMG_HOME:xroot/etc/$f"
   if e2ls "$src" >& /dev/null; then
     dest="$DEST_DIR/$f"
     rm -f "$dest"

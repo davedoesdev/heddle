@@ -29,8 +29,8 @@ if [ ! -d /home/root ]; then
   mkdir /home/root
 fi
 
-if [ ! -s "$CHROOT_DIR/etc/profile" ]; then
-  cat > "$CHROOT_DIR/etc/profile" << 'EOF'
+if [ ! -s "/etc/profile" ]; then
+  cat > "/etc/profile" << 'EOF'
 if [ -n "$THE_PATH" ]; then
   export PATH="$THE_PATH"
 fi
@@ -53,19 +53,19 @@ fix
 EOF
   parted "$dev" print
   fsck -fy "${dev}3" || if [ $? -ne 1 ]; then exit $?; fi
-  chroot "$CHROOT_DIR" mount "${dev}3" /extra
-  resize2fs "${dev}3" || chroot "$CHROOT_DIR" btrfs filesystem resize max /extra
+  mount "${dev}3" /extra
+  resize2fs "${dev}3" || btrfs filesystem resize max /extra
 fi
 
 if [ -c /dev/kvm ]; then
-  chroot "$CHROOT_DIR" chgrp kvm /dev/kvm
+  chgrp kvm /dev/kvm
   chmod g+rw /dev/kvm
 fi
 
-chroot "$CHROOT_DIR" cgroupfs-mount
+cgroupfs-mount
 
-rm -rf "$CHROOT_DIR/service"/*/supervise
-chroot "$CHROOT_DIR" /startup/start_runsvdir
+rm -rf /service/*/supervise
+/startup/start_runsvdir
 
 (
 echo 'Syncing'
@@ -73,7 +73,6 @@ sync
 
 echo 'Re-mounting drives read-only'
 if [ -z "$root_part" ]; then
-  dev="$(echo /dev/[hsv]dd)"
   mount -o remount,ro "${dev}3" || true
   mount -o remount,ro /dev/[hsv]db || true
   swapoff "${dev}2" || true

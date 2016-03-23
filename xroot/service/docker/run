@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if grep -q 'heddle_prepare=1' /proc/cmdline; then
   if grep -q 'heddle_prepare=10' /proc/cmdline; then
     if [ -c /dev/ttyAMA0 ]; then
@@ -11,9 +11,9 @@ if grep -q 'heddle_prepare=1' /proc/cmdline; then
 else
   exec 2>&1
 fi
-mkdir -p /extra/docker
 rm -f /var/run/docker.pid
 # set cgroup options
 echo -n 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
 # run docker
-exec unshare -m docker daemon -g /extra/docker --storage-opt dm.override_udev_sync_check=true
+export DOCKER_RAMDISK=1
+exec unshare -m docker daemon --graph=/extra/docker --storage-opt=dm.override_udev_sync_check=true

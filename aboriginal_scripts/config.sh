@@ -73,11 +73,10 @@ done
 # x86_64: Make sure old threads aren't used and enable KVM by default
 sed -i -e '/LINUXTHREADS_OLD=y/d' -e 's/qemu-system-x86_64/\0 -enable-kvm/' sources/targets/x86_64
 
-# Add module and firmware directories to root filesystem and point some utils to
-# BusyBox for the time being
+# Add dirs to root filesystem and point some utils to BusyBox for the time being
 ed -s root-filesystem.sh << 'EOF'
 /create_stage_tarball/i
-mkdir -p "$STAGE_DIR/lib"/{modules,firmware}
+mkdir -p "$STAGE_DIR"/{var,extra/{docker,updates},service,startup,command,package,run,lib/{modules,firmware}}
 ln -sf busybox "$STAGE_DIR/bin/mount"
 ln -sf busybox "$STAGE_DIR/bin/sed"
 ln -sf busybox "$STAGE_DIR/bin/mountpoint"

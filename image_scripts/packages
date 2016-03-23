@@ -557,6 +557,21 @@ EOF
  	/* 37 */	N, "signal 37",
 EOF
 
+  # Our root is read-only
+  patch -p0 << 'EOF'
+--- src/os/path_test.go.orig
++++ src/os/path_test.go
+@@ -211,7 +211,7 @@
+ 	if err != nil {
+ 		pathErr, ok := err.(*PathError)
+ 		// common for users not to be able to write to /
+-		if ok && pathErr.Err == syscall.EACCES {
++		if ok && (pathErr.Err == syscall.EACCES || pathErr.Err == syscall.EROFS) {
+ 			return
+ 		}
+ 		t.Fatalf(`MkdirAll "/_go_os_test/dir": %v`, err)
+EOF
+
   # Copy race detector we built from source
   if [ "$heddle_arch" = x86_64 ]; then
     cp "$SOURCE_DIR/$DIR_LLVM_COMPILER_RT/lib/tsan/go/race_linux_amd64.syso" src/runtime/race
@@ -566,13 +581,11 @@ EOF
     patch_armv6l_sync_builtins misc/cgo/test/sync_builtins.c
   fi
 
-  chroot "$CHROOT_DIR" hush <<EOF
   if [ -f /tmp/in_chroot ]; then
     export IN_CHROOT=1
   fi
-  cd "$PWD/src"
+  cd src
   ./all.bash
-EOF
 }
 XTR_GO_BOOTSTRAP=("${armv6l_sync_builtins[@]}" misc/cgo/test/sync_builtins.c)
 
@@ -719,12 +732,11 @@ EOF
     patch_armv6l_sync_builtins misc/cgo/test/sync_builtins.c
   fi
 
-  chroot "$CHROOT_DIR" hush <<EOF
-  cd "$PWD/src"
+  cd src
   GOROOT_BOOTSTRAP="$SOURCE_DIR/$DIR_GO_BOOTSTRAP" GOROOT_FINAL="$INSTALL_DIR/go" GO_TEST_TIMEOUT_SCALE=5 ./all.bash
-EOF
+
   rm -rf "$INSTALL_DIR"/{go,gopath}
-  cp -a "$PWD" "$INSTALL_DIR/go"
+  cp -a "$PWD/.." "$INSTALL_DIR/go"
   mkdir "$INSTALL_DIR/gopath"
 }
 PST_GO() {
@@ -854,7 +866,7 @@ URL_UTIL_LINUX="https://www.kernel.org/pub/linux/utils/util-linux/v$(echo "$VER_
 CHK_UTIL_LINUX="0a818fcdede99aec43ffe6ca5b5388bff80d162f2f7bd4541dca94fecb87a290"
 SUM_UTIL_LINUX="sha256"
 BLD_UTIL_LINUX() {
-  ./configure "--prefix=$INSTALL_DIR" --disable-all-programs --enable-libuuid --enable-libblkid --enable-agetty --without-systemd --without-systemdsystemunitdir
+  ./configure "--prefix=$INSTALL_DIR" --disable-all-programs --enable-libuuid --enable-libblkid --enable-agetty --enable-nsenter --without-systemd --without-systemdsystemunitdir
   make
   make install
 }
@@ -1197,7 +1209,7 @@ EOF
   sed -ri -e '/%error-verbose/d' -e '/%name-prefix "ematch_"/d' -e '/extern void yyerror/d' -e 's/(void yyerror\()/\1YYLTYPE loc, /' tc/emp_ematch.y
   sed -ri -e 's/bison ([^ ]+) (.*)/byacc \2 \1/g' -e '/^TARGETS/s@arpd@@g' misc/Makefile
   make CPPFLAGS="$CPPFLAGS -Du_int8_t=uint8_t -Du_int16_t=uint16_t -Du_int32_t=uint32_t" DESTDIR="$INSTALL_DIR" PREFIX= LEX=reflex YACC=byacc YACCFLAGS="-d -t -v -L -p ematch_" install
-  chroot "$CHROOT_DIR" ln -sf "$INSTALL_DIR/etc/iproute2" /etc
+  ln -sf "$INSTALL_DIR/etc/iproute2" /etc
 }
 
 DIR_LIBPCAP="libpcap-1.7.4"
@@ -1260,11 +1272,11 @@ EOF
   make install
 }
 
-export VER_DOCKER="1.10.2"
+export VER_DOCKER="1.10.3"
 DIR_DOCKER="docker-$VER_DOCKER"
 SRC_DOCKER="$DIR_DOCKER.tar.gz"
 URL_DOCKER="https://github.com/docker/docker/archive/v$VER_DOCKER.tar.gz"
-CHK_DOCKER="1326a74fd052db16f1032239fbe48585060acbc0312b8f986974ca993c8ad85c"
+CHK_DOCKER="6b72fafa4c068a95133f5c9fda9fb148c9412db7a932800689e259a1b1c7ef6d"
 SUM_DOCKER="sha256"
 BLD_DOCKER() {
   # We have bash v2 without '+=', pipefail, BASH_SOURCE and 'declare -A':
@@ -1316,13 +1328,11 @@ BLD_RUNIT() {
   sed -i -r 's/^(here=).*/\1"$PWD"/' package/{compile,upgrade}
   sed -i -r -e 's/^.*(ctmp=)/\1/' -e 's/(cat) -v/\1/' src/check-local
   sed -i -e 's/0644/0640/g' -e 's/0744/0740/g' src/svlogd.c
-  chroot "$CHROOT_DIR" hush <<EOF
   rm -rf "/package/admin/$(basename "$PWD")"
   mkdir -p /package/admin
   cp -af "$PWD" /package/admin
   cd "/package/admin/$(basename "$PWD")"
   ./package/install
-EOF
 }
 
 VER_SHUTDOWN="0.3"
@@ -1372,12 +1382,9 @@ BLD_SHADOW() {
 EOF
   ./configure "--prefix=$INSTALL_DIR" --sysconfdir=/etc
   make
-  chroot "$CHROOT_DIR" hush <<EOF
   cp /etc/login.defs /etc/login.defs.save
-  cd "$PWD"
   make install
   mv /etc/login.defs.save /etc/login.defs
-EOF
 }
 
 VER_SQUASHFS_TOOLS="9c1db6d13a51a2e009f0027ef336ce03624eac0d"
@@ -1494,10 +1501,7 @@ SUM_DHCPCD="sha256"
 BLD_DHCPCD() {
   ./configure "--prefix=$INSTALL_DIR" "--build=$(echo "$heddle_arch" | cut -d '-' -f 1)-unknown-$(uname -s | tr A-Z a-z)"
   make
-  chroot "$CHROOT_DIR" hush <<EOF
-  cd "$PWD"
   make install
-EOF
 }
 
 VER_GLIB="2.46.2"
@@ -1904,6 +1908,18 @@ BLD_PYTHON_DTUF() {
   pip install --no-index --find-links=. python-dtuf
 }
 
+VER_HTOP="2.0.1"
+DIR_HTOP="htop-$VER_HTOP"
+SRC_HTOP="$DIR_HTOP.tar.gz"
+URL_HTOP="http://hisham.hm/htop/releases/$VER_HTOP/$SRC_HTOP"
+CHK_HTOP="ef9adab68b0218a16936c306f635e7fce227b7e6"
+SUM_HTOP="sha1"
+BLD_HTOP() {
+  ./configure "--prefix=$INSTALL_DIR" --disable-unicode
+  make
+  make install
+}
+
 PACKAGES=(PKGCONFIG
           LIBFFI
           BZIP2
@@ -1968,4 +1984,5 @@ PACKAGES=(PKGCONFIG
           HEDDLE_RECV
           SENDER
           SMARTMONTOOLS
-          PYTHON_DTUF)
+          PYTHON_DTUF
+          HTOP)

@@ -107,5 +107,5 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 if [ -n "$interactive" -o -n "$Interactive" ]; then
-  chroot "$CHROOT_DIR" hush
+  hush
 fi

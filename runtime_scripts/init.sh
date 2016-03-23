@@ -11,8 +11,8 @@ busybox mount -o loop,ro -t squashfs "$HERE/modules.sqf" /root/lib/modules
 if [ -e "$HERE/firmware.sqf" ]; then
   busybox mount -o loop,ro -t squashfs "$HERE/firmware.sqf" /root/lib/firmware
 fi
-/root/bin/mkdir -p /docker
-busybox mount -o bind /docker /root/home/chroot/extra/docker
-busybox mount -o bind /updates /root/home/chroot/updates
+/root/bin/mkdir -p /{docker,updates}
+busybox mount -o bind /docker /root/extra/docker
+busybox mount -o bind /updates /root/extra/updates
 busybox mount -o loop,ro -t squashfs "$HERE/run.sqf" /root/home/run
 exec /root/sbin/chroot /root /bin/hush < "$HERE/init2.sh"

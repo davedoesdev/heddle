@@ -23,20 +23,19 @@ copy() {
 }
 
 ext_packages=
-ext_chroot=
+ext_xroot=
 ext_supplemental=
 if [ -n "$HEDDLE_EXT_DIR" ]; then
   [ -e "$HEDDLE_EXT_DIR/image_scripts/packages" ] && ext_packages="$HEDDLE_EXT_DIR/image_scripts/packages"
-  [ -d "$HEDDLE_EXT_DIR/chroot" ] && ext_chroot="-C $HEDDLE_EXT_DIR/chroot ."
+  [ -d "$HEDDLE_EXT_DIR/xroot" ] && ext_xroot="-C $HEDDLE_EXT_DIR/xroot ."
   [ -d "$HEDDLE_EXT_DIR/supplemental" ] && ext_supplemental="-C $HEDDLE_EXT_DIR/supplemental ."
 fi
 
 (cat "$HERE/packages" $ext_packages) | copy - packages
 copy "$HERE/../runtime_scripts/build.sh" init
 copy "$HERE/../runtime_scripts/common.sh"
-copy "$HERE/../runtime_scripts/make_chroot.sh"
 
-(tar --owner root --group root -zc -C "$HERE/../chroot" . -C "$PWD" $ext_chroot) | copy - chroot.tar.gz
+(tar --owner root --group root -zc -C "$HERE/../xroot" . -C "$PWD" $ext_xroot) | copy - xroot.tar.gz
 (tar --owner root --group root -zc -C "$HERE/../supplemental" . -C "$PWD" $ext_supplemental) | copy - supplemental.tar.gz
 
 . "$HERE/packages"

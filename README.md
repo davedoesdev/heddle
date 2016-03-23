@@ -160,7 +160,7 @@ Next you need to run:
 ../heddle/aboriginal_scripts/run_heddle.sh -p
 ```
 
-This runs Heddle in KVM and waits until all Heddle services indicate they have performed any one-time initialisation steps they require. You can find Heddle services in `../heddle/chroot/service`. Currently, there is one service which has a one-time initialisation step: `prepare_docker`. It creates the Docker `scratch` image.
+This runs Heddle in KVM and waits until all Heddle services indicate they have performed any one-time initialisation steps they require. You can find Heddle services in `../heddle/xroot/service`. Currently, there is one service which has a one-time initialisation step: `prepare_docker`. It creates the Docker `scratch` image.
 
 Finally, if you want to run Heddle and play around before creating a bootable image then you can run:
 
@@ -303,7 +303,7 @@ If you need a different driver for your serial port, add it to `aboriginal_scrip
 
 Heddle runs an NTP client (BusyBox `ntpd`) which gets its time from the `heddle` vendor pool zone (`0.heddle.pool.ntp.org`, `1.heddle.pool.ntp.org`, `2.heddle.pool.ntp.org` and `3.heddle.pool.ntp.org`).
 
-`ntpd` is launched in `chroot/service/ntpd/run`. If you want to run it as a server too on your network, add the `-l` flag.
+`ntpd` is launched in `xroot/service/ntpd/run`. If you want to run it as a server too on your network, add the `-l` flag.
 
 If you're running a Heddle server on the public Internet, please consider [adding it to the NTP pool](http://www.pool.ntp.org/join.html). `pool.ntp.org` does a great job and always needs more servers.
 
@@ -367,8 +367,8 @@ If you're building Heddle yourself, you can also customise Heddle in these place
   - `SUM_FOO`: Digest method (e.g. `sha256`).
   - `BLD_FOO()`: Bash function which when executed should build and install foo. The install directory root will be in `$INSTALL_DIR`.
   - `PST_FOO()`: Optional bash function which sets any runtime configuration (e.g. environment variables) necessary to run `FOO`. This will be run every time your Heddle image boots.
-- `chroot/` - When Heddle boots, it sets up a chroot to this directory and then merges in the (read-only) Aboriginal Linux root filesystem. If you add directories or files to `chroot`, you'll see them in the final image.
-  - You can add extra services to run when Heddle starts in `chroot/service/`. See the existing services for examples or read the [runit documentation](http://smarden.org/runit/). Your service should terminate when sent a `TERM` signal. If you leave processes running then `shutdown` won't be able to re-mount your disks in read-only mode before powering off the machine.
+- `xroot/` - When Heddle boots, it bind mounts subdirectories of this directory into the (read-only) Aboriginal Linux root filesystem.
+  - You can add extra services to run when Heddle starts in `xroot/service/`. See the existing services for examples or read the [runit documentation](http://smarden.org/runit/). Your service should terminate when sent a `TERM` signal. If you leave processes running then `shutdown` won't be able to re-mount your disks in read-only mode before powering off the machine.
 - You can [write a Heddle extension](#extending-heddle).
 
 Of course, feel free to fork the Heddle repository and make changes.
@@ -418,7 +418,7 @@ echo rm -f /tmp/certdata.txt
 
 Alternatively you could copy the CA certificate bundle from another Linux distribution.
 
-Note that without CA certificates, `docker search`, `docker pull` etc will fail. If you don't want to manage CA certificates, an alternative approach is to `docker pull` the Docker image on some other machine, export it to a file using `docker save`, transfer it to your Heddle machine or Heddle image and then `docker load` it. You could put the Docker image into your Heddle image using [`in_heddle.sh` with a disk image](#run-time-customisation) or if you're [extending Heddle](#extending-heddle) then you could do it as part of your build - see Dobby's [`packages`](https://github.com/davedoesdev/dobby/blob/master/image_scripts/packages) and [`prepare_weave`](https://github.com/davedoesdev/dobby/blob/master/chroot/service/prepare_weave/run) service files for an example.
+Note that without CA certificates, `docker search`, `docker pull` etc will fail. If you don't want to manage CA certificates, an alternative approach is to `docker pull` the Docker image on some other machine, export it to a file using `docker save`, transfer it to your Heddle machine or Heddle image and then `docker load` it. You could put the Docker image into your Heddle image using [`in_heddle.sh` with a disk image](#run-time-customisation) or if you're [extending Heddle](#extending-heddle) then you could do it as part of your build - see Dobby's [`packages`](https://github.com/davedoesdev/dobby/blob/master/image_scripts/packages) and [`prepare_weave`](https://github.com/davedoesdev/dobby/blob/master/xroot/service/prepare_weave/run) service files for an example.
 
 ## Extending Heddle
 
@@ -430,7 +430,7 @@ If `HEDDLE_EXT_DIR` is set then Heddle scripts look for files in the extension d
 
 - `aboriginal_scripts/config/` - BusyBox, musl and Linux kernel configuration files
 - `image_scripts/packages` - package definitions
-- `chroot/` - files to add to the root filesystem, including services in `chroot/service`
+- `xroot/` - directories to bind mount into the root filesystem, including services in `xroot/service`
 - `boot/` - boot loader configuration files (`refind.conf`, `syslinux.cfg`)
 
 You should run `gen/new_arch.sh` (defaults to `x86_64`), fetch and extract a new copy of the Aboriginal Linux source and then follow the Heddle build instructions from [building Aboriginal Linux](#build-aboriginal-linux) onwards. Images will be written under `$HEDDLE_EXT_DIR/gen`.

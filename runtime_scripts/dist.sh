@@ -3,12 +3,11 @@ set -e
 here="$(dirname "$0")"
 mkdir -p /rmnt # in root ramdisk
 mount -o loop,ro "$here/run.img" /rmnt
-HERE=/rmnt DONT_MAKE_CHROOT=yes . /rmnt/common.sh
+HERE=/rmnt DONT_XROOT=yes . /rmnt/common.sh
 
 EXTRA_DIR="/tmp/extra"
 mkdir "$EXTRA_DIR"
 DIST_DIR="$EXTRA_DIR/dist"
-UPDATES_DIR="$EXTRA_DIR/updates"
 
 dev="$(echo /dev/[hsv]dd)"
 swapon "${dev}2"
@@ -23,7 +22,7 @@ mount "${dev}3" "$EXTRA_DIR"
 resize2fs "${dev}3" || btrfs filesystem resize max "$EXTRA_DIR"
 
 rm -rf "$DIST_DIR"
-mkdir -p "$DIST_DIR" "$UPDATES_DIR"
+mkdir -p "$DIST_DIR"
 
 cp /bin/{bash,busybox,toybox} "$here"/{init,init2}.sh "$DIST_DIR"
 
@@ -40,11 +39,11 @@ while read f; do
 done
 # toybox seems to have a bug copying symbolic links so use tar (above)
 #-exec cp -a {} "$EXTRA_DIR/home" \;
-if [ ! -e "$EXTRA_DIR/home/chroot/etc/issue" ]; then
-  ln -s "$INSTALL_DIR/dist/issue" "$EXTRA_DIR/home/chroot/etc"
+if [ ! -e "$EXTRA_DIR/home/xroot/etc/issue" ]; then
+  ln -s "$INSTALL_DIR/dist/issue" "$EXTRA_DIR/home/xroot/etc"
 fi
-if grep -qF 'ID=aboriginal' "$EXTRA_DIR/home/chroot/etc/os-release"; then
-  ln -sf "$INSTALL_DIR/dist/os-release" "$EXTRA_DIR/home/chroot/etc"
+if grep -qF 'ID=aboriginal' "$EXTRA_DIR/home/xroot/etc/os-release"; then
+  ln -sf "$INSTALL_DIR/dist/os-release" "$EXTRA_DIR/home/xroot/etc"
 fi
 
 rm -rf "$EXTRA_DIR"/{root,dev}
