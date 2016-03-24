@@ -110,7 +110,6 @@ if [ -n "$chroot_build" ]; then
   sudo mount -o rbind /sys /tmp/chroot/sys
   sudo mount -o rbind /dev /tmp/chroot/dev
   sudo chroot /tmp/chroot /bin/hush << EOF
-set -e
 export heddle_arch="$ARCH"
 export PATH=/bin:/sbin
 touch /tmp/in_chroot

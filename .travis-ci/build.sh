@@ -24,7 +24,7 @@ tail -n 100 "$logf"
 sudo rm -rf /tmp/chroot/home/source
 df -h
 mkdir /tmp/home
-# mount home without recursive bind to get rid of its chroot bind mounts
+# mount home without recursive bind to get rid of its xroot bind mounts
 sudo mount -o bind /tmp/chroot/home /tmp/home
 homef="heddle-$version-home-x86_64.tar.gz"
 sudo tar --owner root --group root -zcf "$homef" "$logf" -C /tmp home
