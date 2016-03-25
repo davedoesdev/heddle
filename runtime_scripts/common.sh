@@ -1,6 +1,8 @@
 if [ ! -f /tmp/in_chroot ]; then
   mount -o remount,ro /
   mount -t tmpfs /tmp /tmp
+  mkdir /dev/shm
+  mount -t tmpfs tmpfs /dev/shm
   sysctl -q kernel.printk="3 4 1 3" || true
   ifconfig lo 127.0.0.1 up
 fi
