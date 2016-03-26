@@ -933,10 +933,10 @@ BLD_CGROUPFS_MOUNT() {
   cp cgroupfs-* "$INSTALL_DIR/bin"
 }
 
-DIR_BYACC="byacc-20150711"
+DIR_BYACC="byacc-20160324"
 SRC_BYACC="$DIR_BYACC.tar.gz"
 URL_BYACC="http://invisible-island.net/datafiles/release/byacc.tar.gz"
-CHK_BYACC="c354e4ee14c4a1bf11e55dde9275011d14887ef066406a088b6fa56caf039248"
+CHK_BYACC="178e08f7ab59edfb16d64902b7a9d78592d2d8d3ee30ab7a967188d969589b5a"
 SUM_BYACC="sha256"
 BLD_BYACC() {
   ./configure "--prefix=$INSTALL_DIR" --enable-btyacc
