@@ -1,19 +1,30 @@
 sudo: required
 services:
-  - docker
+- docker
 language: c
 node_js:
-  - "4.3.0"
+- 4.3.0
 install: true
 before_install:
-  - service --status-all
-  - ps auxw
-  - free -m -t
-  - df -h
+- service --status-all
+- ps auxw
+- free -m -t
+- df -h
 addons:
   apt:
     packages:
-      - e2tools
-      - coreutils
-      - bsdtar
-script: ./.travis-ci/deps.sh && ./.travis-ci/build.sh
+    - e2tools
+    - coreutils
+    - bsdtar
+script: "./.travis-ci/deps.sh && ./.travis-ci/build.sh"
+deploy:
+  provider: releases
+  api_key:
+    secure: pk4Y3BQ//ZTzaS8vjccIi+aL6NYXXimFM87IELLQrE4pLFwtigWwJvEW109VjdqwXyCQuPOIJ8TFuRpf5AzuV9Pg9ntDNXcAYW8gQJTj88rjs/K2acccQxxZUZdM1TfG6XjRIl6JHXrPa192EhJuQTOKOkZQ0jm118KAiXrOceo=
+  file_glob: true
+  file: heddle-*-home-*.tar.gz
+  skip_cleanup: true
+  on:
+    repo: davedoesdev/heddle
+    tags: true
+    all_branches: true
