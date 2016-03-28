@@ -86,7 +86,7 @@ if [ -z "$TRAVIS_TAG" ]; then
   while ! echo -n "$mac" | txf "$(txf_url "heddle-$version.mac")"; do sleep 1; done
 else
   # For some reason ocotokit (which Travis uses to make github releases)
-  # open files using mode "r+b":
+  # opens files using mode "r+b":
   # https://github.com/octokit/octokit.rb/blob/master/lib/octokit/client/releases.rb#L86
   sudo chmod a+w "$homef"
 fi
