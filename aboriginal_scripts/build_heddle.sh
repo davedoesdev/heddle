@@ -99,13 +99,13 @@ cd "build/system-image-$ARCH"
 
 if [ -n "$chroot_build" ]; then
   echo "chroot build" | tee /dev/tty
-  mkdir -p /tmp/chroot tmp
-
-
+  mkdir /tmp/chroot tmp
   cp -r --remove-destination "$OVERLAY_DIR/." "$ROOT_DIR"
   sudo mount -o bind "$ROOT_DIR" /tmp/chroot
   sudo mount -o remount,ro /tmp/chroot
-  if /tmp/chroot/home is empty then
+  if [ -d /tmp/heddle_home ]; then
+    sudo mount -o bind /tmp/heddle_home /tmp/chroot/home
+  else
     sudo mount -o loop "$HDB" /tmp/chroot/home
   fi
   sudo mount -o loop,ro "$HDC" /tmp/chroot/mnt
