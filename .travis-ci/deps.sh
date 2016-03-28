@@ -5,6 +5,7 @@ mkdir -p downloads
 echo +downloads:
 ls downloads
 
+ver_abo=1.4.5
 ver_bat=6.0.2
 
 bat_base="downloads/build-aboriginal-$ver_abo-heddle-x86_64-$ver_bat"

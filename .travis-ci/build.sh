@@ -81,7 +81,6 @@ txf_url() {
 
 if [ -z "$TRAVIS_TAG" ]; then
   mac="$(hmac "$INTEGRITY_SECRET" < "$homef")"
-
   while ! txf "$(txf_url "heddle-$version")" < "$homef"; do sleep 1; done
   while ! echo -n "$mac" | txf "$(txf_url "heddle-$version.mac")"; do sleep 1; done
 else
