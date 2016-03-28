@@ -6,6 +6,7 @@ if [ "$version" = master -o "$version" = HEAD ]; then
   version="$(git rev-parse HEAD)"
 fi
 echo "version: $version"
+echo "tag: $TRAVIS_TAG"
 
 cd aboriginal-*
 ( while true; do echo keep alive!; sleep 60; done ) &
@@ -78,7 +79,9 @@ txf_url() {
   echo "http://txf-davedoesdev.rhcloud.com/default/$(echo -n "$1" | hmac "$DEFAULT_SENDER_SECRET")/$1"
 }
 
-mac="$(hmac "$INTEGRITY_SECRET" < "$homef")"
+if [ -z "$TRAVIS_TAG" ]; then
+  mac="$(hmac "$INTEGRITY_SECRET" < "$homef")"
 
-while ! txf "$(txf_url "heddle-$version")" < "$homef"; do sleep 1; done
-while ! echo -n "$mac" | txf "$(txf_url "heddle-$version.mac")"; do sleep 1; done
+  while ! txf "$(txf_url "heddle-$version")" < "$homef"; do sleep 1; done
+  while ! echo -n "$mac" | txf "$(txf_url "heddle-$version.mac")"; do sleep 1; done
+fi
