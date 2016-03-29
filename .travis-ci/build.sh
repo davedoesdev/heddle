@@ -22,7 +22,7 @@ if ! build >& "../$logf"; then
 fi
 cd ..
 tail -n 100 "$logf"
-sudo rm -rf /tmp/chroot/home/source
+find /tmp/chroot/home/source -mindepth 1 -maxdepth 1 -not -name '*.built' -exec sudo rm -rf {} +
 df -h
 mkdir /tmp/home
 # mount home without recursive bind to get rid of its xroot bind mounts
