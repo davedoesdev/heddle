@@ -59,7 +59,8 @@ for pkg in "${PACKAGES[@]}"; do
   vdir="DIR_$pkg"
   vsrc="SRC_$pkg"
   vbld="BLD_$pkg"
-  if [ -z "$Interactive" -a -n "${!vbld}" -a ! -e "${!vdir}.built" ]; then
+  builtf="$(echo "${!vdir}" | tr / _).built"
+  if [ -z "$Interactive" -a -n "${!vbld}" -a ! -e "$builtf" ]; then
     echo "+$pkg" | tee /dev/tty
     binf="$HERE/host/${!vsrc}-$heddle_arch.tar.xz"
     if [ -f "$binf" ]; then
@@ -98,7 +99,7 @@ for pkg in "${PACKAGES[@]}"; do
       fi
       popd
     fi
-    touch "${!vdir}.built"
+    touch "$builtf"
     echo "-$pkg" | tee /dev/tty
   fi
   if type PST_$pkg 2> /dev/null | grep -q function; then

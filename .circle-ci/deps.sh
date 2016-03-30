@@ -6,7 +6,7 @@ sudo apt-get purge -y apache2 cassandra elasticsearch mongodb-org mysql-server \
 sudo apt-get autoremove -y
 
 sudo apt-get update -qq
-sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar btrfs-tools user-mode-linux slirp
+sudo apt-get install -y e2tools qemu-kvm parted mtools syslinux syslinux-common coreutils squashfs-tools bsdtar btrfs-tools
 
 #service --status-all
 free -m
