@@ -1,9 +1,12 @@
 #!/bin/bash
 set -e
 
-version="$(git rev-parse --abbrev-ref HEAD)"
-if [ "$version" = master -o "$version" = HEAD ]; then
-  version="$(git rev-parse HEAD)"
+version="$TRAVIS_BRANCH"
+if [ "$version" = master ]; then
+  version="$(git rev-parse --abbrev-ref HEAD)"
+  if [ "$version" = master -o "$version" = HEAD ]; then
+    version="$(git rev-parse HEAD)"
+  fi
 fi
 echo "version: $version"
 echo "tag: $TRAVIS_TAG"
