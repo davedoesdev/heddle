@@ -46,8 +46,8 @@ if grep -qF 'ID=aboriginal' "$EXTRA_DIR/home/xroot/etc/os-release"; then
   ln -sf "$INSTALL_DIR/dist/os-release" "$EXTRA_DIR/home/xroot/etc"
 fi
 
-rm -rf "$EXTRA_DIR"/{root,dev}
-mkdir -p "$EXTRA_DIR"/{root,dev}
+rm -rf "$EXTRA_DIR/root"
+mkdir -p "$EXTRA_DIR/root"
 
 cp -a "$here"/{root,modules}.sqf "$DIST_DIR"
 if [ -e "$here/firmware.sqf" ]; then

@@ -147,4 +147,4 @@ echo "boot: $boot"
 
 toybox umount /proc /sys
 
-exec toybox switch_root /newroot "/$boot/init.sh"
+exec "/newroot/$boot/init.sh"
