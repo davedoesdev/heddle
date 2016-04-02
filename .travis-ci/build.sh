@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-version="$TRAVIS_BRANCH"
+version="${TRAVIS_BRANCH#home-}"
 if [ "$version" = master ]; then
   version="$(git rev-parse --abbrev-ref HEAD)"
   if [ "$version" = master -o "$version" = HEAD ]; then
